@@ -1,8 +1,10 @@
 package router
 
 import (
-	"Blog-Backend/controller/admin"
-	"Blog-Backend/controller/public"
+	admin2 "Blog-Backend/internal/controller/admin"
+	"Blog-Backend/internal/controller/public"
+	"Blog-Backend/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,39 +20,57 @@ func SetupRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	/* 配置跨域 */
-	r.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "https://xbzhong.cn")
-		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, x-vercel-ip, x-vercel-ip-city")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-		c.Next()
-	})
+	r.Use(middleware.CORSMiddleware())
 
 	/* 定义路由组 */
 	// 前端请求
 	api := r.Group("/api")
 	{
-		// 统计流量
-		api.Any("/collect", public.CollectHandler)
+		// 博客统计
+		blogGroup := api.Group("/blog")
+		{
+			// 统计流量
+			blogGroup.Any("/collect", public.CollectHandler)
+		}
 
 		// 后台统计
 		adminGroup := api.Group("/admin")
 		{
-			// 监控面板
-			dashboard := adminGroup.Group("/dashboard")
+			// 登录
+			adminGroup.POST("/login", admin2.Login)
+
+			// 鉴权
+			adminAuth := adminGroup.Group("")
+			adminAuth.Use(middleware.AuthMiddleware())
 			{
-				dashboard.GET("/summary", admin.GetDashboardSummary)
+				// 监控面板
+				dashboard := adminAuth.Group("/dashboard")
+				{
+					dashboard.GET("/summary", admin2.GetDashboardSummary)
+					dashboard.GET("/trend", admin2.GetDashboardTrend)
+					dashboard.GET("/insights", admin2.GetDashboardInsights)
+				}
 
-				dashboard.GET("/trend", admin.GetDashboardTrend)
+				// 访问日志
+				accesslog := adminAuth.Group("/accesslog")
+				{
+					accesslog.GET("/logs", admin2.GetAccessLog)
+				}
 
-				dashboard.GET("/insights", admin.GetDashboardInsights)
+				// 性能监控
+				performance := adminAuth.Group("/performance")
+				{
+					performance.GET("/averageDelay", admin2.GetAverageDelay)
+					performance.GET("/slowPages", admin2.GetSlowPages)
+				}
+
+				// 页面分析
+				analysis := adminAuth.Group("/analysis")
+				{
+					analysis.GET("/total", admin2.GetTotalPagesData)
+					analysis.GET("/today", admin2.GetTodayPagesData)
+				}
 			}
-
-			adminGroup.POST("/login", admin.Login)
 		}
 
 	}
