@@ -23,9 +23,9 @@ func CollectHandler(c *gin.Context) {
 	clientTime := time.UnixMilli(req.Timestamp)
 
 	// 处理ip
-	ip := c.GetHeader("x-vercel-ip")
+	ip := c.GetHeader("X-Real-IP")
 	if ip == "" {
-		ip = c.GetHeader("x-forwarded-for")
+		ip = c.GetHeader("X-Forwarded-For")
 		if ip != "" {
 			ip = strings.Split(ip, ",")[0]
 			ip = strings.TrimSpace(ip)
@@ -44,10 +44,10 @@ func CollectHandler(c *gin.Context) {
 		ClientTime: clientTime,
 		IP:         ip,
 		Country:    c.GetHeader("x-vercel-ip-country"),
-		UserAgent:  c.GetHeader("x-vercel-user-agent"),
+		UserAgent:  c.GetHeader("User-Agent"),
 		City:       c.GetHeader("x-vercel-ip-city"),
 		Region:     c.GetHeader("x-vercel-ip-country-region"),
-		Referer:    c.GetHeader("referer"),
+		Referer:    c.GetHeader("Referer"),
 	}
 
 	if err := public.CollectService(info); err != nil {

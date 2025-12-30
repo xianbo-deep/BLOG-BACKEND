@@ -21,7 +21,7 @@ func GetDashboardSummary(c *gin.Context) {
 
 // 在数据库查前六天，今天的在Redis拿
 func GetDashboardTrend(c *gin.Context) {
-	res, err := admin.GetDashboardTrend()
+	res, err := admin.GetDashboardTrend(nil)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 		return

@@ -5,7 +5,6 @@ import (
 	"Blog-Backend/dto/common"
 	"Blog-Backend/model"
 	"Blog-Backend/utils"
-	"time"
 )
 
 func GetTotalPagesData(req common.PageRequest) (*common.PageResponse[model.PathStatRes], error) {

@@ -65,11 +65,13 @@ func initRedis() {
 		log.Fatal("Lack of URL of redis")
 	}
 
-	RDB = redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: os.Getenv("REDIS_TOKEN"),
-		// DB: 0
-	})
+	// 解析
+	opt, err := redis.ParseURL(addr)
+	if err != nil {
+		log.Fatal("Invalid redis URL")
+	}
+
+	RDB = redis.NewClient(opt)
 
 	if err := RDB.Ping(Ctx).Err(); err != nil {
 		log.Fatal("Fail Connection to redis")

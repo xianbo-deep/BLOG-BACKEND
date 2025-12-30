@@ -38,7 +38,7 @@ func GetDashboardTrend() ([]response.DashboardTrends, error) {
 
 // 查国家分布和访问错误路径的日志
 func GetDashboardInsights(limit int) (*response.DashboardInsights, error) {
-	geoResult, err := dao.GetGeoDistribution()
+	geoResult, err := dao.GetGeoDistribution(nil, nil, nil)
 	if err != nil {
 		return nil, err
 	}

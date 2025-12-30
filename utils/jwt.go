@@ -20,6 +20,7 @@ func GenerateToken(username string) (string, error) {
 	claims := MyClaims{
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
+			// 24小时过期
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
 			Issuer:    "xbZhong",
 		},
