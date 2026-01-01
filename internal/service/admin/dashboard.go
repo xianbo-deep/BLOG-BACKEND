@@ -3,19 +3,26 @@ package admin
 import (
 	"Blog-Backend/dto/response"
 	"Blog-Backend/internal/dao"
+	"context"
 )
 
-// TODO 去REDIS查PV、UV、实时在线人数
-func GetDashboardSummary() (response.DashboardSummary, error) {
+// 去REDIS查PV、UV、实时在线人数
+func GetDashboardSummary(ctx context.Context) (response.DashboardSummary, error) {
 	var result response.DashboardSummary
+	// 获取总日志数
 	totalLogs, _ := dao.GetTotalLogs()
-
 	result.TotalLogCount = totalLogs
-
+	// 获取在线人数
+	count, _ := dao.GetOnlineCount(ctx)
+	result.OnlineCount = count
+	// 获取PV和UV
+	UV, PV, _ := dao.GetTodayPVUV(ctx)
+	result.UV = UV
+	result.PV = PV
 	return result, nil
 }
 
-func GetDashboardTrend() ([]response.DashboardTrends, error) {
+func GetDashboardTrend(ctx context.Context) ([]response.DashboardTrends, error) {
 	// 查过去6天
 	history, err := dao.GetHistoryTrends(6)
 	if err != nil {
@@ -23,7 +30,7 @@ func GetDashboardTrend() ([]response.DashboardTrends, error) {
 	}
 
 	// 查今天的
-	today, _ := dao.GetTodayPV()
+	today, _ := dao.GetTodayPV(ctx)
 
 	result := make([]response.DashboardTrends, 0)
 	// 倒序查的数据库，需要倒序遍历，让第一天在切片的第一位

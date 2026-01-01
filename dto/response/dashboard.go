@@ -10,8 +10,8 @@ type DashboardSummary struct {
 }
 
 type DashboardTrends struct {
-	Date time.Time `json:"date"`
-	PV   int64     `json:"pv"`
+	Date string `json:"date"`
+	PV   int64  `json:"pv"`
 }
 
 type GeoStatItem struct {

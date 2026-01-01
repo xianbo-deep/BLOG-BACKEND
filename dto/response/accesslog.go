@@ -3,6 +3,7 @@ package response
 import "time"
 
 type AccessLog struct {
+	VisitorID  string    `json:"visitor_id"`
 	Path       string    `json:"path"`
 	VisitTime  time.Time `json:"visit_time"`
 	IP         string    `json:"ip"`

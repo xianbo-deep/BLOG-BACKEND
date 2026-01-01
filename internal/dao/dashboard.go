@@ -3,8 +3,60 @@ package dao
 import (
 	"Blog-Backend/core"
 	"Blog-Backend/dto/response"
+	"context"
+	"errors"
+	"fmt"
+	"strconv"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
+
+// 获取实时在线人数
+func GetOnlineCount(ctx context.Context) (int64, error) {
+	if core.RDB == nil {
+		return 0, errors.New("Redis not initialized")
+	}
+
+	key := "blog:stat:daily:" + time.Now().Format("2006-01-02") + ":online"
+	// 删除过期用户
+	now := time.Now().Unix()
+	start := now - 3*60
+	// 删除分数为0~cutoff的成员
+	if err := core.RDB.ZRemRangeByScore(ctx, key, "0", fmt.Sprintf("%d", start)).Err(); err != nil {
+		return 0, err
+	}
+	// 查询在线人数
+	return core.RDB.ZCount(ctx, key, fmt.Sprintf("%d", start), fmt.Sprintf("%d", now)).Result()
+}
+
+// 获取今日PV和UV
+func GetTodayPVUV(ctx context.Context) (int64, int64, error) {
+	if core.RDB == nil {
+		return 0, 0, errors.New("Failed to get pv and uv")
+	}
+	PVKey := "blog:stat:daily:" + time.Now().Format("2006-01-02") + ":total_pv"
+	UVKey := "blog:stat:daily:" + time.Now().Format("2006-01-02") + ":total_uv"
+
+	pvStr, err := core.RDB.Get(ctx, PVKey).Result()
+
+	if err != nil {
+		if err == redis.Nil {
+			pvStr = "0"
+		} else {
+			return 0, 0, err
+		}
+	}
+
+	// 字符串转整型
+	pv, _ := strconv.ParseInt(pvStr, 10, 64)
+
+	uv, err := core.RDB.PFCount(ctx, UVKey).Result()
+	if err != nil {
+		return 0, 0, err
+	}
+	return uv, pv, nil
+}
 
 // 获取过去六天的总访问量
 func GetHistoryTrends(limit int) ([]response.DashboardTrends, error) {
@@ -26,12 +78,14 @@ func GetHistoryTrends(limit int) ([]response.DashboardTrends, error) {
 }
 
 // 在Redis获取今天的访问量
-func GetTodayPV() (response.DashboardTrends, error) {
+func GetTodayPV(ctx context.Context) (response.DashboardTrends, error) {
 	var result response.DashboardTrends
 	today := time.Now().Format("2006-01-02")
-
-	// TODO 去Redis查
-
+	// 调用函数获取今日PV
+	_, pv, _ := GetTodayPVUV(ctx)
+	// 组装结果
+	result.PV = pv
+	result.Date = today
 	return result, nil
 }
 

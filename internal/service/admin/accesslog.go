@@ -23,6 +23,7 @@ func GetAccessLog(req common.PageRequest) (*common.PageResponse[response.AccessL
 
 	for _, v := range pageResult.List {
 		dtoList = append(dtoList, response.AccessLog{
+			VisitorID:  v.VisitorID,
 			Path:       v.Path,
 			VisitTime:  v.VisitTime,
 			IP:         v.IP,

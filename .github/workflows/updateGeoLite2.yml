@@ -1,0 +1,26 @@
+name: Update GeoLite2
+on:
+  schedule:
+    - cron: "0 3 1 * *"
+  workflow_dispatch:
+
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download GeoLite2
+        run: |
+          curl -L -o geo.tar.gz \
+          "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${{ secrets.MAXMIND_KEY }}&suffix=tar.gz"
+          tar -xzf geo.tar.gz
+          mv GeoLite2-City_*/GeoLite2-City.mmdb GeoLite2-City.mmdb
+
+      - name: Upload to VPS
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "GeoLite2-City.mmdb"
+          target: "/usr/local/share/GeoIP/"

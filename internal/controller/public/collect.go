@@ -4,6 +4,7 @@ import (
 	"Blog-Backend/dto/common"
 	"Blog-Backend/dto/request"
 	"Blog-Backend/internal/service/public"
+	"Blog-Backend/utils"
 	"net/http"
 	"strings"
 	"time"
@@ -35,6 +36,9 @@ func CollectHandler(c *gin.Context) {
 		ip = c.ClientIP()
 	}
 
+	// 调用geo工具包获取具体信息
+	country, region, city := utils.LookupIP(ip)
+
 	info := request.CollectServiceDTO{
 		VisitorID: req.VisitorID,
 		Path:      req.Path,
@@ -43,14 +47,17 @@ func CollectHandler(c *gin.Context) {
 
 		ClientTime: clientTime,
 		IP:         ip,
-		Country:    c.GetHeader("x-vercel-ip-country"),
+		Country:    country,
 		UserAgent:  c.GetHeader("User-Agent"),
-		City:       c.GetHeader("x-vercel-ip-city"),
-		Region:     c.GetHeader("x-vercel-ip-country-region"),
+		City:       city,
+		Region:     region,
 		Referer:    c.GetHeader("Referer"),
 	}
 
-	if err := public.CollectService(info); err != nil {
+	// 创建上下文
+	ctx := c.Request.Context()
+
+	if err := public.CollectService(ctx, info); err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 		return
 	}

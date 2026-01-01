@@ -4,10 +4,11 @@ import (
 	"Blog-Backend/dto/request"
 	"Blog-Backend/internal/dao"
 	"Blog-Backend/model"
+	"context"
 	"time"
 )
 
-func CollectService(info request.CollectServiceDTO) error {
+func CollectService(ctx context.Context, info request.CollectServiceDTO) error {
 
 	log := model.VisitLog{
 		VisitTime:  time.Now(),
@@ -30,8 +31,10 @@ func CollectService(info request.CollectServiceDTO) error {
 
 	// 开协程，在redis操作数据
 	go func() {
-		_ = dao.IncrementPV(info.Path)
-		_ = dao.IncrementUV(info.Path, info.VisitorID)
+		_ = dao.IncrementPV(ctx, info.Path)
+		_ = dao.IncrementUV(ctx, info.Path, info.VisitorID)
+		_ = dao.RecordOnline(ctx, info.VisitorID)
+		_ = dao.RecordLatency(ctx, info.Path, info.Latency)
 	}()
 
 	return nil

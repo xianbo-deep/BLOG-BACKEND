@@ -7,22 +7,25 @@ import (
 	"sync"
 	"time"
 
+	"github.com/oschwald/geoip2-golang"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var (
-	DB   *gorm.DB
-	RDB  *redis.Client
-	Ctx  = context.Background()
-	once sync.Once
+	DB    *gorm.DB
+	RDB   *redis.Client
+	GeoDB *geoip2.Reader
+	Ctx   = context.Background()
+	once  sync.Once
 )
 
 func Init() {
 	once.Do(func() {
 		initPG()
 		initRedis()
+		initGeoDB()
 	})
 }
 
@@ -51,8 +54,8 @@ func initPG() {
 	sqlDB, _ := DB.DB()
 
 	/* 配置连接池 */
-	sqlDB.SetMaxOpenConns(10)           // 最大连接数
-	sqlDB.SetMaxIdleConns(5)            // 最大空闲连接
+	sqlDB.SetMaxOpenConns(25)           // 最大连接数
+	sqlDB.SetMaxIdleConns(10)           // 最大空闲连接
 	sqlDB.SetConnMaxLifetime(time.Hour) // 每个连接1h换1次
 
 }
@@ -75,5 +78,14 @@ func initRedis() {
 
 	if err := RDB.Ping(Ctx).Err(); err != nil {
 		log.Fatal("Fail Connection to redis")
+	}
+}
+
+/* 初始化GeoDB */
+func initGeoDB() {
+	var err error
+	GeoDB, err = geoip2.Open(os.Getenv("GEODB_PATH"))
+	if err != nil {
+		log.Fatal("Failed to open GeoLite2-City.mmdb", err)
 	}
 }
