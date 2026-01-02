@@ -1,7 +1,9 @@
 package main
 
 import (
+	"Blog-Backend/consts"
 	"Blog-Backend/core"
+	"Blog-Backend/internal/task"
 	"Blog-Backend/router"
 	"os"
 	"sync"
@@ -18,12 +20,16 @@ func main() {
 	/* 初始化数据库 */
 	core.Init()
 
+	/* 启动定时任务*/
+	task.InitCron()
+
 	/* 初始化路由 */
 	once.Do(func() {
 		rEngine = router.SetupRouter()
 	})
+
 	/* 获取端口 */
-	port := os.Getenv("PORT")
+	port := os.Getenv(consts.EnvPort)
 	if port == "" {
 		port = "8080"
 	}

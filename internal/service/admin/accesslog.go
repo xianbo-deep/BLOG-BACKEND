@@ -1,15 +1,24 @@
 package admin
 
 import (
-	"Blog-Backend/core"
 	"Blog-Backend/dto/common"
 	"Blog-Backend/dto/response"
 	"Blog-Backend/model"
 	"Blog-Backend/utils"
+
+	"gorm.io/gorm"
 )
 
-func GetAccessLog(req common.PageRequest) (*common.PageResponse[response.AccessLog], error) {
-	db := core.DB.Order("visit_time desc")
+type AccessLogService struct {
+	db *gorm.DB
+}
+
+func NewAccessLogService(db *gorm.DB) *AccessLogService {
+	return &AccessLogService{db: db}
+}
+
+func (s *AccessLogService) GetAccessLog(req common.PageRequest) (*common.PageResponse[response.AccessLog], error) {
+	db := s.db.Order("visit_time desc")
 
 	// 查的时候用了实体类
 	pageResult, err := utils.Paginate[model.VisitLog](db, req)

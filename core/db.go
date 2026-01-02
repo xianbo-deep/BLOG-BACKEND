@@ -1,6 +1,7 @@
 package core
 
 import (
+	"Blog-Backend/consts"
 	"context"
 	"log"
 	"os"
@@ -32,7 +33,7 @@ func Init() {
 /* 初始化PG */
 func initPG() {
 	/* 获取字符串 */
-	dsn := os.Getenv("PG_URI")
+	dsn := os.Getenv(consts.EnvPgURI)
 
 	if dsn == "" {
 		log.Fatal("Lack of URL of pgsql")
@@ -62,7 +63,7 @@ func initPG() {
 
 /* 初始化Redis */
 func initRedis() {
-	addr := os.Getenv("REDIS_URL")
+	addr := os.Getenv(consts.EnvRedisURL)
 
 	if addr == "" {
 		log.Fatal("Lack of URL of redis")
@@ -84,7 +85,7 @@ func initRedis() {
 /* 初始化GeoDB */
 func initGeoDB() {
 	var err error
-	GeoDB, err = geoip2.Open(os.Getenv("GEODB_PATH"))
+	GeoDB, err = geoip2.Open(consts.EnvGeoDBPath)
 	if err != nil {
 		log.Fatal("Failed to open GeoLite2-City.mmdb", err)
 	}

@@ -16,8 +16,12 @@ func LookupIP(ipSyr string) (country, province, city string) {
 		return
 	}
 	// 获取国家码
-	country = record.Country.IsoCode
-
+	if name, ok := record.Country.Names["zh-CN"]; ok {
+		country = name
+	} else {
+		country = record.Country.IsoCode
+	}
+	
 	if len(record.Subdivisions) > 0 {
 		// 获取省份
 		province = record.Subdivisions[0].Names["zh-CN"]

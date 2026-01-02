@@ -1,12 +1,15 @@
 package admin
 
 import (
+	"Blog-Backend/core"
 	"Blog-Backend/dto/common"
 	"Blog-Backend/internal/service/admin"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
+
+var analysisService = admin.NewAnalysisService(core.DB)
 
 func GetTotalPagesData(c *gin.Context) {
 	var req common.PageRequest
@@ -16,7 +19,7 @@ func GetTotalPagesData(c *gin.Context) {
 		return
 	}
 
-	res, err := admin.GetTotalPagesData(req)
+	res, err := analysisService.GetTotalPagesData(req)
 
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())

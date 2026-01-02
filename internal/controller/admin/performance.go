@@ -9,8 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var performanceSerivce = admin.NewPerformanceService()
+
 func GetAverageDelay(c *gin.Context) {
-	res, err := admin.GetAverageDelay()
+	res, err := performanceSerivce.GetAverageDelay()
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 		return
@@ -22,7 +24,7 @@ func GetSlowPages(c *gin.Context) {
 	ctx := c.Request.Context()
 	limitStr := c.DefaultQuery("limit", "10")
 	limit, _ := strconv.Atoi(limitStr)
-	res, err := admin.GetSlowPages(ctx, limit)
+	res, err := performanceSerivce.GetSlowPages(ctx, limit)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 		return

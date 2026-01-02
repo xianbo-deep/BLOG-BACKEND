@@ -25,3 +25,22 @@ func GetVisitorMap(startTime, endTime *time.Time) ([]response.VisitorMapItem, er
 
 	return results, err
 }
+
+func GetChineseVisitorMap(startTime, endTime *time.Time) ([]response.ChineseVisitorMapItem, error) {
+	var results []response.ChineseVisitorMapItem
+
+	db := core.DB.Model(&model.VisitLog{})
+	if startTime != nil {
+		db = db.Where("visit_time >= ?", *startTime)
+	}
+	if endTime != nil {
+		db = db.Where("visit_time <= ?", *endTime)
+	}
+
+	err := db.Select("region, count(*) as visitors").
+		Where("country = ?"). // TODO 改成china
+		Group("region").
+		Scan(&results).Error
+
+	return results, err
+}

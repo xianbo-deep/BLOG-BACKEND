@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"Blog-Backend/consts"
 	"Blog-Backend/core"
 	"Blog-Backend/model"
 	"context"
@@ -25,8 +26,8 @@ func IncrementPV(ctx context.Context, path string) error {
 		return errors.New("IncrementPV failed")
 	}
 	// 使用SortedSet维护排名
-	pathPVKey := "blog:stat:daily:" + time.Now().Format("2006-01-02") + ":path_rank"
-	totalPVKey := "blog:stat:daily:" + time.Now().Format("2006-01-02") + ":total_pv"
+	pathPVKey := consts.GetDailyStatKey(time.Now().Format(consts.DateLayout), consts.RedisKeySuffixPathRank)
+	totalPVKey := consts.GetDailyStatKey(time.Now().Format(consts.DateLayout), consts.RedisKeySuffixTotalPV)
 	/* 插入数据 */
 	if err := core.RDB.ZIncrBy(ctx, pathPVKey, 1, path).Err(); err != nil {
 		return err
@@ -41,10 +42,10 @@ func IncrementUV(ctx context.Context, path string, visitorID string) error {
 	}
 	// 键名
 	// 单独页面 UV
-	pathUVKey := "blog:stat:daily:" + time.Now().Format("2006-01-02") + ":uv:" + path
+	pathUVKey := consts.GetDailyPathUVKey(consts.GetTodayDate(), path)
 
 	// 全站 UV
-	totalUVKey := "blog:stat:daily:" + time.Now().Format("2006-01-02") + ":total_uv"
+	totalUVKey := consts.GetDailyStatKey(consts.GetTodayDate(), consts.RedisKeySuffixTotalUV)
 
 	/* 插入数据 */
 	if err := core.RDB.PFAdd(ctx, pathUVKey, visitorID).Err(); err != nil {
@@ -58,7 +59,7 @@ func RecordOnline(ctx context.Context, visitorID string) error {
 	if core.RDB == nil {
 		return errors.New("Failed to record online conut")
 	}
-	key := "blog:stat:daily:" + time.Now().Format("2006-01-02") + ":online"
+	key := consts.GetDailyStatKey(consts.GetTodayDate(), consts.RedisKeySuffixOnline)
 	now := time.Now().Unix()
 
 	// 添加新用户访问时间
@@ -81,10 +82,9 @@ func RecordLatency(ctx context.Context, path string, latency int64) error {
 	if core.RDB == nil {
 		return errors.New("Failed to record latency of path ")
 	}
-	today := time.Now().Format("2006-01-02")
-	countKey := "blog:stat:daily:" + today + ":latency:count"
-	totalKey := "blog:stat:daily:" + today + ":latency:total"
-	avgLatencyKey := "blog:stat:daily:" + today + ":latency:rank"
+	countKey := consts.GetDailyStatKey(consts.GetTodayDate(), consts.RedisKeySuffixPathCount)
+	totalKey := consts.GetDailyStatKey(consts.GetTodayDate(), consts.RedisKeySuffixPathTotalLatency)
+	avgLatencyKey := consts.GetDailyStatKey(consts.GetTodayDate(), consts.RedisKeySuffixPathAvgLatency)
 
 	// 更新总延时
 	if err := core.RDB.HIncrBy(ctx, totalKey, path, latency).Err(); err != nil {

@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"Blog-Backend/consts"
 	"Blog-Backend/core"
 	"Blog-Backend/dto/response"
 	"context"
@@ -18,7 +19,7 @@ func GetOnlineCount(ctx context.Context) (int64, error) {
 		return 0, errors.New("Redis not initialized")
 	}
 
-	key := "blog:stat:daily:" + time.Now().Format("2006-01-02") + ":online"
+	key := consts.GetDailyStatKey(consts.GetTodayDate(), consts.RedisKeySuffixOnline)
 	// 删除过期用户
 	now := time.Now().Unix()
 	start := now - 3*60
@@ -35,8 +36,8 @@ func GetTodayPVUV(ctx context.Context) (int64, int64, error) {
 	if core.RDB == nil {
 		return 0, 0, errors.New("Failed to get pv and uv")
 	}
-	PVKey := "blog:stat:daily:" + time.Now().Format("2006-01-02") + ":total_pv"
-	UVKey := "blog:stat:daily:" + time.Now().Format("2006-01-02") + ":total_uv"
+	PVKey := consts.GetDailyStatKey(consts.GetTodayDate(), consts.RedisKeySuffixTotalPV)
+	UVKey := consts.GetDailyStatKey(consts.GetTodayDate(), consts.RedisKeySuffixTotalUV)
 
 	pvStr, err := core.RDB.Get(ctx, PVKey).Result()
 
@@ -69,7 +70,7 @@ func GetHistoryTrends(limit int) ([]response.DashboardTrends, error) {
 		Where("date < ?", today).
 		Order("date desc").
 		Limit(limit).
-		Find(&result).Error
+		Scan(&result).Error
 
 	if err != nil {
 		return nil, err

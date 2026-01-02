@@ -5,10 +5,20 @@ import (
 	"Blog-Backend/dto/common"
 	"Blog-Backend/model"
 	"Blog-Backend/utils"
+
+	"gorm.io/gorm"
 )
 
-func GetTotalPagesData(req common.PageRequest) (*common.PageResponse[model.PathStatRes], error) {
-	db := core.DB
+type AnalysisService struct {
+	db *gorm.DB
+}
+
+func NewAnalysisService(db *gorm.DB) *AnalysisService {
+	return &AnalysisService{db: db}
+}
+
+func (s *AnalysisService) GetTotalPagesData(req common.PageRequest) (*common.PageResponse[model.PathStatRes], error) {
+	db := s.db
 
 	pageResult, err := utils.Paginate[model.PathStatRes](db, req)
 

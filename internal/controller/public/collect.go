@@ -12,6 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var collectService = public.NewCollectService()
+
 func CollectHandler(c *gin.Context) {
 	var req request.CollectRequest
 
@@ -57,7 +59,7 @@ func CollectHandler(c *gin.Context) {
 	// 创建上下文
 	ctx := c.Request.Context()
 
-	if err := public.CollectService(ctx, info); err != nil {
+	if err := collectService.Collect(ctx, info); err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 		return
 	}

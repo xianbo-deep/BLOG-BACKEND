@@ -8,7 +8,13 @@ import (
 	"time"
 )
 
-func CollectService(ctx context.Context, info request.CollectServiceDTO) error {
+type CollectService struct{}
+
+func NewCollectService() *CollectService {
+	return &CollectService{}
+}
+
+func (s *CollectService) Collect(ctx context.Context, info request.CollectServiceDTO) error {
 
 	log := model.VisitLog{
 		VisitTime:  time.Now(),

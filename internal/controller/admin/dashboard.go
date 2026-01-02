@@ -9,10 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var dashboardService = admin.NewDashboardService()
+
 // 除了总日志数，其它都在REDIS拿
 func GetDashboardSummary(c *gin.Context) {
 	ctx := c.Request.Context()
-	res, err := admin.GetDashboardSummary(ctx)
+	res, err := dashboardService.GetDashboardSummary(ctx)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 		return
@@ -23,7 +25,7 @@ func GetDashboardSummary(c *gin.Context) {
 // 在数据库查前六天，今天的在Redis拿
 func GetDashboardTrend(c *gin.Context) {
 	ctx := c.Request.Context()
-	res, err := admin.GetDashboardTrend(ctx)
+	res, err := dashboardService.GetDashboardTrend(ctx)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 		return
@@ -37,7 +39,7 @@ func GetDashboardInsights(c *gin.Context) {
 	limitstr := c.DefaultQuery("limit", "10")
 	limit, _ := strconv.Atoi(limitstr)
 
-	res, err := admin.GetDashboardInsights(limit)
+	res, err := dashboardService.GetDashboardInsights(limit)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 		return

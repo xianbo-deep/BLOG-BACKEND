@@ -1,8 +1,8 @@
 package utils
 
 import (
+	"Blog-Backend/consts"
 	"errors"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -13,7 +13,7 @@ type MyClaims struct {
 	jwt.RegisteredClaims
 }
 
-var Secret = []byte(os.Getenv("JWT_SECRET"))
+var Secret = []byte(consts.EnvJWTSecret)
 
 // 生成Token
 func GenerateToken(username string) (string, error) {

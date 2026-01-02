@@ -6,8 +6,14 @@ import (
 	"context"
 )
 
+type DashboardService struct{}
+
+func NewDashboardService() *DashboardService {
+	return &DashboardService{}
+}
+
 // 去REDIS查PV、UV、实时在线人数
-func GetDashboardSummary(ctx context.Context) (response.DashboardSummary, error) {
+func (s *DashboardService) GetDashboardSummary(ctx context.Context) (response.DashboardSummary, error) {
 	var result response.DashboardSummary
 	// 获取总日志数
 	totalLogs, _ := dao.GetTotalLogs()
@@ -22,7 +28,7 @@ func GetDashboardSummary(ctx context.Context) (response.DashboardSummary, error)
 	return result, nil
 }
 
-func GetDashboardTrend(ctx context.Context) ([]response.DashboardTrends, error) {
+func (s *DashboardService) GetDashboardTrend(ctx context.Context) ([]response.DashboardTrends, error) {
 	// 查过去6天
 	history, err := dao.GetHistoryTrends(6)
 	if err != nil {
@@ -44,7 +50,7 @@ func GetDashboardTrend(ctx context.Context) ([]response.DashboardTrends, error) 
 }
 
 // 查国家分布和访问错误路径的日志
-func GetDashboardInsights(limit int) (*response.DashboardInsights, error) {
+func (s *DashboardService) GetDashboardInsights(limit int) (*response.DashboardInsights, error) {
 	geoResult, err := dao.GetGeoDistribution(nil, nil, nil)
 	if err != nil {
 		return nil, err

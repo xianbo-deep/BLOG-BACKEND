@@ -80,6 +80,7 @@ func SetupRouter() *gin.Engine {
 			visitormap := adminAuth.Group("/visitormap")
 			{
 				visitormap.GET("/map", admin.GetVisitorMap)
+				visitormap.GET("/chineseMap", admin.GetChineseVisitorMap)
 			}
 		}
 	}

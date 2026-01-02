@@ -9,6 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var loginService = admin.NewLoginService()
+
 func Login(c *gin.Context) {
 	var req request.LoginRequest
 
@@ -17,7 +19,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, err := admin.AdminLogin(req.Username, req.Password)
+	token, err := loginService.AdminLogin(req.Username, req.Password)
 
 	if err != nil {
 		common.Fail(c, http.StatusUnauthorized, 1001, err.Error())
