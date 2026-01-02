@@ -6,6 +6,10 @@ import (
 )
 
 const (
+	// 分布式锁Key
+	RedisLockKey = "cron:lock:sync"
+
+	// Key前缀
 	RedisKeyPrefix = "blog:stat:daily:"
 
 	// 在线人数
