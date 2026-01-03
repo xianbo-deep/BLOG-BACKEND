@@ -11,6 +11,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/robfig/cron/v3"
+	"gorm.io/gorm/clause"
 )
 
 func InitCron() {
@@ -24,7 +25,7 @@ func InitCron() {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("添加定时任务失败: %v", err)
 	}
 
 	// 启动定时任务
@@ -40,7 +41,7 @@ func SyncRedisToDB() {
 	// 十分钟过期
 	acquired, err := core.RDB.SetNX(ctx, lockKey, 1, 10*time.Minute).Result()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("获取Redis锁异常: %v", err)
 		return
 	}
 	if !acquired {
@@ -48,16 +49,24 @@ func SyncRedisToDB() {
 		return
 	}
 
-	yesterday := time.Now().AddDate(0, 0, 1).Format("2006-01-02")
+	// 删除分布式锁
+	defer core.RDB.Del(ctx, lockKey)
+
+	yesterdayTime := time.Now().AddDate(0, 0, -1)
+	yesterday := yesterdayTime.Format("2006-01-02")
 
 	keyPathRank := consts.GetDailyStatKey(yesterday, consts.RedisKeySuffixPathRank)
 	keyLatTotal := consts.GetDailyStatKey(yesterday, consts.RedisKeySuffixPathTotalLatency)
 	keyLatCount := consts.GetDailyStatKey(yesterday, consts.RedisKeySuffixPathCount)
+	keyTotalPV := consts.GetDailyStatKey(yesterday, consts.RedisKeySuffixTotalPV)
+	keyTotalUV := consts.GetDailyStatKey(yesterday, consts.RedisKeySuffixTotalUV)
+	keyAvgLatRank := consts.GetDailyStatKey(yesterday, consts.RedisKeySuffixPathAvgLatency)
 
+	// 获取文章列表
 	pathZSet, err := core.RDB.ZRevRangeWithScores(ctx, keyPathRank, 0, -1).Result()
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("获取ZSet失败: %v", err)
 		return
 	}
 
@@ -85,7 +94,12 @@ func SyncRedisToDB() {
 	}
 
 	// 执行pipe
-	_, _ = pipe.Exec(ctx)
+	_, err = pipe.Exec(ctx)
+
+	if err != nil {
+		log.Printf("无法从Redis中获取数据:%v", err)
+		return
+	}
 
 	var stats []model.DailyArticleStat
 
@@ -108,16 +122,47 @@ func SyncRedisToDB() {
 			Path:         path,
 			UV:           uv,
 			PV:           pv,
-			Date:         yesterday,
+			Date:         yesterdayTime,
 			TotalLatency: totalLat,
 			LatencyCount: countLat,
 		})
 
 		// 记录删除的key
+		uvKeysToDelete = append(uvKeysToDelete, consts.GetDailyPathUVKey(yesterday, path))
 	}
 
 	// 批量插入数据库
+	err := core.DB.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "date"}, {Name: "path"}},
+		UpdateAll: true,
+	}).Create(&stats).Error
 
-	// TODO 使用事务，同步进去了再清空Redis
+	if err != nil {
+		log.Printf("向数据库同步数据时发生错误:%v", err)
+		return
+	}
+
+	/* 删除Redis的数据 */
+	// 创建管道
+	delPipe := core.RDB.Pipeline()
+
+	// 删除文章维度的Key
+	delPipe.Del(ctx, keyPathRank, keyLatTotal, keyLatCount)
+
+	// 删除全站维度Key
+	delPipe.Del(ctx, keyTotalPV, keyTotalUV, keyAvgLatRank)
+
+	// 删除每篇文章独立的uvKey
+	if len(uvKeysToDelete) > 0 {
+		delPipe.Del(ctx, uvKeysToDelete...)
+	}
+
+	// 执行
+	_, err = delPipe.Exec(ctx)
+	if err != nil {
+		log.Printf("删除redis中的key时出现错误:%v", err)
+	} else {
+		log.Printf("数据清理完成")
+	}
 
 }

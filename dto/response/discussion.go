@@ -4,7 +4,7 @@ package response
 type Metric struct {
 	TotalComments  int64 `json:"total_comments"`  // 总评论数
 	TotalReplies   int64 `json:"total_replies"`   // 总回复数
-	TotalResponses int64 `json:"total_responses"` // 总回应数
+	TotalReactions int64 `json:"total_reactions"` // 总回应数
 }
 
 type NewFeedItem struct {

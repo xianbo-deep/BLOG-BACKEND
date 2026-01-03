@@ -26,10 +26,11 @@ func NewDiscussionService(github *githubv4.Client) *DiscussionService {
 
 // 返回三个指标
 func (s *DiscussionService) GetTotalMertic(ctx context.Context) (response.Metric, error) {
-	var after githubv4.String
+	// 声明为指针，返回nil
+	var after *githubv4.String
 	totalComments := 0
 	totalReplies := 0
-	totalResponses := 0
+	totalReactions := 0
 	for {
 		var q struct {
 			Repository struct {
@@ -52,15 +53,15 @@ func (s *DiscussionService) GetTotalMertic(ctx context.Context) (response.Metric
 											TotalCount int
 										}
 									} `graphql:"nodes"`
-								}
+								} `graphql:"replies(first: 100)"`
 							}
-						} `graphql:"comments(first: 50)"`
+						} `graphql:"comments(first: 100)"`
 					}
 					PageInfo struct {
 						HasNextPage bool            // 是否还有下一页
 						EndCursor   githubv4.String // 上一页的末尾光标
 					}
-				} `graphql:"discussions(first: 50,after: $after)"`
+				} `graphql:"discussions(first: 100,after: $after)"`
 			} `graphql:"repository(owner: $owner, name: $repo)"`
 		}
 
@@ -73,10 +74,41 @@ func (s *DiscussionService) GetTotalMertic(ctx context.Context) (response.Metric
 		err := s.github.Query(ctx, &q, vars)
 
 		if err != nil {
-			return nil, err
+			return response.Metric{}, err
 		}
 
+		// 处理每一个discussion
+		for _, discussion := range q.Repository.Discussions.Nodes {
+			// 累加discussion的评论
+			totalComments += discussion.Comments.TotalCount
+			// 累加discussion的回应
+			totalReactions += discussion.Reactions.TotalCount
+			for _, comment := range discussion.Comments.Nodes {
+				// 累加comment的回应
+				totalReactions += comment.Reactions.TotalCount
+				// 累加comment的回复
+				totalReplies += comment.Replies.TotalCount
+				for _, reply := range comment.Replies.Nodes {
+					// 累加reply的回应
+					totalReactions += reply.Reactions.TotalCount
+				}
+			}
+		}
+
+		// 判断是否还有下一页
+		if !q.Repository.Discussions.PageInfo.HasNextPage {
+			break
+		}
+
+		// 更新游标
+		after = &q.Repository.Discussions.PageInfo.EndCursor
 	}
+
+	return response.Metric{
+		TotalComments:  int64(totalComments),
+		TotalReplies:   int64(totalReplies),
+		TotalReactions: int64(totalReactions),
+	}, nil
 
 }
 

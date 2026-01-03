@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"Blog-Backend/consts"
 	"Blog-Backend/core"
 	"Blog-Backend/dto/response"
 	"Blog-Backend/model"
@@ -38,7 +39,7 @@ func GetChineseVisitorMap(startTime, endTime *time.Time) ([]response.ChineseVisi
 	}
 
 	err := db.Select("region, count(*) as visitors").
-		Where("country = ?"). // TODO 改成china
+		Where("country = ?", consts.CountryChina). // TODO 改成china
 		Group("region").
 		Scan(&results).Error
 

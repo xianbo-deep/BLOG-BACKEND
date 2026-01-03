@@ -21,8 +21,8 @@ func GenerateToken(username string) (string, error) {
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			// 24小时过期
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
-			Issuer:    "xbZhong",
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(consts.JwtTokenExpireDuration)),
+			Issuer:    consts.JwtIssuer,
 		},
 	}
 	// HS256签名
