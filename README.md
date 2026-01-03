@@ -18,42 +18,54 @@
 -   **ORM**: GORM
 -   **缓存**: Redis
 -   **认证**: JWT (JSON Web Token)
+-   **定时任务**: Robfig Cron
+-   **IP 地理位置**: GeoIP2
 
 ## 功能模块
 
 ### 1. 公共接口 (Public)
--   **数据采集 (`/api/blog/collect`)**: 接收前端上报的访问数据，包括时间戳、路径、延迟、IP、User-Agent 等信息。
+-   **数据采集 (`/blog/collect`)**: 接收前端上报的访问数据，包括时间戳、路径、延迟、IP、User-Agent 等信息。
 
 ### 2. 管理后台 (Admin)
 后台接口需要 JWT 认证。
 
--   **仪表盘 (`/dashboard`)**:
-    -   数据概览 (Summary)
-    -   访问趋势 (Trend)
-    -   洞察分析 (Insights)
--   **访问日志 (`/accesslog`)**: 分页查询详细的访客记录。
--   **性能监控 (`/performance`)**:
-    -   平均延迟统计
-    -   慢页面分析
--   **页面分析 (`/analysis`)**:
-    -   全站页面访问统计
-    -   今日页面访问统计
--   **访客地图 (`/visitormap`)**: 基于 IP 的访客地理分布统计。
+-   **仪表盘 (`/admin/dashboard`)**:
+    -   数据概览 (Summary): 获取总访问量、今日访问量等概览数据。
+    -   访问趋势 (Trend): 展示近期的访问趋势图表数据。
+    -   洞察分析 (Insights): 提供基于数据的深度分析。
+-   **访问日志 (`/admin/accesslog`)**:
+    -   日志查询 (`/logs`): 分页查询详细的访客记录。
+-   **性能监控 (`/admin/performance`)**:
+    -   平均延迟 (`/averageDelay`): 统计页面的平均加载延迟。
+    -   慢页面分析 (`/slowPages`): 识别加载速度较慢的页面。
+-   **页面分析 (`/admin/analysis`)**:
+    -   全站统计 (`/total`): 全站页面的访问统计。
+    -   今日统计 (`/today`): 今日页面的访问统计。
+-   **访客地图 (`/admin/visitormap`)**:
+    -   世界地图 (`/map`): 基于 IP 的全球访客分布。
+    -   中国地图 (`/chineseMap`): 基于 IP 的中国访客分布。
+
+### 3. 定时任务
+-   **数据同步**: 每日凌晨自动将 Redis 中的缓存数据同步到 PostgreSQL 数据库，确保数据持久化。
 
 ## 项目结构
 
 ```text
 Blog-Backend/
 ├── api/            # Serverless 入口 (如 Vercel)
-├── core/           # 核心组件初始化 (数据库, Redis)
+├── consts/         # 常量定义 (环境配置, 业务常量)
+├── core/           # 核心组件初始化 (数据库, Redis, GeoIP)
 ├── dto/            # 数据传输对象 (Request/Response 定义)
 ├── internal/       # 内部业务逻辑
 │   ├── controller/ # 控制器层 (处理 HTTP 请求)
+│   ├── dao/        # 数据访问层 (数据库操作)
 │   ├── service/    # 业务逻辑层
-│   └── dao/        # 数据访问层
-├── middleware/     # Gin 中间件 (Auth, CORS)
+│   └── task/       # 定时任务 (数据同步)
+├── middleware/     # 中间件 (认证, CORS)
 ├── model/          # 数据库模型定义
 ├── router/         # 路由配置
-└── utils/          # 工具函数 (JWT, 分页器等)
+├── thirdparty/     # 第三方服务集成 (GitHub)
+└── utils/          # 工具函数 (GeoIP, JWT, 分页)
 ```
+
 
