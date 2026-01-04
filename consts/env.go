@@ -8,6 +8,7 @@ const (
 	EnvAdminPwd  = "ADMIN_PASSWORD"
 	EnvGeoDBPath = "GEODB_PATH"
 	// TODO 后续跨域URL可以写成一个数组
-	EnvBaseURL = "BASE_URL"
-	EnvPort    = "PORT"
+	EnvBaseURL         = "BASE_URL"
+	EnvPort            = "PORT"
+	EnvDiscussionToken = "DISCUSSION_TOKEN"
 )

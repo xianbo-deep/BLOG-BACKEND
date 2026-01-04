@@ -1,11 +1,24 @@
 package github
 
-import "github.com/shurcooL/githubv4"
+import (
+	"Blog-Backend/consts"
+	"context"
+	"os"
+
+	"github.com/shurcooL/githubv4"
+	"golang.org/x/oauth2"
+)
 
 type Client struct {
 	cli *githubv4.Client
 }
 
-func NewClient(cli *githubv4.Client) *Client {
+func NewClient() *Client {
+	src := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: os.Getenv(consts.EnvDiscussionToken)},
+	)
+	// 初始化httpclient
+	httpClient := oauth2.NewClient(context.Background(), src)
+	cli := githubv4.NewClient(httpClient)
 	return &Client{cli: cli}
 }

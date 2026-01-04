@@ -8,4 +8,10 @@ const (
 	TimeRange3Days = 3
 	TimeRangeWeek  = 7
 	TimeRangeMonth = 30
+
+	DefaultQuerySize = 100
+
+	Reaction = "reaction"
+	Reply    = "reply"
+	Comment  = "comment"
 )

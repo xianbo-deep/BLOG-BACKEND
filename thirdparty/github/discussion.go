@@ -5,6 +5,8 @@ import (
 	"Blog-Backend/dto/response"
 	"context"
 	"go/ast"
+	"os"
+	"sort"
 	"time"
 
 	"github.com/shurcooL/githubv4"
@@ -80,7 +82,7 @@ func (s *DiscussionService) GetTotalMetric(ctx context.Context, timeRangeDays in
 						HasNextPage bool            // 是否还有下一页
 						EndCursor   githubv4.String // 上一页的末尾光标
 					}
-				} `graphql:"discussions(first: 100,after: $after,orderBy: $orderBy)"`
+				} `graphql:"discussions(first: $first,after: $after,orderBy: $orderBy)"`
 			} `graphql:"repository(owner: $owner, name: $repo)"`
 		}
 
@@ -88,6 +90,7 @@ func (s *DiscussionService) GetTotalMetric(ctx context.Context, timeRangeDays in
 			"owner":   githubv4.String(s.owner),
 			"repo":    githubv4.String(s.repo),
 			"after":   after,
+			"first":   githubv4.Int(consts.DefaultQuerySize),
 			"orderBy": orderBy,
 		}
 
@@ -153,8 +156,205 @@ func (s *DiscussionService) GetTotalMetric(ctx context.Context, timeRangeDays in
 }
 
 // 返回最新动态
-func (s *DiscussionService) GetNewFeed(ctx context.Context) ([]response.NewFeedItem, error) {
+func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]response.NewFeedItem, error) {
+	var after *githubv4.String
+	var allItems []response.NewFeedItem
+	// 不统计7天前的
+	cutoffTime := time.Now().AddDate(0, 0, -7)
+	for {
+		var q struct {
+			Repository struct {
+				Discussions struct {
+					Nodes []struct {
+						Title     githubv4.String
+						UpdatedAt time.Time
+						Reactions struct {
+							Nodes []struct {
+								CreatedAt time.Time
+								User      struct {
+									AvatarUrl githubv4.String
+									Url       githubv4.String
+									Login     githubv4.String
+								}
+								Content githubv4.ReactionContent
+							}
+						} `graphql:"reactions(last: 20)"`
+						Comments struct {
+							Nodes []struct {
+								BodyText  githubv4.String
+								CreatedAt time.Time
+								Reactions struct {
+									Nodes []struct {
+										CreatedAt time.Time
+										User      struct {
+											AvatarUrl githubv4.String
+											Url       githubv4.String
+											Login     githubv4.String
+										}
+										Content githubv4.ReactionContent
+									}
+								} `graphql:"reactions(last: 20)"`
+								Replies struct {
+									Nodes []struct {
+										CreatedAt time.Time
+										BodyText  githubv4.String
+										Reactions struct {
+											Nodes []struct {
+												CreatedAt time.Time
+												User      struct {
+													AvatarUrl githubv4.String
+													Url       githubv4.String
+													Login     githubv4.String
+												}
+												Content githubv4.ReactionContent
+											}
+										} `graphql:"reactions(last: 20)"`
+										Author struct {
+											AvatarUrl githubv4.String
+											Url       githubv4.String
+											Login     githubv4.String
+										}
+									}
+								} `graphql:"replies(last: 20)"`
+								Author struct {
+									AvatarUrl githubv4.String
+									Url       githubv4.String
+									Login     githubv4.String
+								}
+							}
+						} `graphql:"comments(last: 20)"`
+					}
+					PageInfo struct {
+						HasNextPage bool            // 是否还有下一页
+						EndCursor   githubv4.String // 上一页的末尾光标
+					}
+				} `graphql:"discussions(first: $first,after: $after,orderBy:$orderBy)"`
+			} `graphql:"repository(owner: $owner, name: $repo)"`
+		}
+		vars := map[string]interface{}{
+			"owner": githubv4.String(s.owner),
+			"repo":  githubv4.String(s.repo),
+			"orderBy": githubv4.DiscussionOrder{
+				Field:     githubv4.DiscussionOrderFieldUpdatedAt,
+				Direction: githubv4.OrderDirectionDesc,
+			},
+			"first": githubv4.Int(consts.DefaultQuerySize),
+			"after": after,
+		}
 
+		err := s.github.Query(ctx, &q, vars)
+
+		if err != nil {
+			return nil, err
+		}
+
+		// 是否应该暂停
+		shouldStop := false
+
+		for _, discussion := range q.Repository.Discussions.Nodes {
+			if discussion.UpdatedAt.Before(cutoffTime) {
+				shouldStop = true
+				break
+			}
+			// 处理reaction
+			for _, reaction := range discussion.Reactions.Nodes {
+				if reaction.CreatedAt.After(cutoffTime) {
+					allItems = append(allItems, response.NewFeedItem{
+						EventType: consts.Reaction,
+						Name:      string(reaction.User.Login),
+						Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+						Content:   string(reaction.Content),
+						Avatar:    string(reaction.User.AvatarUrl),
+						Time:      reaction.CreatedAt.Format(time.RFC3339),
+						URL:       string(reaction.User.Url),
+					})
+				}
+			}
+			// 处理评论
+			for _, comment := range discussion.Comments.Nodes {
+				if comment.CreatedAt.After(cutoffTime) {
+					allItems = append(allItems, response.NewFeedItem{
+						EventType: consts.Comment,
+						Name:      string(comment.Author.Login),
+						Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+						Content:   string(comment.BodyText),
+						Avatar:    string(comment.Author.AvatarUrl),
+						Time:      comment.CreatedAt.Format(time.RFC3339),
+						URL:       string(comment.Author.Url),
+					})
+				}
+				// 处理评论的reaction
+				for _, reaction := range comment.Reactions.Nodes {
+					if reaction.CreatedAt.After(cutoffTime) {
+						allItems = append(allItems, response.NewFeedItem{
+							EventType: consts.Reaction,
+							Name:      string(reaction.User.Login),
+							Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+							Content:   string(reaction.Content),
+							Avatar:    string(reaction.User.AvatarUrl),
+							Time:      reaction.CreatedAt.Format(time.RFC3339),
+							URL:       string(reaction.User.Url),
+						})
+					}
+				}
+
+				// 处理评论的回复
+				for _, reply := range comment.Replies.Nodes {
+					if reply.CreatedAt.After(cutoffTime) {
+						allItems = append(allItems, response.NewFeedItem{
+							EventType:      consts.Reply,
+							Name:           string(reply.Author.Login),
+							Path:           os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+							Content:        string(reply.BodyText),
+							Avatar:         string(reply.Author.AvatarUrl),
+							Time:           reply.CreatedAt.Format(time.RFC3339),
+							URL:            string(reply.Author.Url),
+							ReplyToName:    string(comment.Author.Login),
+							ReplyToAvatar:  string(comment.Author.AvatarUrl),
+							ReplyToContent: string(comment.BodyText),
+						})
+					}
+					// 处理回复的reaction
+					for _, reaction := range reply.Reactions.Nodes {
+						if reaction.CreatedAt.After(cutoffTime) {
+							allItems = append(allItems, response.NewFeedItem{
+								EventType: consts.Reaction,
+								Name:      string(reaction.User.Login),
+								Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+								Content:   string(reaction.Content),
+								Avatar:    string(reaction.User.AvatarUrl),
+								Time:      reaction.CreatedAt.Format(time.RFC3339),
+								URL:       string(reaction.User.Url),
+							})
+						}
+					}
+				}
+			}
+		}
+		// 若长度过长
+		if len(allItems) > 2*consts.DefaultQuerySize {
+			break
+		}
+		// 退出 装载信息
+		if shouldStop || !q.Repository.Discussions.PageInfo.HasNextPage {
+			break
+		}
+
+		// 更新after
+		after = &q.Repository.Discussions.PageInfo.EndCursor
+	}
+
+	// 对动态按照时间进行排序
+	sort.Slice(allItems, func(i, j int) bool {
+		return allItems[i].Time > allItems[j].Time
+	})
+
+	// 截取动态
+	if len(allItems) > limit {
+		allItems = allItems[:limit]
+	}
+
+	return allItems, nil
 }
 
 // 返回趋势

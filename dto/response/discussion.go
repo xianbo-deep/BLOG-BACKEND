@@ -1,6 +1,5 @@
 package response
 
-// TODO 写结构体标签
 type Metric struct {
 	TotalComments  int64 `json:"total_comments"`  // 总评论数
 	TotalReplies   int64 `json:"total_replies"`   // 总回复数
