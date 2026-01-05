@@ -1,11 +1,11 @@
 package response
 
 type AnalysisMetric struct {
-	TotalPV    int `json:"totalPV"`
-	TotalUV    int `json:"totalUV"`
-	AvgLatency int `json:"avgLatency"`
-	HotPage    int `json:"hotPage"`
-	HotPagePV  int `json:"hotPagePV"`
+	TotalPV    int64  `json:"totalPV"`
+	TotalUV    int64  `json:"totalUV"`
+	AvgLatency int64  `json:"avgLatency"`
+	HotPage    string `json:"hotPage"`
+	HotPagePV  int64  `json:"hotPagePV"`
 }
 
 type AnalysisTrendItem struct {
@@ -27,17 +27,22 @@ type AnalysisPathItem struct {
 }
 
 type AnalysisPathItemReferer struct {
-	Referer string `json:"referers"`
-	Percent int    `json:"percent"`
+	Referer string `json:"referer"`
+	Percent int64  `json:"percent"`
 }
 
 type AnalysisPathItemCountry struct {
 	Country string `json:"country"`
-	Percent int    `json:"percent"`
+	Percent int64  `json:"percent"`
 }
 
 type AnalysisPathItemDetail struct {
 	Path     string                    `json:"path"`
 	Referers []AnalysisPathItemReferer `json:"referers"`
 	Country  []AnalysisPathItemCountry `json:"country"`
+}
+
+type HotPageResult struct {
+	Path string
+	PV   int64
 }

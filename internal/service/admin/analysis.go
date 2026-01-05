@@ -6,7 +6,6 @@ import (
 	"Blog-Backend/dto/response"
 	"Blog-Backend/internal/dao"
 
-	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -18,24 +17,26 @@ func NewAnalysisService() *AnalysisService {
 	return &AnalysisService{db: core.DB}
 }
 
-func (s *AnalysisService) GetAnalysisMetric() (response.Metric, error) {
-	return dao.GetAnalysisMetric()
+func (s *AnalysisService) GetAnalysisMetric(days int) (response.AnalysisMetric, error) {
+	return dao.GetAnalysisMetric(days)
 }
 
-func (s *AnalysisService) GetAnalysisTrend() ([]response.AnalysisTrendItem, error) {
-	return dao.GetAnalysisTrend()
+func (s *AnalysisService) GetAnalysisTrend(days int) ([]response.AnalysisTrendItem, error) {
+	return dao.GetAnalysisTrend(days)
 }
 
-func (s *AnalysisService) GetAnalysisPathRank() ([]response.AnalysisPathRankItem, error) {
-
+func (s *AnalysisService) GetAnalysisPathRank(days int) ([]response.AnalysisPathRankItem, error) {
+	return dao.GetAnalysisPathRank(days)
 }
 
-func (s *AnalysisService) GetAnalysisPath(req common.PageRequest) ([]common.PageResponse[response.AnalysisPathItem], error) {
-
+func (s *AnalysisService) GetAnalysisPath(req common.PageRequest, days int) (*common.PageResponse[response.AnalysisPathItem], error) {
+	return dao.GetAnalysisPath(req, days)
 }
 
-func (s *AnalysisService) GetAnalysisPathDetail(path string) (response.AnalysisPathItemDetail, error) {
+func (s *AnalysisService) GetAnalysisPathDetail(path string, days int) (response.AnalysisPathItemDetail, error) {
+	return dao.GetAnalysisPathDetail(path, days)
 }
 
-func (s *AnalysisService) GetAnalysisPathByQuery(req common.PageRequest) ([]common.PageResponse[response.AnalysisPathItem], error) {
+func (s *AnalysisService) GetAnalysisPathByQuery(req common.PageRequest, path string, days int) (*common.PageResponse[response.AnalysisPathItem], error) {
+	return dao.GetAnalysisPathByQuery(req, path, days)
 }
