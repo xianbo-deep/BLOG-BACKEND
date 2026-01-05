@@ -9,9 +9,11 @@ type DashboardSummary struct {
 	TotalLogCount int64 `json:"total_log_count"`
 }
 
+// TODO 加上UV的查询
 type DashboardTrends struct {
 	Date string `json:"date"`
 	PV   int64  `json:"pv"`
+	UV   int64  `json:"uv"`
 }
 
 type GeoStatItem struct {

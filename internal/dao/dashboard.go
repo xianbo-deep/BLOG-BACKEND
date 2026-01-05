@@ -66,7 +66,7 @@ func GetHistoryTrends(limit int) ([]response.DashboardTrends, error) {
 	// 给定日期
 	today := time.Now().Format("2006-01-02")
 	err := core.DB.Table("daily_article_stats").
-		Select("to_char(date, 'YYYY-MM-DD') as date, sum(pv) as pv").
+		Select("to_char(date, 'YYYY-MM-DD') as date, sum(pv) as pv,sum(uv) as uv").
 		Where("date < ?", today).
 		Order("date desc").
 		Limit(limit).
@@ -83,8 +83,9 @@ func GetTodayPV(ctx context.Context) (response.DashboardTrends, error) {
 	var result response.DashboardTrends
 	today := time.Now().Format("2006-01-02")
 	// 调用函数获取今日PV
-	_, pv, _ := GetTodayPVUV(ctx)
+	uv, pv, _ := GetTodayPVUV(ctx)
 	// 组装结果
+	result.UV = uv
 	result.PV = pv
 	result.Date = today
 	return result, nil
@@ -147,6 +148,7 @@ func GetErrorLogs(limit int) ([]response.ErrorLogItem, error) {
 		Where("status != 200").
 		Order("visit_time desc").
 		Limit(limit).
+		Scan(&result).
 		Error
 	if err != nil {
 		return nil, err

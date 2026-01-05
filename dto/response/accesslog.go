@@ -14,4 +14,5 @@ type AccessLog struct {
 	City       string    `json:"city"`
 	Region     string    `json:"region"`
 	Status     int64     `json:"status"`
+	Latency    int64     `json:"latency"`
 }

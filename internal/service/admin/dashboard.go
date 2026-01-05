@@ -28,6 +28,7 @@ func (s *DashboardService) GetDashboardSummary(ctx context.Context) (response.Da
 	return result, nil
 }
 
+// 查博客总趋势
 func (s *DashboardService) GetDashboardTrend(ctx context.Context) ([]response.DashboardTrends, error) {
 	// 查过去6天
 	history, err := dao.GetHistoryTrends(6)

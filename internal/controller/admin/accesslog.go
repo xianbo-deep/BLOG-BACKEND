@@ -1,15 +1,15 @@
 package admin
 
 import (
-	"Blog-Backend/core"
 	"Blog-Backend/dto/common"
+	"Blog-Backend/dto/request"
 	"Blog-Backend/internal/service/admin"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-var accesslogService = admin.NewAccessLogService(core.DB)
+var accesslogService = admin.NewAccessLogService()
 
 func GetAccessLog(c *gin.Context) {
 	var req common.PageRequest
@@ -28,5 +28,21 @@ func GetAccessLog(c *gin.Context) {
 		return
 	}
 
+	common.Success(c, res)
+}
+
+func GetAccessLogByQuery(c *gin.Context) {
+	var req request.AccessLogRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
+		return
+	}
+
+	// 调用service
+	res, err := accesslogService.GetAccessLogByQuery(req)
+	if err != nil {
+		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
+		return
+	}
 	common.Success(c, res)
 }
