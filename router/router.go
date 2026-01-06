@@ -59,8 +59,8 @@ func SetupRouter() *gin.Engine {
 			// 访问日志
 			accesslog := adminAuth.Group("/accesslog")
 			{
-				accesslog.POST("/logs", admin.GetAccessLog)
-				accesslog.POST("/querylog", admin.GetAccessLogByQuery)
+				accesslog.GET("/logs", admin.GetAccessLog)
+				accesslog.GET("/querylog", admin.GetAccessLogByQuery)
 			}
 
 			// 性能监控
@@ -76,9 +76,9 @@ func SetupRouter() *gin.Engine {
 				analysis.GET("/metrics", admin.GetAnalysisMetrics)
 				analysis.GET("/trend", admin.GetAnalysisTrend)
 				analysis.GET("/rank", admin.GetAnalysisPathRank)
-				analysis.POST("/path", admin.GetAnalysisPath)
-				analysis.POST("/detail", admin.GetAnalysisPathDetail)
-				analysis.POST("/querypath", admin.GetAnalysisPathByQuery)
+				analysis.GET("/path", admin.GetAnalysisPath)
+				analysis.GET("/detail", admin.GetAnalysisPathDetail)
+				analysis.GET("/querypath", admin.GetAnalysisPathByQuery)
 
 			}
 

@@ -1,4 +1,4 @@
-package response
+package github
 
 type Metric struct {
 	TotalComments  int64 `json:"total_comments"`  // 总评论数

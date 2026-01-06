@@ -69,3 +69,24 @@ Blog-Backend/
 ```
 
 
+## 提交类型说明
+
+**格式**
+
+- `type`:提交类型
+- `scope`:模块名
+- `message`:描述信息
+```text
+<type>(scope): <message>
+```
+
+**提交类型**
+
+|    类型    |  含义   |
+|:--------:|:-----:|
+|   feat   |  新功能  |
+|   fix    | 修复bug |
+| refactor |  重构   |
+|   docs   | 文档变更  |
+|  chore   |  杂项   |
+|    ci    | CI/CD |

@@ -2,24 +2,22 @@ package admin
 
 import (
 	"Blog-Backend/dto/common"
+	"Blog-Backend/dto/request"
 	"Blog-Backend/internal/service/admin"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 var analysisService = admin.NewAnalysisService()
 
-// TODO 后面记得重构POST请求的代码 只用GET即可
 func GetAnalysisMetrics(c *gin.Context) {
-	daysStr := c.Query("days")
-	days, e := strconv.Atoi(daysStr)
-	if e != nil {
-		common.Fail(c, http.StatusBadRequest, 1000, e.Error())
+	var req request.AnalysisRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
 		return
 	}
-	res, err := analysisService.GetAnalysisMetric(days)
+	res, err := analysisService.GetAnalysisMetric(req.Days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 		return
@@ -28,13 +26,12 @@ func GetAnalysisMetrics(c *gin.Context) {
 }
 
 func GetAnalysisTrend(c *gin.Context) {
-	daysStr := c.Query("days")
-	days, e := strconv.Atoi(daysStr)
-	if e != nil {
-		common.Fail(c, http.StatusBadRequest, 1000, e.Error())
+	var req request.AnalysisRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
 		return
 	}
-	res, err := analysisService.GetAnalysisTrend(days)
+	res, err := analysisService.GetAnalysisTrend(req.Days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 		return
@@ -43,13 +40,12 @@ func GetAnalysisTrend(c *gin.Context) {
 }
 
 func GetAnalysisPathRank(c *gin.Context) {
-	daysStr := c.Query("days")
-	days, e := strconv.Atoi(daysStr)
-	if e != nil {
-		common.Fail(c, http.StatusBadRequest, 1000, e.Error())
+	var req request.AnalysisRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
 		return
 	}
-	res, err := analysisService.GetAnalysisPathRank(days)
+	res, err := analysisService.GetAnalysisPathRank(req.Days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 		return
@@ -58,18 +54,15 @@ func GetAnalysisPathRank(c *gin.Context) {
 }
 
 func GetAnalysisPath(c *gin.Context) {
-	var req common.PageRequest
+	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
 		return
 	}
-	daysStr := c.Query("days")
-	days, e := strconv.Atoi(daysStr)
-	if e != nil {
-		common.Fail(c, http.StatusBadRequest, 1000, e.Error())
-		return
-	}
-	res, err := analysisService.GetAnalysisPath(req, days)
+	res, err := analysisService.GetAnalysisPath(common.PageRequest{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}, req.Days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 		return
@@ -78,34 +71,30 @@ func GetAnalysisPath(c *gin.Context) {
 }
 
 func GetAnalysisPathDetail(c *gin.Context) {
-	daysStr := c.Query("days")
-	path := c.Query("path")
-
-	days, e := strconv.Atoi(daysStr)
-	if e != nil {
-		common.Fail(c, http.StatusBadRequest, 1000, e.Error())
+	var req request.AnalysisRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
+		return
 	}
-	res, err := analysisService.GetAnalysisPathDetail(path, days)
+	res, err := analysisService.GetAnalysisPathDetail(req.Path, req.Days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
+		return
 	}
 	common.Success(c, res)
 }
 
 func GetAnalysisPathByQuery(c *gin.Context) {
-	var req common.PageRequest
+	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
 		return
 	}
+	res, err := analysisService.GetAnalysisPathByQuery(common.PageRequest{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}, req.Path, req.Days)
 
-	daysStr := c.Query("days")
-	path := c.Query("path")
-	days, e := strconv.Atoi(daysStr)
-	if e != nil {
-		common.Fail(c, http.StatusBadRequest, 1001, e.Error())
-	}
-	res, err := analysisService.GetAnalysisPathByQuery(req, path, days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 	}

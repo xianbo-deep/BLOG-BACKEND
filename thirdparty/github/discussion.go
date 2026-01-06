@@ -2,9 +2,7 @@ package github
 
 import (
 	"Blog-Backend/consts"
-	"Blog-Backend/dto/response"
 	"context"
-	"go/ast"
 	"os"
 	"sort"
 	"time"
@@ -28,7 +26,7 @@ func NewDiscussionService(github *githubv4.Client) *DiscussionService {
 }
 
 // 返回三个指标
-func (s *DiscussionService) GetTotalMetric(ctx context.Context, timeRangeDays int) (response.Metric, error) {
+func (s *DiscussionService) GetTotalMetric(ctx context.Context, timeRangeDays int) (Metric, error) {
 	// 声明为指针，返回nil
 	var after *githubv4.String
 	var cutoffTime time.Time
@@ -97,7 +95,7 @@ func (s *DiscussionService) GetTotalMetric(ctx context.Context, timeRangeDays in
 		err := s.github.Query(ctx, &q, vars)
 
 		if err != nil {
-			return response.Metric{}, err
+			return Metric{}, err
 		}
 		shouldStop := false
 		// 处理每一个discussion
@@ -147,7 +145,7 @@ func (s *DiscussionService) GetTotalMetric(ctx context.Context, timeRangeDays in
 		after = &q.Repository.Discussions.PageInfo.EndCursor
 	}
 
-	return response.Metric{
+	return Metric{
 		TotalComments:  int64(totalComments),
 		TotalReplies:   int64(totalReplies),
 		TotalReactions: int64(totalReactions),
@@ -156,9 +154,9 @@ func (s *DiscussionService) GetTotalMetric(ctx context.Context, timeRangeDays in
 }
 
 // 返回最新动态
-func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]response.NewFeedItem, error) {
+func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]NewFeedItem, error) {
 	var after *githubv4.String
-	var allItems []response.NewFeedItem
+	var allItems []NewFeedItem
 	// 不统计7天前的
 	cutoffTime := time.Now().AddDate(0, 0, -7)
 	for {
@@ -259,7 +257,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]respon
 			// 处理reaction
 			for _, reaction := range discussion.Reactions.Nodes {
 				if reaction.CreatedAt.After(cutoffTime) {
-					allItems = append(allItems, response.NewFeedItem{
+					allItems = append(allItems, NewFeedItem{
 						EventType: consts.Reaction,
 						Name:      string(reaction.User.Login),
 						Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
@@ -273,7 +271,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]respon
 			// 处理评论
 			for _, comment := range discussion.Comments.Nodes {
 				if comment.CreatedAt.After(cutoffTime) {
-					allItems = append(allItems, response.NewFeedItem{
+					allItems = append(allItems, NewFeedItem{
 						EventType: consts.Comment,
 						Name:      string(comment.Author.Login),
 						Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
@@ -286,7 +284,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]respon
 				// 处理评论的reaction
 				for _, reaction := range comment.Reactions.Nodes {
 					if reaction.CreatedAt.After(cutoffTime) {
-						allItems = append(allItems, response.NewFeedItem{
+						allItems = append(allItems, NewFeedItem{
 							EventType: consts.Reaction,
 							Name:      string(reaction.User.Login),
 							Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
@@ -301,7 +299,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]respon
 				// 处理评论的回复
 				for _, reply := range comment.Replies.Nodes {
 					if reply.CreatedAt.After(cutoffTime) {
-						allItems = append(allItems, response.NewFeedItem{
+						allItems = append(allItems, NewFeedItem{
 							EventType:      consts.Reply,
 							Name:           string(reply.Author.Login),
 							Path:           os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
@@ -317,7 +315,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]respon
 					// 处理回复的reaction
 					for _, reaction := range reply.Reactions.Nodes {
 						if reaction.CreatedAt.After(cutoffTime) {
-							allItems = append(allItems, response.NewFeedItem{
+							allItems = append(allItems, NewFeedItem{
 								EventType: consts.Reaction,
 								Name:      string(reaction.User.Login),
 								Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
@@ -358,11 +356,11 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]respon
 }
 
 // 返回趋势
-func (s *DiscussionService) GetTrend(ctx context.Context) ([]response.TrendItem, error) {
+func (s *DiscussionService) GetTrend(ctx context.Context) ([]TrendItem, error) {
 
 }
 
 // 返回活跃用户
-func (s *DiscussionService) GetActiveUser(ctx context.Context) ([]response.ActiveUserItem, error) {
+func (s *DiscussionService) GetActiveUser(ctx context.Context) ([]ActiveUserItem, error) {
 
 }
