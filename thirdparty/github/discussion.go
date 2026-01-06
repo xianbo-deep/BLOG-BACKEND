@@ -158,7 +158,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]NewFee
 	var after *githubv4.String
 	var allItems []NewFeedItem
 	// 不统计7天前的
-	cutoffTime := time.Now().AddDate(0, 0, -7)
+	cutoffTime := time.Now().AddDate(0, 0, -consts.TimeRangeWeek)
 	for {
 		var q struct {
 			Repository struct {
@@ -357,10 +357,107 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]NewFee
 
 // 返回趋势
 func (s *DiscussionService) GetTrend(ctx context.Context) ([]TrendItem, error) {
-
+	var after *githubv4.String
+	var trends []TrendItem
+	cutoffTime := time.Now().AddDate(0, 0, -consts.TimeRangeWeek)
+	for {
+		var q struct {
+			Repository struct {
+				Discussion struct {
+					Nodes []struct {
+						Reactions struct {
+							Nodes []struct {
+								CreatedAt githubv4.DateTime
+							}
+						}
+						Comments struct {
+							Nodes []struct {
+								CreatedAt githubv4.DateTime
+								Replies   struct {
+									Nodes []struct {
+										CreatedAt githubv4.DateTime
+										Reactions struct {
+											Nodes []struct {
+												CreatedAt githubv4.DateTime
+											}
+										}
+									}
+								}
+								Reactions struct {
+									Nodes []struct {
+										CreatedAt githubv4.DateTime
+									}
+								}
+							}
+						}
+					}
+					PageInfo struct {
+						HasNextPage bool
+						EndCursor   githubv4.String
+					}
+				} `graphql:"discussion(first: $first, after: $after)"`
+			} `graphql:"repository(owner: $owner, name: $name)"`
+		}
+	}
 }
 
 // 返回活跃用户
 func (s *DiscussionService) GetActiveUser(ctx context.Context) ([]ActiveUserItem, error) {
-
+	var after *githubv4.String
+	var activeUsers []ActiveUserItem
+	for {
+		var q struct {
+			Repository struct {
+				Discussions struct {
+					Nodes []struct {
+						Reactions struct {
+							Nodes []struct {
+								User struct {
+									AvatarUrl githubv4.String
+									Url       githubv4.String
+									Login     githubv4.String
+								}
+							}
+						}
+						Comments struct {
+							Nodes []struct {
+								Author struct {
+									AvatarUrl githubv4.String
+									Url       githubv4.String
+									Login     githubv4.String
+								}
+								Replies struct {
+									Nodes []struct {
+										Author struct {
+											AvatarUrl githubv4.String
+											Url       githubv4.String
+											Login     githubv4.String
+										}
+										Reactions struct {
+											Nodes []struct {
+												User struct {
+													AvatarUrl githubv4.String
+													Url       githubv4.String
+													Login     githubv4.String
+												}
+											}
+										}
+									}
+								}
+								Reactions struct {
+									Nodes []struct {
+										User struct {
+											AvatarUrl githubv4.String
+											Url       githubv4.String
+											Login     githubv4.String
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
