@@ -53,7 +53,7 @@ func SyncRedisToDB() {
 	defer core.RDB.Del(ctx, lockKey)
 
 	yesterdayTime := time.Now().AddDate(0, 0, -1)
-	yesterday := yesterdayTime.Format("2006-01-02")
+	yesterday := yesterdayTime.Format(consts.DateLayout)
 
 	keyPathRank := consts.GetDailyStatKey(yesterday, consts.RedisKeySuffixPathRank)
 	keyLatTotal := consts.GetDailyStatKey(yesterday, consts.RedisKeySuffixPathTotalLatency)

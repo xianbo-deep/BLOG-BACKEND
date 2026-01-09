@@ -13,12 +13,12 @@ type Client struct {
 	cli *githubv4.Client
 }
 
-func NewClient() *Client {
+func NewClient() *githubv4.Client {
 	src := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: os.Getenv(consts.EnvDiscussionToken)},
 	)
 	// 初始化httpclient
 	httpClient := oauth2.NewClient(context.Background(), src)
 	cli := githubv4.NewClient(httpClient)
-	return &Client{cli: cli}
+	return cli
 }

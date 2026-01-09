@@ -64,7 +64,7 @@ func GetHistoryTrends(limit int) ([]response.DashboardTrends, error) {
 	// 初始化变量
 	var result []response.DashboardTrends
 	// 给定日期
-	today := time.Now().Format("2006-01-02")
+	today := time.Now().Format(consts.DateLayout)
 	err := core.DB.Table("daily_article_stats").
 		Select("to_char(date, 'YYYY-MM-DD') as date, sum(pv) as pv,sum(uv) as uv").
 		Where("date < ?", today).
@@ -81,7 +81,7 @@ func GetHistoryTrends(limit int) ([]response.DashboardTrends, error) {
 // 在Redis获取今天的访问量
 func GetTodayPV(ctx context.Context) (response.DashboardTrends, error) {
 	var result response.DashboardTrends
-	today := time.Now().Format("2006-01-02")
+	today := time.Now().Format(consts.DateLayout)
 	// 调用函数获取今日PV
 	uv, pv, _ := GetTodayPVUV(ctx)
 	// 组装结果

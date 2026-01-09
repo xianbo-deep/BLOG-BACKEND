@@ -88,6 +88,15 @@ func SetupRouter() *gin.Engine {
 				visitormap.GET("/map", admin.GetVisitorMap)
 				visitormap.GET("/chineseMap", admin.GetChineseVisitorMap)
 			}
+
+			// 评论区信息
+			discussionmap := adminAuth.Group("/discussionmap")
+			{
+				discussionmap.GET("/metric", admin.GetDiscussionMetric)
+				discussionmap.GET("/trend", admin.GetDiscussionTrend)
+				discussionmap.GET("/activeuser", admin.GetDiscussionActiveUser)
+				discussionmap.GET("/feed", admin.GetDiscussionNewFeed)
+			}
 		}
 	}
 

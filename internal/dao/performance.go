@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"Blog-Backend/consts"
 	"Blog-Backend/core"
 	"Blog-Backend/dto/response"
 	"Blog-Backend/model"
@@ -16,7 +17,7 @@ func GetSlowPages(ctx context.Context, limit int) ([]response.SlowDelayItem, err
 	}
 	var result []response.SlowDelayItem
 	// 获取键名
-	today := time.Now().Format("2006-01-02")
+	today := time.Now().Format(consts.DateLayout)
 	key := "blog:stat:daily:" + today + ":latency:rank"
 
 	// 进行查询
