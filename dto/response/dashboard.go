@@ -3,13 +3,14 @@ package response
 import "time"
 
 type DashboardSummary struct {
-	PV            int64 `json:"pv"`
-	UV            int64 `json:"uv"`
-	OnlineCount   int64 `json:"online_count"`
-	TotalLogCount int64 `json:"total_log_count"`
+	PV            int64   `json:"pv"`
+	UV            int64   `json:"uv"`
+	OnlineCount   int64   `json:"online_count"`
+	TotalLogCount int64   `json:"total_log_count"`
+	PvPercent     float64 `json:"pv_percent"`
+	UVPercent     float64 `json:"uv_percent"`
 }
 
-// TODO 加上UV的查询
 type DashboardTrends struct {
 	Date string `json:"date"`
 	PV   int64  `json:"pv"`

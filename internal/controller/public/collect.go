@@ -43,7 +43,7 @@ func CollectHandler(c *gin.Context) {
 
 	// 调用referer解析器获取信息
 	referer := c.GetHeader("Referer")
-	_, medium, source, term := utils.ParseReferer(referer)
+	_, medium, source := utils.ParseReferer(referer)
 
 	info := request.CollectServiceDTO{
 		VisitorID: req.VisitorID,
@@ -60,7 +60,6 @@ func CollectHandler(c *gin.Context) {
 		Referer:    referer,
 		Medium:     medium,
 		Source:     source,
-		Term:       term,
 	}
 
 	// 创建上下文

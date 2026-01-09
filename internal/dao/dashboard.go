@@ -155,3 +155,22 @@ func GetErrorLogs(limit int) ([]response.ErrorLogItem, error) {
 	}
 	return result, nil
 }
+
+// 获取前一天的PV和UV
+func GetLastDayPVUV() (response.DashboardTrends, error) {
+	yesterday := time.Now().AddDate(0, 0, -1)
+	// 复用结构体
+	var result response.DashboardTrends
+	err := core.DB.Table("daily_article_stats").
+		Select("coalesce(sum(pv), 0) as pv,coalesce(sum(uv), 0) as uv").
+		Where("date = ?", yesterday).
+		Scan(&result).
+		Error
+
+	if err != nil {
+		return response.DashboardTrends{}, err
+	}
+
+	result.Date = yesterday.Format(consts.DateLayout)
+	return result, nil
+}

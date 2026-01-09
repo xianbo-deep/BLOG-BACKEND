@@ -25,5 +25,4 @@ type CollectServiceDTO struct {
 	Referer    string
 	Medium     string
 	Source     string
-	Term       string
 }

@@ -179,8 +179,8 @@ func GetAnalysisPathDetail(path string, days int) (response.AnalysisPathItemDeta
 		Count   int64
 	}
 
-	err := db.Select("referer,count(*) as count").
-		Group("referer").
+	err := db.Select("refr_source,count(*) as count").
+		Group("refr_source").
 		Order("count desc").
 		Limit(3).
 		Scan(&referers).Error

@@ -25,6 +25,29 @@ func (s *DashboardService) GetDashboardSummary(ctx context.Context) (response.Da
 	UV, PV, _ := dao.GetTodayPVUV(ctx)
 	result.UV = UV
 	result.PV = PV
+	// 获取前一天的PV和UV
+	res, err := dao.GetLastDayPVUV()
+	if err != nil {
+		return result, err
+	}
+	if res.PV > 0 {
+		result.PvPercent = (float64(PV) - float64(res.PV)) / float64(res.PV)
+	} else {
+		if PV > 0 {
+			result.PvPercent = 1.0
+		} else {
+			result.PvPercent = 0.0
+		}
+	}
+	if res.UV > 0 {
+		result.UVPercent = (float64(UV) - float64(res.UV)) / float64(res.UV)
+	} else {
+		if UV > 0 {
+			result.UVPercent = 1.0
+		} else {
+			result.UVPercent = 0.0
+		}
+	}
 	return result, nil
 }
 
