@@ -10,7 +10,7 @@ import (
 	"github.com/shurcooL/githubv4"
 )
 
-// TODO cnm 是人类做的吗 后续改成跑定时任务 反正也是给我自己看 如果频繁查询这也太慢了
+// TODO cnm 是人类做的吗 后续改成把结果存缓存里 注册个github的webhook监听 有动态就清缓存
 type DiscussionService struct {
 	github *githubv4.Client
 	owner  string
@@ -356,10 +356,25 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]NewFee
 }
 
 // 返回趋势
-func (s *DiscussionService) GetTrend(ctx context.Context) ([]TrendItem, error) {
+func (s *DiscussionService) GetTrend(ctx context.Context, timeRangeDays int) ([]TrendItem, error) {
+	// 预定义
 	var after *githubv4.String
-	var trends []TrendItem
-	cutoffTime := time.Now().AddDate(0, 0, -consts.TimeRangeWeek)
+	cutoffTime := time.Now().AddDate(0, 0, -timeRangeDays)
+
+	// 按日期统计
+	trendMap := make(map[string]*TrendItem)
+
+	for i := 0; i < timeRangeDays; i++ {
+		date := time.Now().AddDate(0, 0, -i)
+		key := date.Format("2006-01-02")
+		trendMap[key] = &TrendItem{
+			Date:           key,
+			TotalReplies:   0,
+			TotalComments:  0,
+			TotalReactions: 0,
+		}
+	}
+
 	for {
 		var q struct {
 			Repository struct {
@@ -369,7 +384,7 @@ func (s *DiscussionService) GetTrend(ctx context.Context) ([]TrendItem, error) {
 							Nodes []struct {
 								CreatedAt githubv4.DateTime
 							}
-						}
+						} `graphql:"reactions(first:100)"`
 						Comments struct {
 							Nodes []struct {
 								CreatedAt githubv4.DateTime
@@ -380,31 +395,94 @@ func (s *DiscussionService) GetTrend(ctx context.Context) ([]TrendItem, error) {
 											Nodes []struct {
 												CreatedAt githubv4.DateTime
 											}
-										}
+										} `graphql:"reactions(first:100)"`
 									}
-								}
+								} `graphql:"replies(first:100)"`
 								Reactions struct {
 									Nodes []struct {
 										CreatedAt githubv4.DateTime
 									}
-								}
+								} `graphql:"reactions(first:100)"`
 							}
-						}
+						} `graphql:"comments(first:100)"`
 					}
 					PageInfo struct {
 						HasNextPage bool
 						EndCursor   githubv4.String
 					}
 				} `graphql:"discussion(first: $first, after: $after)"`
-			} `graphql:"repository(owner: $owner, name: $name)"`
+			} `graphql:"repository(owner: $owner, name: $repo)"`
 		}
+
+		vars := map[string]interface{}{
+			"first": consts.DefaultQuerySize,
+			"after": after,
+			"owner": s.owner,
+			"repo":  s.repo,
+		}
+
+		err := s.github.Query(ctx, q, vars)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, discussion := range q.Repository.Discussion.Nodes {
+			for _, comment := range discussion.Comments.Nodes {
+				if comment.CreatedAt.After(cutoffTime) {
+					key := comment.CreatedAt.Time.Format("2006-01-02")
+					trendMap[key].TotalComments++
+				}
+				for _, reply := range comment.Replies.Nodes {
+					if reply.CreatedAt.After(cutoffTime) {
+						key := reply.CreatedAt.Time.Format("2006-01-02")
+						trendMap[key].TotalReplies++
+					}
+					for _, reaction := range reply.Reactions.Nodes {
+						if reaction.CreatedAt.After(cutoffTime) {
+							key := reaction.CreatedAt.Time.Format("2006-01-02")
+							trendMap[key].TotalReactions++
+						}
+					}
+				}
+				for _, reaction := range comment.Reactions.Nodes {
+					if reaction.CreatedAt.After(cutoffTime) {
+						key := reaction.CreatedAt.Time.Format("2006-01-02")
+						trendMap[key].TotalReactions++
+					}
+				}
+			}
+			for _, reaction := range discussion.Reactions.Nodes {
+				if reaction.CreatedAt.After(cutoffTime) {
+					key := reaction.CreatedAt.Time.Format("2006-01-02")
+					trendMap[key].TotalReactions++
+				}
+			}
+		}
+
+		if !q.Repository.Discussion.PageInfo.HasNextPage {
+			break
+		}
+
+		// 更新参数
+		after = &q.Repository.Discussion.PageInfo.EndCursor
 	}
+	// 转换成切片
+	trends := make([]TrendItem, 0, len(trendMap))
+	for i := 0; i < timeRangeDays; i++ {
+		date := time.Now().AddDate(0, 0, -i)
+		key := date.Format("2006-01-02")
+		trends = append(trends, *trendMap[key])
+	}
+	return trends, nil
+
 }
 
 // 返回活跃用户
-func (s *DiscussionService) GetActiveUser(ctx context.Context) ([]ActiveUserItem, error) {
+func (s *DiscussionService) GetActiveUser(ctx context.Context, limit int) ([]ActiveUserItem, error) {
 	var after *githubv4.String
-	var activeUsers []ActiveUserItem
+
+	// 创建用户map
+	userMap := make(map[string]*ActiveUserItem)
 	for {
 		var q struct {
 			Repository struct {
@@ -418,7 +496,7 @@ func (s *DiscussionService) GetActiveUser(ctx context.Context) ([]ActiveUserItem
 									Login     githubv4.String
 								}
 							}
-						}
+						} `graphql:"reactions(first:100)"`
 						Comments struct {
 							Nodes []struct {
 								Author struct {
@@ -441,9 +519,9 @@ func (s *DiscussionService) GetActiveUser(ctx context.Context) ([]ActiveUserItem
 													Login     githubv4.String
 												}
 											}
-										}
+										} `graphql:"reactions(first:100)"`
 									}
-								}
+								} `graphql:"replies(first:100)"`
 								Reactions struct {
 									Nodes []struct {
 										User struct {
@@ -452,12 +530,138 @@ func (s *DiscussionService) GetActiveUser(ctx context.Context) ([]ActiveUserItem
 											Login     githubv4.String
 										}
 									}
-								}
+								} `graphql:"reactions(first:100)"`
 							}
+						} `graphql:"comments(first:100)"`
+					}
+					PageInfo struct {
+						HasNextPage bool
+						EndCursor   githubv4.String
+					}
+				} `graphql:"discussion(first: $first, after: $after)"`
+			} `graphql:"repository(owner: $owner, name: $repo)"`
+		}
+		vars := map[string]interface{}{
+			"first": consts.DefaultQuerySize,
+			"after": after,
+			"owner": s.owner,
+			"repo":  s.repo,
+		}
+		err := s.github.Query(ctx, q, vars)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, discussion := range q.Repository.Discussions.Nodes {
+			for _, comment := range discussion.Comments.Nodes {
+				if comment.Author.Login != "" {
+					login := string(comment.Author.Login)
+					item, ok := userMap[login]
+					if !ok {
+						item = &ActiveUserItem{
+							Name:       login,
+							TotalFeeds: 0,
+							Avatar:     string(comment.Author.AvatarUrl),
+							URL:        string(comment.Author.Url),
 						}
+						userMap[login] = item
+					}
+					// 是指针，在这改会进行同步
+					item.TotalFeeds++
+				}
+				for _, reaction := range comment.Reactions.Nodes {
+					login := string(reaction.User.Login)
+					if login == "" {
+						continue
+					}
+					item, ok := userMap[login]
+					if !ok {
+						item = &ActiveUserItem{
+							Name:       login,
+							TotalFeeds: 0,
+							Avatar:     string(reaction.User.AvatarUrl),
+							URL:        string(reaction.User.Url),
+						}
+						userMap[login] = item
+					}
+					item.TotalFeeds++
+				}
+				for _, reply := range comment.Replies.Nodes {
+					if reply.Author.Login != "" {
+						login := string(reply.Author.Login)
+						item, ok := userMap[login]
+						if !ok {
+							item = &ActiveUserItem{
+								Name:       login,
+								TotalFeeds: 0,
+								Avatar:     string(reply.Author.AvatarUrl),
+								URL:        string(reply.Author.Url),
+							}
+							userMap[login] = item
+						}
+						item.TotalFeeds++
+					}
+					for _, reaction := range reply.Reactions.Nodes {
+						login := string(reaction.User.Login)
+						if login == "" {
+							continue
+						}
+						item, ok := userMap[login]
+						if !ok {
+							item = &ActiveUserItem{
+								Name:       login,
+								TotalFeeds: 0,
+								Avatar:     string(reaction.User.AvatarUrl),
+								URL:        string(reaction.User.Url),
+							}
+							userMap[login] = item
+						}
+						item.TotalFeeds++
 					}
 				}
 			}
+
+			for _, reaction := range discussion.Reactions.Nodes {
+				login := string(reaction.User.Login)
+				if login == "" {
+					continue
+				}
+				item, ok := userMap[login]
+				if !ok {
+					item = &ActiveUserItem{
+						Name:       login,
+						TotalFeeds: 0,
+						Avatar:     string(reaction.User.AvatarUrl),
+						URL:        string(reaction.User.Url),
+					}
+					userMap[login] = item
+				}
+				item.TotalFeeds++
+			}
 		}
+
+		if !q.Repository.Discussions.PageInfo.HasNextPage {
+			break
+		}
+
+		after = &q.Repository.Discussions.PageInfo.EndCursor
+
 	}
+
+	// 进行数据组装返回
+	activeusers := make([]ActiveUserItem, 0, len(userMap))
+	for _, item := range userMap {
+		activeusers = append(activeusers, *item)
+	}
+
+	// 按活跃度排序
+	sort.Slice(activeusers, func(i, j int) bool {
+		return activeusers[i].TotalFeeds > activeusers[j].TotalFeeds
+	})
+
+	if limit > 0 && limit < len(activeusers) {
+		activeusers = activeusers[:limit]
+	}
+
+	return activeusers, nil
 }

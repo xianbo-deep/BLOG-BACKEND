@@ -30,5 +30,5 @@ type TrendItem struct {
 	Date           string `json:"date"`           // 日期
 	TotalComments  int64  `json:"totalComments"`  // 总评论数
 	TotalReplies   int64  `json:"totalReplies"`   // 总回复数
-	TotalResponses int64  `json:"totalResponses"` // 总回应数
+	TotalReactions int64  `json:"totalResponses"` // 总回应数
 }
