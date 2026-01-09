@@ -19,6 +19,9 @@ type VisitLog struct {
 	Status     int64     `gorm:"column:status;type:smallint;default:200" json:"status"`
 	VisitorID  string    `gorm:"column:visitor_id;type:text" json:"visitor_id"`
 	Latency    int64     `gorm:"column:latency;type:int;default:0" json:"latency"`
+	Medium     string    `gorm:"column:refr_medium;type:text" json:"medium"`
+	Source     string    `gorm:"column:refr_source;type:text" json:"source"`
+	Term       string    `gorm:"column:refr_term;type:text" json:"term"`
 }
 
 /* 指定表名 */

@@ -41,6 +41,10 @@ func CollectHandler(c *gin.Context) {
 	// 调用geo工具包获取具体信息
 	country, region, city := utils.LookupIP(ip)
 
+	// 调用referer解析器获取信息
+	referer := c.GetHeader("Referer")
+	_, medium, source, term := utils.ParseReferer(referer)
+
 	info := request.CollectServiceDTO{
 		VisitorID: req.VisitorID,
 		Path:      req.Path,
@@ -53,7 +57,10 @@ func CollectHandler(c *gin.Context) {
 		UserAgent:  c.GetHeader("User-Agent"),
 		City:       city,
 		Region:     region,
-		Referer:    c.GetHeader("Referer"),
+		Referer:    referer,
+		Medium:     medium,
+		Source:     source,
+		Term:       term,
 	}
 
 	// 创建上下文

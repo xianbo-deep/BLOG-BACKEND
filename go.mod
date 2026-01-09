@@ -38,6 +38,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/shurcooL/githubv4 v0.0.0-20240727222349-48295856cce7 // indirect
 	github.com/shurcooL/graphql v0.0.0-20230722043721-ed46e5a46466 // indirect
+	github.com/snowplow-referer-parser/golang-referer-parser v0.0.0-20190701075511-42675519c803 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.0 // indirect
 	go.uber.org/mock v0.5.0 // indirect

@@ -23,4 +23,7 @@ type CollectServiceDTO struct {
 	Region     string
 	UserAgent  string
 	Referer    string
+	Medium     string
+	Source     string
+	Term       string
 }
