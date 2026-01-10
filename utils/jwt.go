@@ -37,14 +37,20 @@ func ParseToken(tokenString string) (*MyClaims, error) {
 		return Secret, nil
 	})
 
+	// TODO 了解一下Errors的工作原理
 	if err != nil {
-		return nil, err
+		if errors.Is(err, jwt.ErrSignatureInvalid) {
+			return nil, errors.New(consts.ErrorMessage(consts.CodeInvalidToken))
+		} else if errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet) {
+			return nil, errors.New(consts.ErrorMessage(consts.CodeTokenExpired))
+		}
 	}
 
 	// 类型断言
+
 	if claims, ok := token.Claims.(*MyClaims); ok && token.Valid {
 		return claims, nil
 	}
 
-	return nil, errors.New("invalid token")
+	return nil, errors.New(consts.ErrorMessage(consts.CodeInvalidToken))
 }

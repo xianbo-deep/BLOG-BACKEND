@@ -1,6 +1,7 @@
 package public
 
 import (
+	"Blog-Backend/consts"
 	"Blog-Backend/dto/common"
 	"Blog-Backend/dto/request"
 	"Blog-Backend/internal/service/public"
@@ -66,7 +67,7 @@ func CollectHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	if err := collectService.Collect(ctx, info); err != nil {
-		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}
 	common.Success(c, gin.H{"status": "ok"})

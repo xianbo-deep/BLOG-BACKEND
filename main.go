@@ -18,15 +18,18 @@ var (
 
 func main() {
 	/* 初始化数据库 */
-	core.Init()
+	err := core.Init()
+
+	if err != nil {
+		panic(err)
+	}
 
 	/* 启动定时任务*/
 	task.InitCron()
 
 	/* 初始化路由 */
-	once.Do(func() {
-		rEngine = router.SetupRouter()
-	})
+
+	rEngine = router.SetupRouter()
 
 	/* 获取端口 */
 	port := os.Getenv(consts.EnvPort)

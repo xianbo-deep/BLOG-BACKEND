@@ -1,6 +1,11 @@
 package common
 
-import "github.com/gin-gonic/gin"
+import (
+	"Blog-Backend/consts"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 type Response struct {
 	Code    int         `json:"code"`
@@ -10,17 +15,29 @@ type Response struct {
 }
 
 func Success(c *gin.Context, data interface{}) {
-	c.JSON(200, Response{
-		Code:    0,
-		Message: "success",
+	c.JSON(http.StatusOK, Response{
+		Code:    consts.CodeSuccess,
+		Message: consts.ErrorMessage(consts.CodeSuccess),
 		Data:    data,
 	})
 }
 
 func Fail(c *gin.Context, httpCode int, code int, errMsg string) {
-	c.JSON(httpCode, Response{
+	message := consts.ErrorMessage(code)
+	if message == "" {
+		message = errMsg
+	}
+
+	response := Response{
 		Code:    code,
-		Message: errMsg,
-		Error:   errMsg,
+		Message: message,
+	}
+	if errMsg != "" {
+		response.Error = errMsg
+	}
+	c.JSON(httpCode, Response{
+		Code:    response.Code,
+		Message: response.Message,
+		Error:   response.Error,
 	})
 }

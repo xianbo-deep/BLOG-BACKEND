@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"Blog-Backend/consts"
+	"Blog-Backend/dto/common"
 	"Blog-Backend/utils"
 	"net/http"
 	"os"
@@ -16,7 +18,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		// token为空
 		if token == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "token is empty"})
+			common.Fail(c, http.StatusUnauthorized, consts.CodeTokenRequired, consts.ErrorMessage(consts.CodeTokenRequired))
 			c.Abort()
 			return
 		}
@@ -24,7 +26,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		// 格式校验
 		parts := strings.SplitN(token, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid pattern of token"})
+			common.Fail(c, http.StatusUnauthorized, consts.CodeInvalidToken, consts.ErrorMessage(consts.CodeInvalidToken))
 			c.Abort()
 			return
 		}
@@ -33,13 +35,13 @@ func AuthMiddleware() gin.HandlerFunc {
 		claims, err := utils.ParseToken(parts[1])
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+			common.Fail(c, http.StatusUnauthorized, consts.CodeInvalidToken, err.Error())
 			c.Abort()
 			return
 		}
 
 		if claims.Username != os.Getenv("ADMIN_USER") {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user,login again"})
+			common.Fail(c, http.StatusUnauthorized, consts.CodeUserNotFound, consts.ErrorMessage(consts.CodeUserNotFound))
 			c.Abort()
 			return
 		}

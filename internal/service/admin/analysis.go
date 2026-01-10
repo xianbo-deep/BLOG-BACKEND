@@ -41,7 +41,7 @@ func (s *AnalysisService) GetAnalysisPathByQuery(req common.PageRequest, path st
 	return dao.GetAnalysisPathByQuery(req, path, days)
 }
 
-func (s *AnalysisService) GetAnalysisPathDetailTrend(path string) {
+func (s *AnalysisService) GetAnalysisPathDetailTrend(path string) ([]response.PathDetailTrendItem, error) {
 
 }
 
@@ -51,4 +51,4 @@ func (s *AnalysisService) GetAnalysisPathDetailSource(path string) {
 func (s *AnalysisService) GetAnalysisPathDetailDevice(path string) {
 
 }
-func (s *AnalysisService) GetAnalysisPathDetailMetric(path string) {}
+func (s *AnalysisService) GetAnalysisPathDetailMetric(path string) (response.PathDetailMetric, error) {}

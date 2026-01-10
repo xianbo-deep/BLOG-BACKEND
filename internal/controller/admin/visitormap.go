@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"Blog-Backend/consts"
 	"Blog-Backend/dto/common"
 	"Blog-Backend/internal/service/admin"
 	"net/http"
@@ -21,7 +22,7 @@ func GetVisitorMap(c *gin.Context) {
 
 	res, err := visitorMapService.GetVisitorMap(startTime, endTime)
 	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}
 	common.Success(c, res)
@@ -38,7 +39,7 @@ func GetChineseVisitorMap(c *gin.Context) {
 
 	res, err := visitorMapService.GetVisitorMap(startTime, endTime)
 	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}
 	common.Success(c, res)

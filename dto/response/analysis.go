@@ -46,3 +46,14 @@ type HotPageResult struct {
 	Path string
 	PV   int64
 }
+
+type PathDetailMetric struct {
+	PV int64 `json:"pv"`
+	UV int64 `json:"uv"`
+}
+
+type PathDetailTrendItem struct {
+	Date string `json:"date"`
+	PV   int64  `json:"pv"`
+	UV   int64  `json:"uv"`
+}

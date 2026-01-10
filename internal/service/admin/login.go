@@ -18,10 +18,12 @@ func (s *LoginService) AdminLogin(Username string, Password string) (string, err
 	adminUser := consts.EnvAdminUser
 	adminPwd := consts.EnvAdminPwd
 
-	if Username != adminUser || Password != adminPwd {
-		return "", errors.New("invalid username or password")
+	if Username != adminUser {
+		return "", errors.New(consts.ErrorMessage(consts.CodeUserNotFound))
 	}
-
+	if Password != adminPwd {
+		return "", errors.New(consts.ErrorMessage(consts.CodeInvalidPassword))
+	}
 	// 生成token
 	token, err := utils.GenerateToken(Username)
 

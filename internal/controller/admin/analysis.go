@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"Blog-Backend/consts"
 	"Blog-Backend/dto/common"
 	"Blog-Backend/dto/request"
 	"Blog-Backend/internal/service/admin"
@@ -14,12 +15,12 @@ var analysisService = admin.NewAnalysisService()
 func GetAnalysisMetrics(c *gin.Context) {
 	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
+		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
 		return
 	}
 	res, err := analysisService.GetAnalysisMetric(req.Days)
 	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}
 	common.Success(c, res)
@@ -28,12 +29,12 @@ func GetAnalysisMetrics(c *gin.Context) {
 func GetAnalysisTrend(c *gin.Context) {
 	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
+		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
 		return
 	}
 	res, err := analysisService.GetAnalysisTrend(req.Days)
 	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}
 	common.Success(c, res)
@@ -42,12 +43,12 @@ func GetAnalysisTrend(c *gin.Context) {
 func GetAnalysisPathRank(c *gin.Context) {
 	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
+		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
 		return
 	}
 	res, err := analysisService.GetAnalysisPathRank(req.Days)
 	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}
 	common.Success(c, res)
@@ -56,7 +57,7 @@ func GetAnalysisPathRank(c *gin.Context) {
 func GetAnalysisPath(c *gin.Context) {
 	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
+		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
 		return
 	}
 	res, err := analysisService.GetAnalysisPath(common.PageRequest{
@@ -64,7 +65,7 @@ func GetAnalysisPath(c *gin.Context) {
 		PageSize: req.PageSize,
 	}, req.Days)
 	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}
 	common.Success(c, res)
@@ -73,12 +74,12 @@ func GetAnalysisPath(c *gin.Context) {
 func GetAnalysisPathSource(c *gin.Context) {
 	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
+		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
 		return
 	}
 	res, err := analysisService.GetAnalysisPathSource(req.Path, req.Days)
 	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}
 	common.Success(c, res)
@@ -87,7 +88,7 @@ func GetAnalysisPathSource(c *gin.Context) {
 func GetAnalysisPathByQuery(c *gin.Context) {
 	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
+		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
 		return
 	}
 	res, err := analysisService.GetAnalysisPathByQuery(common.PageRequest{
@@ -96,7 +97,7 @@ func GetAnalysisPathByQuery(c *gin.Context) {
 	}, req.Path, req.Days)
 
 	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 	}
 	common.Success(c, res)
 }
@@ -106,7 +107,7 @@ func GetAnalysisPathDetailTrend(c *gin.Context) {
 	res, err := analysisService.GetAnalysisPathDetailTrend(path)
 
 	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 	}
 	common.Success(c, res)
 }
