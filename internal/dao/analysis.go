@@ -158,7 +158,7 @@ func GetAnalysisPathByQuery(req common.PageRequest, path string, days int) (*com
 	}, nil
 }
 
-func GetAnalysisPathDetail(path string, days int) (response.AnalysisPathItemDetail, error) {
+func GetAnalysisPathSource(path string, days int) (response.AnalysisPathItemDetail, error) {
 	cutoffTime := time.Now().AddDate(0, 0, -days)
 	db := core.DB.Model(&model.VisitLog{}).Where("visit_time >= ? and path like ?", cutoffTime, "%"+path+"%")
 	var res response.AnalysisPathItemDetail

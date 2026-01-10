@@ -24,4 +24,7 @@ const (
 
 	// JWT 签发者
 	JwtIssuer = "xbZhong"
+
+	// 缓存过期时间
+	CacheExpireDuration = 24 * time.Hour
 )

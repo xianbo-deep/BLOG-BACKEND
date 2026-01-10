@@ -8,9 +8,20 @@ import (
 const (
 	// 分布式锁Key
 	RedisLockKey = "cron:lock:sync"
-
 	// Key前缀
 	RedisKeyPrefix = "blog:stat:daily:"
+	// 缓存前缀
+	RedisCacheKeyPrefix = "blog:github:cache:"
+)
+
+const (
+	RedisCacheKeySuffixMetric      = ":metric"
+	RedisCacheKeySuffixTrend       = ":trend"
+	RedisCacheKeySuffixActiveUsers = ":active_users"
+	RedisCacheKeySuffixNewFeeds    = ":newfeeds"
+)
+
+const (
 
 	// 在线人数
 	RedisKeySuffixOnline = ":online"
@@ -32,7 +43,9 @@ const (
 
 	// 页面平均延迟
 	RedisKeySuffixPathAvgLatency = ":latency:rank"
+)
 
+const (
 	// 页面uv
 	RedisKeyFmtPathUV = RedisKeyPrefix + "%s:uv:%s"
 )
@@ -50,4 +63,21 @@ func GetDailyPathUVKey(date string, path string) string {
 // 获取今日日期字符串
 func GetTodayDate() string {
 	return time.Now().Format(DateLayout)
+}
+
+/* 获取github的缓存Key */
+func GetGithubMetricCacheKey(days int) string {
+	return fmt.Sprintf("%s%d%s", RedisCacheKeyPrefix, days, RedisCacheKeySuffixMetric)
+}
+
+func GetGithubTrendCacheKey(days int) string {
+	return fmt.Sprintf("%s%d%s", RedisCacheKeyPrefix, days, RedisCacheKeySuffixTrend)
+}
+
+func GetGithubActiveUsersCacheKey(limit int) string {
+	return fmt.Sprintf("%s%d%s", RedisCacheKeyPrefix, limit, RedisCacheKeySuffixActiveUsers)
+}
+
+func GetGithubNewFeedsCacheKey(limit int) string {
+	return fmt.Sprintf("%s%d%s", RedisCacheKeyPrefix, limit, RedisCacheKeySuffixNewFeeds)
 }

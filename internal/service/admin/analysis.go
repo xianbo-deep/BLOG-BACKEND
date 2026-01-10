@@ -33,10 +33,22 @@ func (s *AnalysisService) GetAnalysisPath(req common.PageRequest, days int) (*co
 	return dao.GetAnalysisPath(req, days)
 }
 
-func (s *AnalysisService) GetAnalysisPathDetail(path string, days int) (response.AnalysisPathItemDetail, error) {
-	return dao.GetAnalysisPathDetail(path, days)
+func (s *AnalysisService) GetAnalysisPathSource(path string, days int) (response.AnalysisPathItemDetail, error) {
+	return dao.GetAnalysisPathSource(path, days)
 }
 
 func (s *AnalysisService) GetAnalysisPathByQuery(req common.PageRequest, path string, days int) (*common.PageResponse[response.AnalysisPathItem], error) {
 	return dao.GetAnalysisPathByQuery(req, path, days)
 }
+
+func (s *AnalysisService) GetAnalysisPathDetailTrend(path string) {
+
+}
+
+func (s *AnalysisService) GetAnalysisPathDetailSource(path string) {
+
+}
+func (s *AnalysisService) GetAnalysisPathDetailDevice(path string) {
+
+}
+func (s *AnalysisService) GetAnalysisPathDetailMetric(path string) {}

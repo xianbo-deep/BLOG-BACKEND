@@ -2,15 +2,14 @@ package admin
 
 import (
 	"Blog-Backend/dto/common"
-	"Blog-Backend/thirdparty/github"
-	"Blog-Backend/thirdparty/github/service"
+	"Blog-Backend/internal/service/admin"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-var discussionService = service.NewDiscussionService(github.NewClient())
+var commentService = admin.NewCommentService()
 
 func GetDiscussionMetric(c *gin.Context) {
 	daysStr := c.Query("days")
@@ -19,7 +18,7 @@ func GetDiscussionMetric(c *gin.Context) {
 		common.Fail(c, http.StatusBadRequest, 2000, e.Error())
 		return
 	}
-	res, err := discussionService.GetTotalMetric(c, days)
+	res, err := commentService.GetDiscussionMetric(c, days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 1000, err.Error())
 		return
@@ -33,7 +32,7 @@ func GetDiscussionTrend(c *gin.Context) {
 	if e != nil {
 		common.Fail(c, http.StatusBadRequest, 2000, e.Error())
 	}
-	res, err := discussionService.GetTrend(c, days)
+	res, err := commentService.GetDiscussionTrend(c, days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 1000, err.Error())
 		return
@@ -49,7 +48,7 @@ func GetDiscussionNewFeed(c *gin.Context) {
 		return
 
 	}
-	res, err := discussionService.GetNewFeed(c, limit)
+	res, err := commentService.GetDiscussionNewFeed(c, limit)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 1000, err.Error())
 		return
@@ -64,7 +63,7 @@ func GetDiscussionActiveUser(c *gin.Context) {
 		common.Fail(c, http.StatusBadRequest, 2000, e.Error())
 		return
 	}
-	res, err := discussionService.GetActiveUser(c, limit)
+	res, err := commentService.GetDiscussionActiveUser(c, limit)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 1000, err.Error())
 		return

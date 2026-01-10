@@ -77,9 +77,15 @@ func SetupRouter() *gin.Engine {
 				analysis.GET("/trend", admin.GetAnalysisTrend)
 				analysis.GET("/rank", admin.GetAnalysisPathRank)
 				analysis.GET("/path", admin.GetAnalysisPath)
-				analysis.GET("/detail", admin.GetAnalysisPathDetail)
+				analysis.GET("/source", admin.GetAnalysisPathSource)
 				analysis.GET("/querypath", admin.GetAnalysisPathByQuery)
-
+				pathDetail := analysis.Group("/pathDetail")
+				{
+					pathDetail.GET("/trend", admin.GetAnalysisPathDetailTrend)
+					pathDetail.GET("/metric", admin.GetAnalysisPathDetailMetric)
+					pathDetail.GET("/source", admin.GetAnalysisPathDetailSource)
+					pathDetail.GET("/device", admin.GetAnalysisPathDetailDevice)
+				}
 			}
 
 			// 访客地图

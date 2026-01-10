@@ -70,13 +70,13 @@ func GetAnalysisPath(c *gin.Context) {
 	common.Success(c, res)
 }
 
-func GetAnalysisPathDetail(c *gin.Context) {
+func GetAnalysisPathSource(c *gin.Context) {
 	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		common.Fail(c, http.StatusBadRequest, 1000, err.Error())
 		return
 	}
-	res, err := analysisService.GetAnalysisPathDetail(req.Path, req.Days)
+	res, err := analysisService.GetAnalysisPathSource(req.Path, req.Days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 		return
@@ -99,4 +99,26 @@ func GetAnalysisPathByQuery(c *gin.Context) {
 		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
 	}
 	common.Success(c, res)
+}
+
+func GetAnalysisPathDetailTrend(c *gin.Context) {
+	path := c.Query("path")
+	res, err := analysisService.GetAnalysisPathDetailTrend(path)
+
+	if err != nil {
+		common.Fail(c, http.StatusInternalServerError, 2000, err.Error())
+	}
+	common.Success(c, res)
+}
+
+func GetAnalysisPathDetailMetric(c *gin.Context) {
+
+}
+
+func GetAnalysisPathDetailSource(c *gin.Context) {
+
+}
+
+func GetAnalysisPathDetailDevice(c *gin.Context) {
+
 }
