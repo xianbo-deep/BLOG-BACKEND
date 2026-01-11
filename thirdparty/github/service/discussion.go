@@ -122,7 +122,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 	var after *githubv4.String
 	var allItems []*response.NewFeedItem
 	// 不统计7天前的
-	cutoffTime := time.Now().AddDate(0, 0, -consts.TimeRangeWeek)
+	cutoffTime := time.Now().AddDate(0, 0, -consts.Week)
 	for {
 		var q query.FeedQuery
 

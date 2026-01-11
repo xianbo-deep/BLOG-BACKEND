@@ -48,6 +48,11 @@ func (s *AccessLogService) GetAccessLog(req common.PageRequest) (*common.PageRes
 			City:       v.City,
 			Region:     v.Region,
 			Status:     v.Status,
+			Browser:    v.Browser,
+			Device:     v.Device,
+			OS:         v.OS,
+			Source:     v.Source,
+			Medium:     v.Medium,
 		})
 	}
 

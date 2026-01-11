@@ -27,4 +27,15 @@ const (
 
 	// 缓存过期时间
 	CacheExpireDuration = 24 * time.Hour
+
+	// 常用的时间
+	TimeRangeHour = time.Hour * 1
+
+	TimeRangeDay = time.Hour * 24
+
+	TimeRangeWeek = time.Hour * 24 * 7
+
+	TimeRangeMonth = time.Hour * 24 * 30
+
+	TimeRangeYear = time.Hour * 24 * 365
 )

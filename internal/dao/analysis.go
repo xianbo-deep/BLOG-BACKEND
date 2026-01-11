@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"Blog-Backend/consts"
 	"Blog-Backend/core"
 	"Blog-Backend/dto/common"
 	"Blog-Backend/dto/response"
@@ -222,5 +223,63 @@ func GetAnalysisPathSource(path string, days int) (response.AnalysisPathItemDeta
 	}
 	// 返回数据
 	res.Path = path
+	return res, nil
+}
+
+func GetAnalysisPathDetailTrend(path string) ([]response.PathDetailTrendItem, error) {
+	var res []response.PathDetailTrendItem
+	db := core.DB.Model(&model.VisitLog{})
+
+	startTime := time.Now().Add(-consts.TimeRangeDay)
+
+	err := db.Select("date_trunc('hour',visit_time) as date,count (*) as pv,count(distinct visitor_id) as uv").
+		Where("visit_time > ? and path = ?", startTime, path).
+		Group("date_trunc('hour',visit_time) as date").
+		Order("date asc").
+		Scan(&res).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func GetAnalysisPathDetailSource(path string) ([]response.PathDetailSourceItem, error) {
+	var res []response.PathDetailSourceItem
+	db := core.DB.Model(&model.VisitLog{})
+
+	err := db.Select("source,coalesce(count(*),0) as count").
+		Where("path = ?", path).
+		Group("source").
+		Order("count desc").
+		Scan(&res).Error
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+func GetAnalysisPathDetailDevice(path string) ([]response.PathDetailDeviceItem, error) {
+	var res []response.PathDetailDeviceItem
+	db := core.DB.Model(&model.VisitLog{})
+
+	err := db.Select("device,coalesce(count(*),0) as count").
+		Where("path = ?", path).
+		Group("device").
+		Order("count desc").
+		Scan(&res).Error
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+func GetAnalysisPathDetailMetric(path string) (response.PathDetailMetric, error) {
+	db := core.DB.Model(&model.DailyArticleStat{})
+	var res response.PathDetailMetric
+	err := db.Select("coalesce(sum(uv),0) as uv,coalesce(sum(pv),0) as pv").
+		Where("path = ?", path).
+		Scan(&res).Error
+	if err != nil {
+		return res, err
+	}
 	return res, nil
 }

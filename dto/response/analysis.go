@@ -57,3 +57,13 @@ type PathDetailTrendItem struct {
 	PV   int64  `json:"pv"`
 	UV   int64  `json:"uv"`
 }
+
+type PathDetailSourceItem struct {
+	Source string `json:"source"`
+	Count  int64  `json:"count"`
+}
+
+type PathDetailDeviceItem struct {
+	Device string `json:"device"`
+	Count  int64  `json:"count"`
+}

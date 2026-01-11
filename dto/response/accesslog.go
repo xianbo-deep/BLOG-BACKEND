@@ -15,4 +15,9 @@ type AccessLog struct {
 	Region     string    `json:"region"`
 	Status     int64     `json:"status"`
 	Latency    int64     `json:"latency"`
+	Medium     string    `json:"medium"`
+	Source     string    `json:"source"`
+	Device     string    `json:"device"`
+	OS         string    `json:"os"`
+	Browser    string    `json:"browser"`
 }

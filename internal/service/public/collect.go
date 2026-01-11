@@ -31,6 +31,9 @@ func (s *CollectService) Collect(ctx context.Context, info request.CollectServic
 		Latency:    info.Latency,
 		Medium:     info.Medium,
 		Source:     info.Source,
+		Device:     info.Device,
+		OS:         info.OS,
+		Browser:    info.Browser,
 	}
 
 	if err := dao.InsertVisitLog(log); err != nil {

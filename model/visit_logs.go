@@ -21,6 +21,9 @@ type VisitLog struct {
 	Latency    int64     `gorm:"column:latency;type:int;default:0" json:"latency"`
 	Medium     string    `gorm:"column:refr_medium;type:text" json:"medium"`
 	Source     string    `gorm:"column:refr_source;type:text" json:"source"`
+	Device     string    `gorm:"column:device;type:text" json:"device"`
+	OS         string    `gorm:"column:os;type:text" json:"os"`
+	Browser    string    `gorm:"column:browser;type:text" json:"browser"`
 }
 
 /* 指定表名 */

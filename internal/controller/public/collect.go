@@ -46,6 +46,9 @@ func CollectHandler(c *gin.Context) {
 	referer := c.GetHeader("Referer")
 	_, medium, source := utils.ParseReferer(referer)
 
+	// 调用ua解析器解析信息
+	ua := c.GetHeader("User-Agent")
+	device, os, browser := utils.ParseUA(ua)
 	info := request.CollectServiceDTO{
 		VisitorID: req.VisitorID,
 		Path:      req.Path,
@@ -55,7 +58,10 @@ func CollectHandler(c *gin.Context) {
 		ClientTime: clientTime,
 		IP:         ip,
 		Country:    country,
-		UserAgent:  c.GetHeader("User-Agent"),
+		UserAgent:  ua,
+		Device:     device,
+		Browser:    browser,
+		OS:         os,
 		City:       city,
 		Region:     region,
 		Referer:    referer,

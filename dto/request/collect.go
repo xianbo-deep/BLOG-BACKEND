@@ -25,4 +25,7 @@ type CollectServiceDTO struct {
 	Referer    string
 	Medium     string
 	Source     string
+	Device     string
+	OS         string
+	Browser    string
 }

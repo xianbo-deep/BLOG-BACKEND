@@ -39,15 +39,15 @@ func GetSlowPages(ctx context.Context, limit int) ([]response.SlowDelayItem, err
 
 func GetAverageDelay() ([]response.AverageDelayItem, error) {
 	// 将时间往前调整24h
-	startTime := time.Now().Add(-24 * time.Hour)
+	startTime := time.Now().Add(-consts.TimeRangeDay)
 
 	var res []response.AverageDelayItem
 
 	db := core.DB.Model(&model.VisitLog{})
 
-	err := db.Select("DATE_TRUNK('hour','visit_time') as hour , AVG(Latency) as avg_latency").
+	err := db.Select("date_trunc('hour','visit_time') as hour , avg(Latency) as avg_latency").
 		Where("visit_time > ?", startTime).
-		Group("DATE_TRUNK('hour','visit_time')").
+		Group("date_trunc('hour','visit_time')").
 		Order("hour ASC").
 		Scan(&res).Error
 

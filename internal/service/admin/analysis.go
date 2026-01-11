@@ -42,13 +42,15 @@ func (s *AnalysisService) GetAnalysisPathByQuery(req common.PageRequest, path st
 }
 
 func (s *AnalysisService) GetAnalysisPathDetailTrend(path string) ([]response.PathDetailTrendItem, error) {
-
+	return dao.GetAnalysisPathDetailTrend(path)
 }
 
-func (s *AnalysisService) GetAnalysisPathDetailSource(path string) {
-
+func (s *AnalysisService) GetAnalysisPathDetailSource(path string) ([]response.PathDetailSourceItem, error) {
+	return dao.GetAnalysisPathDetailSource(path)
 }
-func (s *AnalysisService) GetAnalysisPathDetailDevice(path string) {
-
+func (s *AnalysisService) GetAnalysisPathDetailDevice(path string) ([]response.PathDetailDeviceItem, error) {
+	return dao.GetAnalysisPathDetailDevice(path)
 }
-func (s *AnalysisService) GetAnalysisPathDetailMetric(path string) (response.PathDetailMetric, error) {}
+func (s *AnalysisService) GetAnalysisPathDetailMetric(path string) (response.PathDetailMetric, error) {
+	return dao.GetAnalysisPathDetailMetric(path)
+}
