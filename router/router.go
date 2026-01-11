@@ -1,9 +1,12 @@
 package router
 
 import (
+	"Blog-Backend/consts"
 	"Blog-Backend/internal/controller/admin"
+	"Blog-Backend/internal/controller/github"
 	"Blog-Backend/internal/controller/public"
 	"Blog-Backend/middleware"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -106,5 +109,10 @@ func SetupRouter() *gin.Engine {
 		}
 	}
 
+	// github的服务
+	webhookGroup := r.Group("/webhook")
+	{
+		webhookGroup.POST("/github", middleware.GithubWebhookVerify(os.Getenv(consts.EnvGithubWebhookSecret)), github.GetNewNotify)
+	}
 	return r
 }

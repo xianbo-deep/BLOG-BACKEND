@@ -12,6 +12,8 @@ const (
 	RedisKeyPrefix = "blog:stat:daily:"
 	// 缓存前缀
 	RedisCacheKeyPrefix = "blog:github:cache:"
+	// 缓存版本号
+	RedisGithubCacheVerKey = "blog:github:cache:ver"
 )
 
 const (
@@ -66,18 +68,18 @@ func GetTodayDate() string {
 }
 
 /* 获取github的缓存Key */
-func GetGithubMetricCacheKey(days int) string {
-	return fmt.Sprintf("%s%d%s", RedisCacheKeyPrefix, days, RedisCacheKeySuffixMetric)
+func GetGithubMetricCacheKey(ver int64, days int) string {
+	return fmt.Sprintf("%s%d:%d%s", RedisCacheKeyPrefix, ver, days, RedisCacheKeySuffixMetric)
 }
 
-func GetGithubTrendCacheKey(days int) string {
-	return fmt.Sprintf("%s%d%s", RedisCacheKeyPrefix, days, RedisCacheKeySuffixTrend)
+func GetGithubTrendCacheKey(ver int64, days int) string {
+	return fmt.Sprintf("%s%d:%d%s", RedisCacheKeyPrefix, ver, days, RedisCacheKeySuffixTrend)
 }
 
-func GetGithubActiveUsersCacheKey(limit int) string {
-	return fmt.Sprintf("%s%d%s", RedisCacheKeyPrefix, limit, RedisCacheKeySuffixActiveUsers)
+func GetGithubActiveUsersCacheKey(ver int64, limit int) string {
+	return fmt.Sprintf("%s%d:%d%s", RedisCacheKeyPrefix, ver, limit, RedisCacheKeySuffixActiveUsers)
 }
 
-func GetGithubNewFeedsCacheKey(limit int) string {
-	return fmt.Sprintf("%s%d%s", RedisCacheKeyPrefix, limit, RedisCacheKeySuffixNewFeeds)
+func GetGithubNewFeedsCacheKey(ver int64, limit int) string {
+	return fmt.Sprintf("%s%d:%d%s", RedisCacheKeyPrefix, ver, limit, RedisCacheKeySuffixNewFeeds)
 }

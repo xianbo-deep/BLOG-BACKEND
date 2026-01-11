@@ -19,7 +19,11 @@ func NewCommentService() *CommentService {
 }
 
 func (s *CommentService) GetDiscussionMetric(c context.Context, days int) (response.Metric, error) {
-	key := consts.GetGithubMetricCacheKey(days)
+	version, err := s.cached.GetVersion(c, consts.RedisGithubCacheVerKey)
+	if err != nil || version == -1 {
+		return response.Metric{}, err
+	}
+	key := consts.GetGithubMetricCacheKey(version, days)
 	var cached response.Metric
 	ok, err := s.cached.GetJSON(c, key, &cached)
 	if err != nil {
@@ -38,7 +42,11 @@ func (s *CommentService) GetDiscussionMetric(c context.Context, days int) (respo
 }
 
 func (s *CommentService) GetDiscussionTrend(c context.Context, days int) ([]response.TrendItem, error) {
-	key := consts.GetGithubTrendCacheKey(days)
+	version, err := s.cached.GetVersion(c, consts.RedisGithubCacheVerKey)
+	if err != nil || version == -1 {
+		return nil, err
+	}
+	key := consts.GetGithubTrendCacheKey(version, days)
 	var cached []response.TrendItem
 	ok, err := s.cached.GetJSON(c, key, &cached)
 	if err != nil {
@@ -56,7 +64,11 @@ func (s *CommentService) GetDiscussionTrend(c context.Context, days int) ([]resp
 }
 
 func (s *CommentService) GetDiscussionNewFeed(c context.Context, limit int) ([]*response.NewFeedItem, error) {
-	key := consts.GetGithubNewFeedsCacheKey(limit)
+	version, err := s.cached.GetVersion(c, consts.RedisGithubCacheVerKey)
+	if err != nil || version == -1 {
+		return nil, err
+	}
+	key := consts.GetGithubNewFeedsCacheKey(version, limit)
 	var cached []*response.NewFeedItem
 	ok, err := s.cached.GetJSON(c, key, &cached)
 	if err != nil {
@@ -74,7 +86,11 @@ func (s *CommentService) GetDiscussionNewFeed(c context.Context, limit int) ([]*
 }
 
 func (s *CommentService) GetDiscussionActiveUser(c context.Context, limit int) ([]response.ActiveUserItem, error) {
-	key := consts.GetGithubActiveUsersCacheKey(limit)
+	version, err := s.cached.GetVersion(c, consts.RedisGithubCacheVerKey)
+	if err != nil {
+		return nil, err
+	}
+	key := consts.GetGithubActiveUsersCacheKey(version, limit)
 	var cached []response.ActiveUserItem
 	ok, err := s.cached.GetJSON(c, key, &cached)
 	if err != nil {

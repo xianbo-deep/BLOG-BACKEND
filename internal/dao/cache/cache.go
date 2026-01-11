@@ -35,3 +35,18 @@ func (c *CacheDAO) GetJSON(ctx context.Context, key string, out any) (bool, erro
 	}
 	return true, json.Unmarshal(b, out)
 }
+
+func (c *CacheDAO) GetVersion(ctx context.Context, key string) (int64, error) {
+	v, err := c.rdb.Get(ctx, key).Int64()
+	if err == redis.Nil {
+		_ = c.rdb.SetNX(ctx, key, 1, 0).Err()
+		return 1, nil
+	}
+	if err != nil {
+		return 0, err
+	}
+	if v <= 0 {
+		return 1, nil
+	}
+	return v, nil
+}
