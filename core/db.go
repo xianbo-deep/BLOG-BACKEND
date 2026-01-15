@@ -97,7 +97,6 @@ func initRedis() error {
 
 	defer cancel()
 	if err := RDB.Ping(ctx).Err(); err != nil {
-		// TODO 看看这什么意思
 		return fmt.Errorf("%w: %v", consts.ErrRedisConnectionFail, err)
 	}
 	return nil

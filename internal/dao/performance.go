@@ -7,6 +7,7 @@ import (
 	"Blog-Backend/model"
 	"context"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -28,8 +29,18 @@ func GetSlowPages(ctx context.Context, limit int) ([]response.SlowDelayItem, err
 
 	// 处理返回结果
 	for _, z := range top10 {
+		var path string
+		// 类型断言
+		switch v := z.Member.(type) {
+		case string:
+			path = v
+		case []byte:
+			path = string(v)
+		default:
+			path = fmt.Sprint(v)
+		}
 		result = append(result, response.SlowDelayItem{
-			Path:     z.Member.(string),
+			Path:     path,
 			AvgDelay: int64(z.Score),
 		})
 	}

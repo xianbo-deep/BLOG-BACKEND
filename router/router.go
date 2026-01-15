@@ -28,14 +28,19 @@ func SetupRouter() *gin.Engine {
 	/* 创建中间件 */
 	r.Use(gin.Recovery())
 
-	/* 配置跨域 */
-	r.Use(middleware.CORSMiddleware())
+	/* 使用中间件 */
+	r.Use(
+		middleware.CORSMiddleware(),
+		middleware.TimeoutMiddleware(),
+	)
 
 	/* 定义路由组 */
 	// 前端请求
 
 	// 博客统计
 	blogGroup := r.Group("/blog")
+	// 使用中间件，简化业务
+	blogGroup.Use(middleware.HeaderMiddleware())
 	{
 		// 统计流量
 		blogGroup.Any("/collect", public.CollectHandler)
@@ -43,6 +48,8 @@ func SetupRouter() *gin.Engine {
 
 	// 后台统计
 	adminGroup := r.Group("/admin")
+	// 使用中间件
+	adminGroup.Use(middleware.TimeoutMiddleware())
 	{
 		// 登录
 		adminGroup.POST("/login", admin.Login)
@@ -109,7 +116,6 @@ func SetupRouter() *gin.Engine {
 		}
 	}
 
-	// github的服务
 	webhookGroup := r.Group("/webhook")
 	{
 		webhookGroup.POST("/github", middleware.GithubWebhookVerify(os.Getenv(consts.EnvGithubWebhookSecret)), github.GetNewNotify)

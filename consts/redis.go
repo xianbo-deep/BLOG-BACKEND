@@ -52,6 +52,11 @@ const (
 	RedisKeyFmtPathUV = RedisKeyPrefix + "%s:uv:%s"
 )
 
+const (
+	// Redis操作超时时间
+	RedisOperationTimeout = 1 * TimeRangeSecond
+)
+
 // 获取Redis Key
 func GetDailyStatKey(date string, suffix string) string {
 	return RedisKeyPrefix + date + suffix
@@ -64,7 +69,8 @@ func GetDailyPathUVKey(date string, path string) string {
 
 // 获取今日日期字符串
 func GetTodayDate() string {
-	return time.Now().Format(DateLayout)
+	loc, _ := time.LoadLocation(TimeLocation)
+	return time.Now().In(loc).Format(DateLayout)
 }
 
 /* 获取github的缓存Key */

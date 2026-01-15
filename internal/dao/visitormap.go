@@ -39,7 +39,7 @@ func GetChineseVisitorMap(startTime, endTime *time.Time) ([]response.ChineseVisi
 	}
 
 	err := db.Select("region, count(*) as visitors").
-		Where("country = ?", consts.CountryChina). // TODO 改成china
+		Where("country = ?", consts.CountryChina).
 		Group("region").
 		Scan(&results).Error
 

@@ -5,9 +5,9 @@ import (
 	"Blog-Backend/dto/common"
 	"Blog-Backend/dto/request"
 	"Blog-Backend/internal/service/public"
+	"Blog-Backend/middleware"
 	"Blog-Backend/utils"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -26,29 +26,12 @@ func CollectHandler(c *gin.Context) {
 	// 处理时间
 	clientTime := time.UnixMilli(req.Timestamp)
 
-	// 处理ip
-	ip := c.GetHeader("X-Real-IP")
-	if ip == "" {
-		ip = c.GetHeader("X-Forwarded-For")
-		if ip != "" {
-			ip = strings.Split(ip, ",")[0]
-			ip = strings.TrimSpace(ip)
-		}
-	}
-	if ip == "" {
-		ip = c.ClientIP()
-	}
+	// 获取元数据
+	meta, _ := middleware.GetRequestMeta(c)
 
 	// 调用geo工具包获取具体信息
-	country, region, city := utils.LookupIP(ip)
+	country, region, city := utils.LookupIP(meta.IP)
 
-	// 调用referer解析器获取信息
-	referer := c.GetHeader("Referer")
-	_, medium, source := utils.ParseReferer(referer)
-
-	// 调用ua解析器解析信息
-	ua := c.GetHeader("User-Agent")
-	device, os, browser := utils.ParseUA(ua)
 	info := request.CollectServiceDTO{
 		VisitorID: req.VisitorID,
 		Path:      req.Path,
@@ -56,17 +39,17 @@ func CollectHandler(c *gin.Context) {
 		Latency:   req.Latency,
 
 		ClientTime: clientTime,
-		IP:         ip,
+		IP:         meta.IP,
 		Country:    country,
-		UserAgent:  ua,
-		Device:     device,
-		Browser:    browser,
-		OS:         os,
+		UserAgent:  meta.UserAgent,
+		Device:     meta.Device,
+		Browser:    meta.Browser,
+		OS:         meta.OS,
 		City:       city,
 		Region:     region,
-		Referer:    referer,
-		Medium:     medium,
-		Source:     source,
+		Referer:    meta.Referer,
+		Medium:     meta.Medium,
+		Source:     meta.Source,
 	}
 
 	// 创建上下文

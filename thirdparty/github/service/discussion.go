@@ -11,7 +11,6 @@ import (
 	"github.com/shurcooL/githubv4"
 )
 
-// TODO cnm 是人类做的吗 后续改成把结果存缓存里 注册个github的webhook监听 有动态就清缓存
 type DiscussionService struct {
 	github *githubv4.Client
 	owner  string

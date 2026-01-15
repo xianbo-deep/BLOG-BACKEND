@@ -1,6 +1,7 @@
 package public
 
 import (
+	"Blog-Backend/consts"
 	"Blog-Backend/dto/request"
 	"Blog-Backend/internal/dao"
 	"Blog-Backend/model"
@@ -42,10 +43,12 @@ func (s *CollectService) Collect(ctx context.Context, info request.CollectServic
 
 	// 开协程，在redis操作数据
 	go func() {
-		_ = dao.IncrementPV(ctx, info.Path)
-		_ = dao.IncrementUV(ctx, info.Path, info.VisitorID)
-		_ = dao.RecordOnline(ctx, info.VisitorID)
-		_ = dao.RecordLatency(ctx, info.Path, info.Latency)
+		bg, cancel := consts.GetTimeoutContext(context.Background(), consts.RedisOperationTimeout)
+		defer cancel()
+		_ = dao.IncrementPV(bg, info.Path)
+		_ = dao.IncrementUV(bg, info.Path, info.VisitorID)
+		_ = dao.RecordOnline(bg, info.VisitorID)
+		_ = dao.RecordLatency(bg, info.Path, info.Latency)
 	}()
 
 	return nil
