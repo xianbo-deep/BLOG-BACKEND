@@ -39,9 +39,9 @@ func (s *AccessLogService) GetAccessLog(req common.PageRequest) (*common.PageRes
 		dtoList = append(dtoList, response.AccessLog{
 			VisitorID:       v.VisitorID,
 			Path:            os.Getenv(consts.EnvBaseURL) + v.Path,
-			VisitTime:       consts.TransferTimeToString(v.VisitTime),
+			VisitTime:       v.VisitTime,
 			IP:              v.IP,
-			ClientTime:      consts.TransferTimeToString(v.ClientTime),
+			ClientTime:      v.ClientTime,
 			UserAgent:       v.UserAgent,
 			Referer:         v.Referer,
 			Country:         v.Country,
@@ -102,9 +102,9 @@ func (s *AccessLogService) GetAccessLogByQuery(req request.AccessLogRequest) (*c
 		dtoList = append(dtoList, response.AccessLog{
 			VisitorID:       v.VisitorID,
 			Path:            os.Getenv(consts.EnvBaseURL) + v.Path,
-			VisitTime:       consts.TransferTimeToString(v.VisitTime),
+			VisitTime:       v.VisitTime,
 			IP:              v.IP,
-			ClientTime:      consts.TransferTimeToString(v.ClientTime),
+			ClientTime:      v.ClientTime,
 			UserAgent:       v.UserAgent,
 			Referer:         v.Referer,
 			Country:         v.Country,

@@ -244,8 +244,9 @@ func GetAnalysisPathDetailTrend(path string) ([]response.PathDetailTrendItem, er
 	if err != nil {
 		return nil, err
 	}
-	for _, v := range res {
-		v.Timestamp = consts.TransferTimeToTimestamp(v.Date)
+	for i := range res {
+		res[i].Date = consts.TransferTimeByLoc(res[i].Date)
+		res[i].Timestamp = consts.TransferTimeToTimestamp(res[i].Date)
 	}
 	return res, nil
 }

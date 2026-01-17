@@ -79,8 +79,8 @@ func GetCurrentUTCTime() time.Time {
 	return time.Now().UTC()
 }
 
-func TransferTimeToString(t time.Time) string {
-	return t.In(DefaultLoc).Format(time.RFC3339Nano)
+func TransferTimeByLoc(t time.Time) time.Time {
+	return t.In(DefaultLoc)
 }
 
 func TransferTimeToTimestamp(t time.Time) int64 {

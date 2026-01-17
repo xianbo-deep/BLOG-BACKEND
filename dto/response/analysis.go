@@ -1,5 +1,7 @@
 package response
 
+import "time"
+
 type AnalysisMetric struct {
 	TotalPV    int64  `json:"totalPV"`
 	TotalUV    int64  `json:"totalUV"`
@@ -9,10 +11,10 @@ type AnalysisMetric struct {
 }
 
 type AnalysisTrendItem struct {
-	Date      string `json:"date"`
-	PV        int64  `json:"pv"`
-	UV        int64  `json:"uv"`
-	Timestamp int64  `json:"timestamp"`
+	Date      time.Time `json:"date"`
+	PV        int64     `json:"pv"`
+	UV        int64     `json:"uv"`
+	Timestamp int64     `json:"timestamp"`
 }
 
 type AnalysisPathRankItem struct {
@@ -54,10 +56,10 @@ type PathDetailMetric struct {
 }
 
 type PathDetailTrendItem struct {
-	Date      string `json:"date"`
-	PV        int64  `json:"pv"`
-	UV        int64  `json:"uv"`
-	Timestamp int64  `json:"timestamp"`
+	Date      time.Time `json:"date"`
+	PV        int64     `json:"pv"`
+	UV        int64     `json:"uv"`
+	Timestamp int64     `json:"timestamp"`
 }
 
 type PathDetailSourceItem struct {

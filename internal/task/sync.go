@@ -132,7 +132,7 @@ func SyncRedisToDB() {
 	}
 
 	// 批量插入数据库
-	err := core.DB.Clauses(clause.OnConflict{
+	err = core.DB.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "date"}, {Name: "path"}},
 		UpdateAll: true,
 	}).Create(&stats).Error

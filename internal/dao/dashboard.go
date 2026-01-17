@@ -75,8 +75,9 @@ func GetHistoryTrends(limit int) ([]response.DashboardTrends, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, v := range result {
-		v.Timestamp = consts.TransferTimeToTimestamp(v.Date)
+	for i := range result {
+		result[i].Date = consts.TransferTimeByLoc(result[i].Date)
+		result[i].Timestamp = consts.TransferTimeToTimestamp(result[i].Date)
 	}
 	return result, nil
 }
@@ -84,7 +85,7 @@ func GetHistoryTrends(limit int) ([]response.DashboardTrends, error) {
 // 在Redis获取今天的访问量
 func GetTodayPV(ctx context.Context) (response.DashboardTrends, error) {
 	var result response.DashboardTrends
-	today := time.Now().Format(consts.DateLayout)
+	today := time.Now()
 	// 调用函数获取今日PV
 	uv, pv, _ := GetTodayPVUV(ctx)
 	// 组装结果
@@ -177,6 +178,6 @@ func GetLastDayPVUV() (response.DashboardTrends, error) {
 		return response.DashboardTrends{}, err
 	}
 
-	result.Date = yesterday.Format(consts.DateLayout)
+	result.Date = yesterday
 	return result, nil
 }
