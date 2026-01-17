@@ -9,9 +9,10 @@ type AnalysisMetric struct {
 }
 
 type AnalysisTrendItem struct {
-	Date string `json:"date"`
-	PV   int64  `json:"pv"`
-	UV   int64  `json:"uv"`
+	Date      string `json:"date"`
+	PV        int64  `json:"pv"`
+	UV        int64  `json:"uv"`
+	Timestamp int64  `json:"timestamp"`
 }
 
 type AnalysisPathRankItem struct {
@@ -53,9 +54,10 @@ type PathDetailMetric struct {
 }
 
 type PathDetailTrendItem struct {
-	Date string `json:"date"`
-	PV   int64  `json:"pv"`
-	UV   int64  `json:"uv"`
+	Date      string `json:"date"`
+	PV        int64  `json:"pv"`
+	UV        int64  `json:"uv"`
+	Timestamp int64  `json:"timestamp"`
 }
 
 type PathDetailSourceItem struct {

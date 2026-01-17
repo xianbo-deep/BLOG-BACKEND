@@ -5,7 +5,6 @@ import (
 	"Blog-Backend/dto/common"
 	"Blog-Backend/dto/request"
 	"Blog-Backend/internal/service/public"
-	"Blog-Backend/middleware"
 	"Blog-Backend/utils"
 	"net/http"
 	"time"
@@ -24,10 +23,10 @@ func CollectHandler(c *gin.Context) {
 	}
 
 	// 处理时间
-	clientTime := time.UnixMilli(req.Timestamp)
+	clientTime := time.UnixMilli(req.Timestamp).UTC()
 
 	// 获取元数据
-	meta, _ := middleware.GetRequestMeta(c)
+	meta, _ := GetRequestMeta(c)
 
 	// 调用geo工具包获取具体信息
 	country, region, city := utils.LookupIP(meta.IP)
@@ -60,4 +59,13 @@ func CollectHandler(c *gin.Context) {
 		return
 	}
 	common.Success(c, gin.H{"status": "ok"})
+}
+
+func GetRequestMeta(c *gin.Context) (common.RequestMeta, bool) {
+	v, ok := c.Get(consts.RequestMetaKey)
+	if !ok {
+		return common.RequestMeta{}, false
+	}
+	meta, ok := v.(common.RequestMeta)
+	return meta, ok
 }

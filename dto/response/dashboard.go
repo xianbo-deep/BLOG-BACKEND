@@ -1,7 +1,5 @@
 package response
 
-import "time"
-
 type DashboardSummary struct {
 	PV            int64   `json:"pv"`
 	UV            int64   `json:"uv"`
@@ -12,9 +10,10 @@ type DashboardSummary struct {
 }
 
 type DashboardTrends struct {
-	Date string `json:"date"`
-	PV   int64  `json:"pv"`
-	UV   int64  `json:"uv"`
+	Date      string `json:"date"`
+	PV        int64  `json:"pv"`
+	UV        int64  `json:"uv"`
+	Timestamp int64  `json:"timestamp"`
 }
 
 type GeoStatItem struct {
@@ -23,10 +22,10 @@ type GeoStatItem struct {
 }
 
 type ErrorLogItem struct {
-	Path      string    `json:"path"`
-	Status    int       `json:"status"`
-	Time      time.Time `json:"time" gorm:"column:visit_time"`
-	Timestamp int64     `json:"timestamp"`
+	Path      string `json:"path"`
+	Status    int    `json:"status"`
+	Time      string `json:"time" gorm:"column:visit_time"`
+	Timestamp int64  `json:"timestamp"`
 }
 
 type DashboardInsights struct {

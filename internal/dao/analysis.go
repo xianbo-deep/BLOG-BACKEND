@@ -57,6 +57,9 @@ func GetAnalysisTrend(days int) ([]response.AnalysisTrendItem, error) {
 	if err != nil {
 		return nil, err
 	}
+	for _, v := range res {
+		v.Timestamp = consts.TransferTimeToTimestamp(v.Date)
+	}
 	return res, nil
 }
 
@@ -241,6 +244,9 @@ func GetAnalysisPathDetailTrend(path string) ([]response.PathDetailTrendItem, er
 	if err != nil {
 		return nil, err
 	}
+	for _, v := range res {
+		v.Timestamp = consts.TransferTimeToTimestamp(v.Date)
+	}
 	return res, nil
 }
 
@@ -270,6 +276,7 @@ func GetAnalysisPathDetailDevice(path string) ([]response.PathDetailDeviceItem, 
 	if err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 func GetAnalysisPathDetailMetric(path string) (response.PathDetailMetric, error) {

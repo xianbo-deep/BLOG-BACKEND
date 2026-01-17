@@ -75,6 +75,9 @@ func GetHistoryTrends(limit int) ([]response.DashboardTrends, error) {
 	if err != nil {
 		return nil, err
 	}
+	for _, v := range result {
+		v.Timestamp = consts.TransferTimeToTimestamp(v.Date)
+	}
 	return result, nil
 }
 
@@ -152,6 +155,9 @@ func GetErrorLogs(limit int) ([]response.ErrorLogItem, error) {
 		Error
 	if err != nil {
 		return nil, err
+	}
+	for _, v := range result {
+		v.Timestamp = consts.TransferTimeToTimestamp(v.Time)
 	}
 	return result, nil
 }

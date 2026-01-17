@@ -17,6 +17,7 @@ type NewFeedItem struct {
 	ReplyToName    string `json:"replyToName"`    // 被回复者的名字
 	ReplyToAvatar  string `json:"replyToAvatar"`  // 被回复者头像
 	ReplyToContent string `json:"replyToContent"` // 被回复者评论内容
+	Timestamp      int64  `json:"timestamp"`      // 时间戳
 }
 
 type ActiveUserItem struct {
@@ -31,4 +32,5 @@ type TrendItem struct {
 	TotalComments  int64  `json:"totalComments"`  // 总评论数
 	TotalReplies   int64  `json:"totalReplies"`   // 总回复数
 	TotalReactions int64  `json:"totalResponses"` // 总回应数
+	Timestamp      int64  `json:"timestamp"`      // 时间戳
 }

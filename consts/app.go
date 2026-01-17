@@ -62,8 +62,29 @@ const (
 	RequestTimeout = 2 * TimeRangeSecond
 )
 
-func GetCurrentTime() time.Time {
+var (
+	// 声明时区
+	DefaultLoc = mustLoadLocation(TimeLocation)
+)
 
+func mustLoadLocation(name string) *time.Location {
+	loc, err := time.LoadLocation(name)
+	if err != nil {
+		return time.UTC
+	}
+	return loc
+}
+
+func GetCurrentUTCTime() time.Time {
+	return time.Now().UTC()
+}
+
+func TransferTimeToString(t time.Time) string {
+	return t.In(DefaultLoc).Format(time.RFC3339Nano)
+}
+
+func TransferTimeToTimestamp(t time.Time) int64 {
+	return t.In(DefaultLoc).UnixMilli()
 }
 
 func GetTimeoutContext(ctx context.Context, time time.Duration) (context.Context, context.CancelFunc) {

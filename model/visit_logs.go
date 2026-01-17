@@ -5,8 +5,8 @@ import "time"
 /* 声明表结构 */
 type VisitLog struct {
 	ID         int64     `gorm:"primaryKey;autoIncrement;column:id"`
-	CreatedAt  time.Time `gorm:"column:created_at;not null;type:timestamp"`
-	VisitTime  time.Time `gorm:"column:visit_time;not null;type:timestamp"`
+	CreatedAt  time.Time `gorm:"column:created_at;not null;type:timestampz"`
+	VisitTime  time.Time `gorm:"column:visit_time;not null;type:timestampz"`
 	ClientTime time.Time `gorm:"column:client_time;type:timestamp"`
 	Path       string    `gorm:"column:path;not null;type:text"`
 	Method     string    `gorm:"column:method;type:text;default:GET"`

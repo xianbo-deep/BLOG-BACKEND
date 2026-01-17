@@ -6,7 +6,6 @@ import (
 	"Blog-Backend/internal/dao"
 	"Blog-Backend/model"
 	"context"
-	"time"
 )
 
 type CollectService struct{}
@@ -18,7 +17,7 @@ func NewCollectService() *CollectService {
 func (s *CollectService) Collect(ctx context.Context, info request.CollectServiceDTO) error {
 
 	log := model.VisitLog{
-		VisitTime:  time.Now(),
+		VisitTime:  consts.GetCurrentUTCTime(),
 		ClientTime: info.ClientTime,
 		Path:       info.Path,
 		Country:    info.Country,

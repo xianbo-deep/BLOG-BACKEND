@@ -50,12 +50,3 @@ func GetClientIP(c *gin.Context, hdr common.RequestHeader) string {
 	}
 	return ip
 }
-
-func GetRequestMeta(c *gin.Context) (common.RequestMeta, bool) {
-	v, ok := c.Get(consts.RequestMetaKey)
-	if !ok {
-		return common.RequestMeta{}, false
-	}
-	meta, ok := v.(common.RequestMeta)
-	return meta, ok
-}
