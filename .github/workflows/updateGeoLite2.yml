@@ -20,7 +20,7 @@ jobs:
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
+          username: ${{ secrets.VPS_GEO_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "GeoLite2-City.mmdb"
           target: "/usr/local/share/GeoIP/"

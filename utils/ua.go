@@ -1,21 +1,23 @@
 package utils
 
-import "github.com/mssola/useragent"
+import (
+	"github.com/ua-parser/uap-go/uaparser"
+)
 
 func ParseUA(uaStr string) (device, os, browser string) {
-	ua := useragent.New(uaStr)
+	parser, _ := uaparser.New()
 
+	client := parser.Parse(uaStr)
 	// 解析浏览器
-	name, version := ua.Browser()
-	browser = name + " " + version
+	browser = client.UserAgent.Family
 
 	// 解析操作系统
-	os = ua.OS()
+	os = client.Os.Family
 
 	// 解析设备
-	if ua.Mobile() {
+	if client.Device.Family == "iPhone" || client.Device.Family == "Android" {
 		device = "mobile"
-	} else if ua.Bot() {
+	} else if client.Device.Family == "Bot" {
 		device = "bot"
 	} else {
 		device = "desktop"
