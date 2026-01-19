@@ -24,12 +24,13 @@ jobs:
           mkdir -p ./build
           GOOS=linux GOARCH=amd64 go build -o ./build/myblog 
 
-      - name: Upload to VPS
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_DEPLOY_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: "./build/myblog"
-          target: "/home/goapp/myblog"
+      - name: Upload to VPS via Rsync
+        uses: easingthemes/ssh-deploy@v5.1.0
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.VPS_HOST }}
+          REMOTE_USER: ${{ secrets.VPS_DEPLOY_USER }}
+          SOURCE: "build/myblog"
+          TARGET: "/home/goapp/"
+          ARGS: "-avz"
 
