@@ -9,6 +9,17 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
+      - name: Debug runner egress IP
+        run: |
+          set -euo pipefail
+          echo "== ipinfo =="
+          curl -sS https://ipinfo.io/json || true
+          echo
+          echo "== ifconfig.me =="
+          curl -sS https://ifconfig.me && echo
+          echo "== cloudflare trace =="
+          curl -sS https://www.cloudflare.com/cdn-cgi/trace | sed -n '1,20p' || true
+
       - name: Download GeoLite2
         run: |
           set -euo pipefail
