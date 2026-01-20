@@ -7,7 +7,7 @@ on:
 
 jobs:
   update:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
 
 
@@ -15,17 +15,25 @@ jobs:
         run: |
           set -euo pipefail
 
-          MIRROR="https://github.com/P3TERX/GeoLite.mmdb/releases/latest/download/GeoLite2-City.mmdb"
-      
-          curl -fSL -o GeoLite2-City.mmdb "$MIRROR"
-      
-          file GeoLite2-City.mmdb
+          URL="https://ghfast.top/https://github.com/P3TERX/GeoLite.mmdb/releases/latest/download/GeoLite2-City.mmdb"
+
+          echo "Starting download from ghfast..."
+          
+          curl -fSL --retry 5 --retry-delay 10 -o GeoLite2-City.mmdb "$URL"
+
+          # 安全检查：确认文件大于 10MB，防止下载到 404 页面或空文件
+          FILE_SIZE=$(stat -c%s "GeoLite2-City.mmdb")
+          if [ "$FILE_SIZE" -lt 10000000 ]; then
+            echo "Error: File too small ($FILE_SIZE bytes). Download might have failed."
+            exit 1
+          fi
+          
+          echo "Download success. Size: $(du -h GeoLite2-City.mmdb | cut -f1)"
 
       - name: Upload to VPS
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_GEO_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: "GeoLite2-City.mmdb"
-          target: "/usr/local/share/GeoIP/"
+        run: |
+          sudo mkdir -p /usr/local/share/GeoIP/
+          
+          sudo mv -f GeoLite2-City.mmdb /usr/local/share/GeoIP/GeoLite2-City.mmdb
+          
+          echo "Database updated to /usr/local/share/GeoIP/GeoLite2-City.mmdb
