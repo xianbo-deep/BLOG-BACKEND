@@ -8,29 +8,53 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
+      - name: Add github.com to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts  
 
+      - name: Checkout Repo (SSH)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+          ssh-key: ${{ secrets.GH_DEPLOY_KEY }}
 
+      # 下载go编译器
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
           go-version: '1.24.0'
+          cache: true
 
+      # 设置缓存目录和模块目录
+      - name: Setup Go Cache Dirs
+        run: |
+          mkdir -p /home/deployuser/.cache/go-build /home/deployuser/go/pkg/mod
+          go env -w GOCACHE=/home/deployuser/.cache/go-build
+          go env -w GOMODCACHE=/home/deployuser/go/pkg/mod
+
+      # 设置镜像
+      - name: Use Go proxy
+        run: |
+          go env -w GOPROXY=https://goproxy.cn,direct
+
+      # 下载依赖
+      - name: Download deps
+        run: go mod download
+
+      # 编译项目
       - name: Build Go Project
         run: |
           mkdir -p ./build
           GOOS=linux GOARCH=amd64 go build -o ./build/myblog 
 
-      - name: Upload to VPS via Rsync
-        uses: easingthemes/ssh-deploy@v5.1.0
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.VPS_HOST }}
-          REMOTE_USER: ${{ secrets.VPS_DEPLOY_USER }}
-          SOURCE: "build/myblog"
-          TARGET: "/home/goapp/"
-          ARGS: "-avz"
+      - name: Deploy and Restart backend service
+        run: |
+          sudo install -m 0755 -o goapp -g goapp ./build/myblog /home/goapp/myblog.new
+          sudo mv -f /home/goapp/myblog.new /home/goapp/myblog
+          sudo systemctl restart myblog
+          sudo systemctl --no-pager status myblog || true
 
