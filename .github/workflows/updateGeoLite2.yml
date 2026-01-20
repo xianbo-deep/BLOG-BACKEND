@@ -30,10 +30,8 @@ jobs:
           
           echo "Download success. Size: $(du -h GeoLite2-City.mmdb | cut -f1)"
 
-      - name: Upload to VPS
+      - name: Install GeoLite2
         run: |
-          mkdir -p /usr/local/share/GeoIP/
-          
-          mv -f GeoLite2-City.mmdb /usr/local/share/GeoIP/GeoLite2-City.mmdb
+          sudo install -D -m 0644 GeoLite2-City.mmdb /usr/local/share/GeoIP/GeoLite2-City.mmdb
           
           echo "Database updated to /usr/local/share/GeoIP/GeoLite2-City.mmdb"
