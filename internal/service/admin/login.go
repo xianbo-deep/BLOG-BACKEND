@@ -4,6 +4,7 @@ import (
 	"Blog-Backend/consts"
 	"Blog-Backend/utils"
 	"errors"
+	"os"
 )
 
 type LoginService struct {
@@ -15,8 +16,8 @@ func NewLoginService() *LoginService {
 
 func (s *LoginService) AdminLogin(Username string, Password string) (string, error) {
 	// TODO 后续加入数据库管理 不需要在环境变量存储
-	adminUser := consts.EnvAdminUser
-	adminPwd := consts.EnvAdminPwd
+	adminUser := os.Getenv(consts.EnvAdminUser)
+	adminPwd := os.Getenv(consts.EnvAdminPwd)
 
 	if Username != adminUser {
 		return "", errors.New(consts.ErrorMessage(consts.CodeUserNotFound))
