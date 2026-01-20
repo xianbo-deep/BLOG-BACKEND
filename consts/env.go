@@ -9,6 +9,7 @@ const (
 	EnvGeoDBPath = "GEODB_PATH"
 	// TODO 后续跨域URL可以写成一个数组
 	EnvBaseURL             = "BASE_URL"
+	EnvAdminURL            = "ADMIN_URL"
 	EnvPort                = "PORT"
 	EnvDiscussionToken     = "DISCUSSION_TOKEN"
 	EnvGithubWebhookSecret = "GITHUB_WEBHOOK_SECRET"

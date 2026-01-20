@@ -105,7 +105,7 @@ func initRedis() error {
 /* 初始化GeoDB */
 func initGeoDB() error {
 	var err error
-	GeoDB, err = geoip2.Open(consts.EnvGeoDBPath)
+	GeoDB, err = geoip2.Open(os.Getenv(consts.EnvGeoDBPath))
 	if err != nil {
 		return fmt.Errorf("%w: %v", consts.ErrGeoDBNotFound, err)
 	}
