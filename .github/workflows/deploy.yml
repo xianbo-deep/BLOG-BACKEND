@@ -32,5 +32,5 @@ jobs:
           REMOTE_USER: ${{ secrets.VPS_DEPLOY_USER }}
           SOURCE: "build/myblog"
           TARGET: "/home/goapp/"
-          ARGS: "-avz"
+          ARGS: "-av --info=progress2 --stats --partial --timeout=60"
 
