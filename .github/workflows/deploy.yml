@@ -29,6 +29,13 @@ jobs:
           go-version: '1.24.0'
           cache: true
 
+      # 设置缓存目录和模块目录
+      - name: Setup Go Cache Dirs
+        run: |
+          mkdir -p /home/deployuser/.cache/go-build /home/deployuser/go/pkg/mod
+          go env -w GOCACHE=/home/deployuser/.cache/go-build
+          go env -w GOMODCACHE=/home/deployuser/go/pkg/mod
+
       # 设置镜像
       - name: Use Go proxy
         run: |
