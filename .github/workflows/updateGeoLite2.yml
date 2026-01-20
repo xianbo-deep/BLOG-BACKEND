@@ -9,34 +9,17 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - name: Debug runner egress IP
-        run: |
-          set -euo pipefail
-          echo "== ipinfo =="
-          curl -sS https://ipinfo.io/json || true
-          echo
-          echo "== ifconfig.me =="
-          curl -sS https://ifconfig.me && echo
-          echo "== cloudflare trace =="
-          curl -sS https://www.cloudflare.com/cdn-cgi/trace | sed -n '1,20p' || true
+
 
       - name: Download GeoLite2
         run: |
           set -euo pipefail
-          URL="https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${{ secrets.MAXMIND_KEY }}&suffix=tar.gz"
+
+          MIRROR="https://github.com/P3TERX/GeoLite.mmdb/releases/latest/download/GeoLite2-City.mmdb"
       
-          curl -sSL -D headers.txt -o geo.tar.gz "$URL"
-          echo "---- response headers ----"
-          head -n 20 headers.txt
-          echo "---- file type ----"
-          file geo.tar.gz
-          echo "---- first lines ----"
-          head -n 20 geo.tar.gz || true
+          curl -fSL -o GeoLite2-City.mmdb "$MIRROR"
       
-          # 如果真的是 tar.gz，这个会列出内容；如果不是会直接报错
-          tar -tzf geo.tar.gz | head
-          tar -xzf geo.tar.gz
-          mv GeoLite2-City_*/GeoLite2-City.mmdb GeoLite2-City.mmdb
+          file GeoLite2-City.mmdb
 
       - name: Upload to VPS
         uses: appleboy/scp-action@v0.1.4
