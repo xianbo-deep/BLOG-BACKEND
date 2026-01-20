@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -24,13 +24,10 @@ jobs:
           mkdir -p ./build
           GOOS=linux GOARCH=amd64 go build -o ./build/myblog 
 
-      - name: Upload to VPS via Rsync
-        uses: easingthemes/ssh-deploy@v5.1.0
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.VPS_HOST }}
-          REMOTE_USER: ${{ secrets.VPS_DEPLOY_USER }}
-          SOURCE: "build/myblog"
-          TARGET: "/home/goapp/"
-          ARGS: "-av --info=progress2 --stats --partial --timeout=60"
+      - name: Deploy and Restart backend service
+        run: |
+          sudo install -m 0755 -o goapp -g goapp ./build/myblog /home/goapp/myblog.new
+          sudo mv -f /home/goapp/myblog.new /home/goapp/myblog
+          sudo systemctl restart myblog
+          sudo systemctl --no-pager status myblog || true
 
