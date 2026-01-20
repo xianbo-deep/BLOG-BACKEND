@@ -32,8 +32,8 @@ jobs:
 
       - name: Upload to VPS
         run: |
-          sudo mkdir -p /usr/local/share/GeoIP/
+          mkdir -p /usr/local/share/GeoIP/
           
-          sudo mv -f GeoLite2-City.mmdb /usr/local/share/GeoIP/GeoLite2-City.mmdb
+          mv -f GeoLite2-City.mmdb /usr/local/share/GeoIP/GeoLite2-City.mmdb
           
-          echo "Database updated to /usr/local/share/GeoIP/GeoLite2-City.mmdb
+          echo "Database updated to /usr/local/share/GeoIP/GeoLite2-City.mmdb"
