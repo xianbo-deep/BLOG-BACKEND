@@ -7,6 +7,7 @@ import (
 	"Blog-Backend/thirdparty/github"
 	"Blog-Backend/thirdparty/github/service"
 	"context"
+	"log"
 )
 
 type CommentService struct {
@@ -75,10 +76,12 @@ func (s *CommentService) GetDiscussionNewFeed(c context.Context, limit int) ([]*
 		return nil, err
 	}
 	if ok {
+		log.Printf("有缓存，直接返回")
 		return cached, nil
 	}
 	res, err := s.ds.GetNewFeed(c, limit)
 	if err != nil {
+		log.Printf("服务内部出错，返回")
 		return nil, err
 	}
 	_ = s.cached.SetJSON(c, key, res, consts.CacheExpireDuration)
