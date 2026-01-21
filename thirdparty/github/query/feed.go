@@ -18,7 +18,7 @@ type FeedQuery struct {
 						}
 						Content githubv4.ReactionContent
 					}
-				} `graphql:"reactions(last: 20)"`
+				} `graphql:"reactions(first: 20)"`
 				Comments struct {
 					Nodes []struct {
 						BodyText  githubv4.String
@@ -33,7 +33,7 @@ type FeedQuery struct {
 								}
 								Content githubv4.ReactionContent
 							}
-						} `graphql:"reactions(last: 20)"`
+						} `graphql:"reactions(first: 20)"`
 						Replies struct {
 							Nodes []struct {
 								CreatedAt githubv4.DateTime
@@ -48,21 +48,21 @@ type FeedQuery struct {
 										}
 										Content githubv4.ReactionContent
 									}
-								} `graphql:"reactions(last: 20)"`
+								} `graphql:"reactions(first: 20)"`
 								Author struct {
 									AvatarUrl githubv4.String
 									Url       githubv4.String
 									Login     githubv4.String
 								}
 							}
-						} `graphql:"replies(last: 20)"`
+						} `graphql:"replies(first: 20)"`
 						Author struct {
 							AvatarUrl githubv4.String
 							Url       githubv4.String
 							Login     githubv4.String
 						}
 					}
-				} `graphql:"comments(last: 20)"`
+				} `graphql:"comments(first: 20)"`
 			}
 			PageInfo PageInfo `graphql:"pageInfo"`
 		} `graphql:"discussions(first: $first,after: $after,orderBy:$orderBy)"`
