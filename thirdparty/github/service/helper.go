@@ -17,7 +17,7 @@ import (
 func handleNewFeedRes(allItems []*response.NewFeedItem, limit int) ([]*response.NewFeedItem, error) {
 	// 对动态按照时间进行排序
 	sort.Slice(allItems, func(i, j int) bool {
-		return allItems[i].Time > allItems[j].Time
+		return allItems[i].Time.After(allItems[j].Time)
 	})
 
 	// 截取动态

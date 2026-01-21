@@ -5,6 +5,7 @@ import (
 	"Blog-Backend/internal/controller/admin"
 )
 
+// TODO 对GithubService也在这做初始化 还有一个Client
 func InitComponet() {
 	// service初始化
 	admin.InitAccessLogService(core.DB)

@@ -4,7 +4,7 @@ import (
 	"github.com/shurcooL/githubv4"
 )
 
-// TODO 后续要把大的查询结构体的定义进行优化
+// TODO 后续要把大的查询结构体的定义进行优化 对comment-service的代码做解耦
 // 查询结构体
 type PageInfo struct {
 	HasNextPage bool
