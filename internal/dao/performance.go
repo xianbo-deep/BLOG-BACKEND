@@ -56,9 +56,9 @@ func GetAverageDelay() ([]response.AverageDelayItem, error) {
 
 	db := core.DB.Model(&model.VisitLog{})
 
-	err := db.Select("date_trunc('hour','visit_time') as time , avg(Latency) as avg_delay").
+	err := db.Select("date_trunc('hour',visit_time) as time , avg(latency) as avg_delay").
 		Where("visit_time > ?", startTime).
-		Group("date_trunc('hour','visit_time')").
+		Group("date_trunc('hour',visit_time)").
 		Order("time ASC").
 		Scan(&res).Error
 

@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"Blog-Backend/core"
 	"Blog-Backend/dto/common"
 	"Blog-Backend/dto/response"
 	"Blog-Backend/internal/dao"
@@ -13,8 +12,8 @@ type AnalysisService struct {
 	db *gorm.DB
 }
 
-func NewAnalysisService() *AnalysisService {
-	return &AnalysisService{db: core.DB}
+func NewAnalysisService(db *gorm.DB) *AnalysisService {
+	return &AnalysisService{db: db}
 }
 
 func (s *AnalysisService) GetAnalysisMetric(days int) (response.AnalysisMetric, error) {

@@ -10,7 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var commentService = admin.NewCommentService()
+var commentService *admin.CommentService
+
+func InitCommentService() {
+	commentService = admin.NewCommentService()
+}
 
 func GetDiscussionMetric(c *gin.Context) {
 	daysStr := c.Query("days")
@@ -32,6 +36,7 @@ func GetDiscussionTrend(c *gin.Context) {
 	days, e := strconv.Atoi(daysStr)
 	if e != nil {
 		common.Fail(c, http.StatusBadRequest, consts.CodeInternal, e.Error())
+		return
 	}
 	res, err := commentService.GetDiscussionTrend(c, days)
 	if err != nil {

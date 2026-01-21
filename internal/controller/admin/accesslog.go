@@ -8,9 +8,14 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-var accesslogService = admin.NewAccessLogService()
+var accesslogService *admin.AccessLogService
+
+func InitAccessLogService(db *gorm.DB) {
+	accesslogService = admin.NewAccessLogService(db)
+}
 
 func GetAccessLog(c *gin.Context) {
 	var req common.PageRequest

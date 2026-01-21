@@ -10,7 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var performanceSerivce = admin.NewPerformanceService()
+var performanceSerivce *admin.PerformanceService
+
+func InitPerformanceService() {
+	performanceSerivce = admin.NewPerformanceService()
+}
 
 func GetAverageDelay(c *gin.Context) {
 	res, err := performanceSerivce.GetAverageDelay()

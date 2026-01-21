@@ -2,7 +2,6 @@ package admin
 
 import (
 	"Blog-Backend/consts"
-	"Blog-Backend/core"
 	"Blog-Backend/dto/common"
 	"Blog-Backend/dto/request"
 	"Blog-Backend/dto/response"
@@ -18,8 +17,8 @@ type AccessLogService struct {
 	db *gorm.DB
 }
 
-func NewAccessLogService() *AccessLogService {
-	return &AccessLogService{db: core.DB}
+func NewAccessLogService(db *gorm.DB) *AccessLogService {
+	return &AccessLogService{db: db}
 }
 
 func (s *AccessLogService) GetAccessLog(req common.PageRequest) (*common.PageResponse[response.AccessLog], error) {
@@ -70,22 +69,14 @@ func (s *AccessLogService) GetAccessLog(req common.PageRequest) (*common.PageRes
 func (s *AccessLogService) GetAccessLogByQuery(req request.AccessLogRequest) (*common.PageResponse[response.AccessLog], error) {
 	db := s.db.Model(&model.VisitLog{}).Order("visit_time desc")
 
-	if req.Path != "" {
-		db = db.Where("path LIKE ?", "%"+req.Path+"%")
-	}
-
-	if req.IP != "" {
-		db = db.Where("ip LIKE ?", "%"+req.IP+"%")
+	if req.KeyWord != "" {
+		db = db.Where("path LIKE ? and ip LIKE ? and visitor_id = ?", "%"+req.KeyWord+"%", "%"+req.KeyWord+"%", req.KeyWord)
 	}
 
 	if req.Status != "" {
 		if statusInt, err := strconv.Atoi(req.Status); err == nil {
 			db = db.Where("status = ?", statusInt)
 		}
-	}
-
-	if req.VisitorID != "" {
-		db = db.Where("visitor_id = ?", req.VisitorID)
 	}
 
 	if req.Latency != 0 {

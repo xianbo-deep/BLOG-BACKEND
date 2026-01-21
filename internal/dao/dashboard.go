@@ -69,6 +69,7 @@ func GetHistoryTrends(limit int) ([]response.DashboardTrends, error) {
 		Select("to_char(date, 'YYYY-MM-DD') as date, sum(pv) as pv,sum(uv) as uv").
 		Where("date < ?", today).
 		Order("date desc").
+		Group("date").
 		Limit(limit).
 		Scan(&result).Error
 

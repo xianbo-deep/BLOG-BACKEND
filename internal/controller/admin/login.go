@@ -10,7 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var loginService = admin.NewLoginService()
+var loginService *admin.LoginService
+
+func InitLoginService() {
+	loginService = admin.NewLoginService()
+}
 
 func Login(c *gin.Context) {
 	var req request.LoginRequest

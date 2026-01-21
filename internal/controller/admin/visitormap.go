@@ -10,7 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var visitorMapService = admin.NewVisitorMapSerive()
+var visitorMapService *admin.VisitorMapSerive
+
+func InitVisitorMapService() {
+	visitorMapService = admin.NewVisitorMapSerive()
+}
 
 func GetVisitorMap(c *gin.Context) {
 	// 传递毫秒级时间戳

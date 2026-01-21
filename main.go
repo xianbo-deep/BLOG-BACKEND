@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Blog-Backend/bootstrap"
 	"Blog-Backend/consts"
 	"Blog-Backend/core"
 	"Blog-Backend/internal/task"
@@ -24,11 +25,13 @@ func main() {
 		panic(err)
 	}
 
+	/* 初始化组件 它们依赖于数据库 */
+	bootstrap.InitComponet()
+
 	/* 启动定时任务*/
 	task.InitCron()
 
 	/* 初始化路由 */
-
 	rEngine = router.SetupRouter()
 
 	/* 获取端口 */

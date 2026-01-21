@@ -10,7 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var dashboardService = admin.NewDashboardService()
+var dashboardService *admin.DashboardService
+
+func InitDashboardService() {
+	dashboardService = admin.NewDashboardService()
+}
 
 // 除了总日志数，其它都在REDIS拿
 func GetDashboardSummary(c *gin.Context) {

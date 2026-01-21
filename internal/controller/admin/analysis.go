@@ -8,9 +8,14 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-var analysisService = admin.NewAnalysisService()
+var analysisService *admin.AnalysisService
+
+func InitAnalysisService(db *gorm.DB) {
+	analysisService = admin.NewAnalysisService(db)
+}
 
 func GetAnalysisMetrics(c *gin.Context) {
 	var req request.AnalysisRequest
