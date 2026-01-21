@@ -64,7 +64,7 @@ type FeedQuery struct {
 					}
 				} `graphql:"comments(last: 20)"`
 			}
-			PageInfo
+			PageInfo PageInfo `graphql:"pageInfo"`
 		} `graphql:"discussions(first: $first,after: $after,orderBy:$orderBy)"`
 	} `graphql:"repository(owner: $owner, name: $repo)"`
 }

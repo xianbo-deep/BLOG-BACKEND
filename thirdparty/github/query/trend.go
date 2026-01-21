@@ -32,7 +32,7 @@ type TrendQuery struct {
 					}
 				} `graphql:"comments(first:100)"`
 			}
-			PageInfo
+			PageInfo PageInfo `graphql:"pageInfo"`
 		} `graphql:"discussions(first: $first,after: $after)"`
 	} `graphql:"repository(owner: $owner, name: $repo)"`
 }

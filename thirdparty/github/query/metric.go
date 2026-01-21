@@ -26,14 +26,14 @@ type MetricQuery struct {
 								Reactions struct {
 									Nodes []struct {
 										CreatedAt githubv4.DateTime
-									} `graphql:"reactions(first: 100)"`
-								}
+									}
+								} `graphql:"reactions(first: 100)"`
 							} `graphql:"nodes"`
 						} `graphql:"replies(first: 100)"`
 					}
 				} `graphql:"comments(first: 100)"`
 			}
-			PageInfo
+			PageInfo PageInfo `graphql:"pageInfo"`
 		} `graphql:"discussions(first: $first,after: $after,orderBy: $orderBy)"`
 	} `graphql:"repository(owner: $owner, name: $repo)"`
 }

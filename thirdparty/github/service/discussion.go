@@ -265,7 +265,7 @@ func (s *DiscussionService) GetTrend(ctx context.Context, timeRangeDays int) ([]
 		var q query.TrendQuery
 
 		vars := map[string]interface{}{
-			"first": consts.DefaultQuerySize,
+			"first": githubv4.Int(consts.DefaultQuerySize),
 			"after": after,
 			"owner": s.owner,
 			"repo":  s.repo,
@@ -325,7 +325,7 @@ func (s *DiscussionService) GetActiveUser(ctx context.Context, limit int) ([]res
 		var q query.ActiveUserQuery
 
 		vars := map[string]interface{}{
-			"first": consts.DefaultQuerySize,
+			"first": githubv4.Int(consts.DefaultQuerySize),
 			"after": after,
 			"owner": s.owner,
 			"repo":  s.repo,
