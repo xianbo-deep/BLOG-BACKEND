@@ -5,7 +5,6 @@ import (
 	"Blog-Backend/dto/response"
 	"Blog-Backend/thirdparty/github/query"
 	"context"
-	"log"
 	"os"
 	"time"
 
@@ -125,7 +124,6 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 	cutoffTime := time.Now().AddDate(0, -3, 0)
 	for {
 		var q query.FeedQuery
-		log.Printf(">>> [DEBUG START] Fetching Feed for: %s/%s", s.owner, s.repo)
 		vars := map[string]interface{}{
 			"owner": githubv4.String(s.owner),
 			"repo":  githubv4.String(s.repo),
@@ -136,11 +134,9 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 			"first": githubv4.Int(consts.DefaultDiscussionQuerySize),
 			"after": after,
 		}
-		log.Printf(">>> [DEBUG TIME] Cutoff Time is: %v", cutoffTime)
 		err := s.github.Query(ctx, &q, vars)
 
 		if err != nil {
-			log.Printf(">>> [DEBUG ERROR] GitHub Query Failed: %v", err)
 			return nil, err
 		}
 
@@ -158,7 +154,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 					allItems = append(allItems, &response.NewFeedItem{
 						EventType: consts.Reaction,
 						Name:      string(reaction.User.Login),
-						Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+						Path:      concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
 						Content:   string(reaction.Content),
 						Avatar:    string(reaction.User.AvatarUrl),
 						Time:      consts.TransferTimeByLoc(reaction.CreatedAt.Time),
@@ -172,7 +168,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 					allItems = append(allItems, &response.NewFeedItem{
 						EventType: consts.Comment,
 						Name:      string(comment.Author.Login),
-						Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+						Path:      concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
 						Content:   string(comment.BodyText),
 						Avatar:    string(comment.Author.AvatarUrl),
 						Time:      consts.TransferTimeByLoc(comment.CreatedAt.Time),
@@ -185,7 +181,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 						allItems = append(allItems, &response.NewFeedItem{
 							EventType: consts.Reaction,
 							Name:      string(reaction.User.Login),
-							Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+							Path:      concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
 							Content:   string(reaction.Content),
 							Avatar:    string(reaction.User.AvatarUrl),
 							Time:      consts.TransferTimeByLoc(reaction.CreatedAt.Time),
@@ -239,7 +235,6 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 		// 更新after
 		after = nextCursor(q.Repository.Discussions.PageInfo)
 	}
-	log.Printf(">>> [DEBUG END] Total items collected: %d", len(allItems))
 	return handleNewFeedRes(allItems, limit)
 }
 

@@ -36,6 +36,7 @@ func (c *CacheDAO) GetJSON(ctx context.Context, key string, out any) (bool, erro
 	return true, json.Unmarshal(b, out)
 }
 
+// TODO 优化缓存策略 缓存时间有点长
 func (c *CacheDAO) GetVersion(ctx context.Context, key string) (int64, error) {
 	v, err := c.rdb.Get(ctx, key).Int64()
 	if err == redis.Nil {

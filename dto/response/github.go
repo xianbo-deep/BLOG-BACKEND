@@ -34,5 +34,4 @@ type TrendItem struct {
 	TotalComments  int64  `json:"totalComments"`  // 总评论数
 	TotalReplies   int64  `json:"totalReplies"`   // 总回复数
 	TotalReactions int64  `json:"totalResponses"` // 总回应数
-	Timestamp      int64  `json:"timestamp"`      // 时间戳
 }

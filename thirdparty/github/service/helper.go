@@ -5,6 +5,7 @@ import (
 	"Blog-Backend/dto/response"
 	"Blog-Backend/thirdparty/github/query"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/shurcooL/githubv4"
@@ -25,6 +26,9 @@ func handleNewFeedRes(allItems []*response.NewFeedItem, limit int) ([]*response.
 		allItems = allItems[:limit]
 	}
 
+	for i := range allItems {
+		allItems[i].Timestamp = allItems[i].Time.UnixMilli()
+	}
 	return allItems, nil
 }
 
@@ -102,4 +106,11 @@ func shouldCount(cufoffTime time.Time, t time.Time) bool {
 func nextCursor(pi query.PageInfo) *githubv4.String {
 	c := pi.EndCursor
 	return &c
+}
+
+// 合并URL
+func concatToUrl(base, url string) string {
+	base = strings.TrimSuffix(base, "/")
+	url = strings.TrimPrefix(url, "/")
+	return base + "/" + url
 }

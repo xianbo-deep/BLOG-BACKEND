@@ -46,6 +46,8 @@ const (
 	// 常用的时间
 	TimeRangeSecond = time.Second
 
+	TimeRangeMinute = time.Minute
+
 	TimeRangeHour = time.Hour * 1
 
 	TimeRangeDay = time.Hour * 24
