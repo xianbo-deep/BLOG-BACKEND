@@ -53,6 +53,6 @@ type ActiveUserQuery struct {
 				} `graphql:"comments(first:20)"`
 			}
 			PageInfo PageInfo `graphql:"pageInfo"`
-		} `graphql:"discussion(first: $first, after: $after)"`
+		} `graphql:"discussions(first: $first, after: $after)"`
 	} `graphql:"repository(owner: $owner, name: $repo)"`
 }

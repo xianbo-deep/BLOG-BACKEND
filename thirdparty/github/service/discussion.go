@@ -330,7 +330,7 @@ func (s *DiscussionService) GetActiveUser(ctx context.Context, limit int) ([]res
 			"owner": githubv4.String(s.owner),
 			"repo":  githubv4.String(s.repo),
 		}
-		err := s.github.Query(ctx, q, vars)
+		err := s.github.Query(ctx, &q, vars)
 		if err != nil {
 			return nil, err
 		}
