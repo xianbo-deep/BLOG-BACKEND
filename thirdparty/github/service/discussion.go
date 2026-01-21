@@ -120,8 +120,8 @@ func (s *DiscussionService) GetTotalMetric(ctx context.Context, timeRangeDays in
 func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*response.NewFeedItem, error) {
 	var after *githubv4.String
 	var allItems []*response.NewFeedItem
-	// 不统计7天前的
-	cutoffTime := time.Now().AddDate(0, 0, -consts.Week)
+	// 不统计一定时间前的
+	cutoffTime := time.Now().AddDate(0, -3, 0)
 	for {
 		var q query.FeedQuery
 
