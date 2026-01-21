@@ -6,7 +6,7 @@ const (
 
 	Week = 7
 
-	DefaultQuerySize = 100
+	DefaultDiscussionQuerySize = 50
 
 	Reaction = "reaction"
 	Reply    = "reply"

@@ -20,12 +20,12 @@ func GetDiscussionMetric(c *gin.Context) {
 	daysStr := c.Query("days")
 	days, e := strconv.Atoi(daysStr)
 	if e != nil {
-		common.Fail(c, http.StatusBadRequest, consts.CodeInternal, e.Error())
+		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, e.Error())
 		return
 	}
 	res, err := commentService.GetDiscussionMetric(c, days)
 	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, consts.CodeBadRequest, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}
 	common.Success(c, res)
@@ -35,12 +35,12 @@ func GetDiscussionTrend(c *gin.Context) {
 	daysStr := c.Query("days")
 	days, e := strconv.Atoi(daysStr)
 	if e != nil {
-		common.Fail(c, http.StatusBadRequest, consts.CodeInternal, e.Error())
+		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, e.Error())
 		return
 	}
 	res, err := commentService.GetDiscussionTrend(c, days)
 	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, consts.CodeBadRequest, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}
 	common.Success(c, res)
@@ -50,13 +50,13 @@ func GetDiscussionNewFeed(c *gin.Context) {
 	limitStr := c.Query("limit")
 	limit, e := strconv.Atoi(limitStr)
 	if e != nil {
-		common.Fail(c, http.StatusBadRequest, consts.CodeInternal, e.Error())
+		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, e.Error())
 		return
 
 	}
 	res, err := commentService.GetDiscussionNewFeed(c, limit)
 	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, consts.CodeBadRequest, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}
 	common.Success(c, res)
@@ -66,12 +66,12 @@ func GetDiscussionActiveUser(c *gin.Context) {
 	limitStr := c.Query("limit")
 	limit, e := strconv.Atoi(limitStr)
 	if e != nil {
-		common.Fail(c, http.StatusBadRequest, consts.CodeInternal, e.Error())
+		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, e.Error())
 		return
 	}
 	res, err := commentService.GetDiscussionActiveUser(c, limit)
 	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, consts.CodeBadRequest, err.Error())
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}
 	common.Success(c, res)

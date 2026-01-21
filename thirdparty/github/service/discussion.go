@@ -51,7 +51,7 @@ func (s *DiscussionService) GetTotalMetric(ctx context.Context, timeRangeDays in
 			"owner":   githubv4.String(s.owner),
 			"repo":    githubv4.String(s.repo),
 			"after":   after,
-			"first":   githubv4.Int(consts.DefaultQuerySize),
+			"first":   githubv4.Int(consts.DefaultDiscussionQuerySize),
 			"orderBy": orderBy,
 		}
 
@@ -132,7 +132,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 				Field:     githubv4.DiscussionOrderFieldUpdatedAt,
 				Direction: githubv4.OrderDirectionDesc,
 			},
-			"first": githubv4.Int(consts.DefaultQuerySize),
+			"first": githubv4.Int(consts.DefaultDiscussionQuerySize),
 			"after": after,
 		}
 
@@ -226,7 +226,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 			}
 		}
 		// 若长度过长
-		if len(allItems) > 2*consts.DefaultQuerySize {
+		if len(allItems) > 2*consts.DefaultDiscussionQuerySize {
 			break
 		}
 		// 退出 装载信息
@@ -265,10 +265,10 @@ func (s *DiscussionService) GetTrend(ctx context.Context, timeRangeDays int) ([]
 		var q query.TrendQuery
 
 		vars := map[string]interface{}{
-			"first": githubv4.Int(consts.DefaultQuerySize),
+			"first": githubv4.Int(consts.DefaultDiscussionQuerySize),
 			"after": after,
-			"owner": s.owner,
-			"repo":  s.repo,
+			"owner": githubv4.String(s.owner),
+			"repo":  githubv4.String(s.repo),
 		}
 
 		err := s.github.Query(ctx, &q, vars)
@@ -325,10 +325,10 @@ func (s *DiscussionService) GetActiveUser(ctx context.Context, limit int) ([]res
 		var q query.ActiveUserQuery
 
 		vars := map[string]interface{}{
-			"first": githubv4.Int(consts.DefaultQuerySize),
+			"first": githubv4.Int(consts.DefaultDiscussionQuerySize),
 			"after": after,
-			"owner": s.owner,
-			"repo":  s.repo,
+			"owner": githubv4.String(s.owner),
+			"repo":  githubv4.String(s.repo),
 		}
 		err := s.github.Query(ctx, q, vars)
 		if err != nil {

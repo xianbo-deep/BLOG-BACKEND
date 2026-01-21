@@ -10,7 +10,7 @@ type TrendQuery struct {
 					Nodes []struct {
 						CreatedAt githubv4.DateTime
 					}
-				} `graphql:"reactions(first:100)"`
+				} `graphql:"reactions(first:20)"`
 				Comments struct {
 					Nodes []struct {
 						CreatedAt githubv4.DateTime
@@ -21,16 +21,16 @@ type TrendQuery struct {
 									Nodes []struct {
 										CreatedAt githubv4.DateTime
 									}
-								} `graphql:"reactions(first:100)"`
+								} `graphql:"reactions(first:20)"`
 							}
-						} `graphql:"replies(first:100)"`
+						} `graphql:"replies(first:20)"`
 						Reactions struct {
 							Nodes []struct {
 								CreatedAt githubv4.DateTime
 							}
-						} `graphql:"reactions(first:100)"`
+						} `graphql:"reactions(first:20)"`
 					}
-				} `graphql:"comments(first:100)"`
+				} `graphql:"comments(first:20)"`
 			}
 			PageInfo PageInfo `graphql:"pageInfo"`
 		} `graphql:"discussions(first: $first,after: $after)"`

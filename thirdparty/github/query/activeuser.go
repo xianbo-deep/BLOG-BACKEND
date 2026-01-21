@@ -14,7 +14,7 @@ type ActiveUserQuery struct {
 							Login     githubv4.String
 						}
 					}
-				} `graphql:"reactions(first:100)"`
+				} `graphql:"reactions(first:20)"`
 				Comments struct {
 					Nodes []struct {
 						Author struct {
@@ -37,9 +37,9 @@ type ActiveUserQuery struct {
 											Login     githubv4.String
 										}
 									}
-								} `graphql:"reactions(first:100)"`
+								} `graphql:"reactions(first:20)"`
 							}
-						} `graphql:"replies(first:100)"`
+						} `graphql:"replies(first:20)"`
 						Reactions struct {
 							Nodes []struct {
 								User struct {
@@ -48,9 +48,9 @@ type ActiveUserQuery struct {
 									Login     githubv4.String
 								}
 							}
-						} `graphql:"reactions(first:100)"`
+						} `graphql:"reactions(first:20)"`
 					}
-				} `graphql:"comments(first:100)"`
+				} `graphql:"comments(first:20)"`
 			}
 			PageInfo PageInfo `graphql:"pageInfo"`
 		} `graphql:"discussion(first: $first, after: $after)"`
