@@ -10,14 +10,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var performanceSerivce *admin.PerformanceService
-
-func InitPerformanceService() {
-	performanceSerivce = admin.NewPerformanceService()
+type PerformanceController struct {
+	svc *admin.PerformanceService
 }
 
-func GetAverageDelay(c *gin.Context) {
-	res, err := performanceSerivce.GetAverageDelay()
+func NewPerformanceController(svc *admin.PerformanceService) *PerformanceController {
+	return &PerformanceController{svc: svc}
+}
+
+func (ctrl *PerformanceController) GetAverageDelay(c *gin.Context) {
+	res, err := ctrl.svc.GetAverageDelay()
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
@@ -25,11 +27,11 @@ func GetAverageDelay(c *gin.Context) {
 	common.Success(c, res)
 }
 
-func GetSlowPages(c *gin.Context) {
+func (ctrl *PerformanceController) GetSlowPages(c *gin.Context) {
 	ctx := c.Request.Context()
 	limitStr := c.DefaultQuery("limit", "10")
 	limit, _ := strconv.Atoi(limitStr)
-	res, err := performanceSerivce.GetSlowPages(ctx, limit)
+	res, err := ctrl.svc.GetSlowPages(ctx, limit)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return

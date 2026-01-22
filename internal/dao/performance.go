@@ -2,18 +2,29 @@ package dao
 
 import (
 	"Blog-Backend/consts"
-	"Blog-Backend/core"
 	"Blog-Backend/dto/response"
 	"Blog-Backend/model"
 	"context"
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
+type PerformanceDao struct {
+	db  *gorm.DB
+	rdb *redis.Client
+}
+
+func NewPerformanceDao(db *gorm.DB, rdb *redis.Client) *PerformanceDao {
+	return &PerformanceDao{db: db, rdb: rdb}
+}
+
 // 在REDIS查今日最慢Top10
-func GetSlowPages(ctx context.Context, limit int) ([]response.SlowDelayItem, error) {
-	if core.RDB == nil {
+func (d *PerformanceDao) GetSlowPages(ctx context.Context, limit int) ([]response.SlowDelayItem, error) {
+	if d.rdb == nil {
 		return nil, errors.New("Failed to get slow pages")
 	}
 	var result []response.SlowDelayItem
@@ -22,7 +33,7 @@ func GetSlowPages(ctx context.Context, limit int) ([]response.SlowDelayItem, err
 	key := "blog:stat:daily:" + today + ":latency:rank"
 
 	// 进行查询
-	top10, err := core.RDB.ZRevRangeWithScores(ctx, key, 0, int64(limit-1)).Result()
+	top10, err := d.rdb.ZRevRangeWithScores(ctx, key, 0, int64(limit-1)).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -48,13 +59,13 @@ func GetSlowPages(ctx context.Context, limit int) ([]response.SlowDelayItem, err
 	return result, err
 }
 
-func GetAverageDelay() ([]response.AverageDelayItem, error) {
+func (d *PerformanceDao) GetAverageDelay() ([]response.AverageDelayItem, error) {
 	// 将时间往前调整24h
 	startTime := time.Now().Add(-consts.TimeRangeDay)
 
 	var res []response.AverageDelayItem
 
-	db := core.DB.Model(&model.VisitLog{})
+	db := d.db.Model(&model.VisitLog{})
 
 	err := db.Select("date_trunc('hour',visit_time) as time , avg(latency) as avg_delay").
 		Where("visit_time > ?", startTime).

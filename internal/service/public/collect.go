@@ -8,13 +8,15 @@ import (
 	"context"
 )
 
-type CollectService struct{}
-
-func NewCollectService() *CollectService {
-	return &CollectService{}
+type CollectService struct {
+	dao *dao.CollectDao
 }
 
-func (s *CollectService) Collect(ctx context.Context, info request.CollectServiceDTO) error {
+func NewCollectService(dao *dao.CollectDao) *CollectService {
+	return &CollectService{dao: dao}
+}
+
+func (s *CollectService) Collect(info request.CollectServiceDTO) error {
 
 	log := model.VisitLog{
 		VisitTime:  consts.GetCurrentUTCTime(),
@@ -36,7 +38,7 @@ func (s *CollectService) Collect(ctx context.Context, info request.CollectServic
 		Browser:    info.Browser,
 	}
 
-	if err := dao.InsertVisitLog(log); err != nil {
+	if err := s.dao.InsertVisitLog(log); err != nil {
 		return err
 	}
 
@@ -44,10 +46,10 @@ func (s *CollectService) Collect(ctx context.Context, info request.CollectServic
 	go func() {
 		bg, cancel := consts.GetTimeoutContext(context.Background(), consts.RedisOperationTimeout)
 		defer cancel()
-		_ = dao.IncrementPV(bg, info.Path)
-		_ = dao.IncrementUV(bg, info.Path, info.VisitorID)
-		_ = dao.RecordOnline(bg, info.VisitorID)
-		_ = dao.RecordLatency(bg, info.Path, info.Latency)
+		_ = s.dao.IncrementPV(bg, info.Path)
+		_ = s.dao.IncrementUV(bg, info.Path, info.VisitorID)
+		_ = s.dao.RecordOnline(bg, info.VisitorID)
+		_ = s.dao.RecordLatency(bg, info.Path, info.Latency)
 	}()
 
 	return nil

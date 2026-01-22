@@ -10,20 +10,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var commentService *admin.CommentService
-
-func InitCommentService() {
-	commentService = admin.NewCommentService()
+type CommentController struct {
+	svc *admin.CommentService
 }
 
-func GetDiscussionMetric(c *gin.Context) {
+func NewCommentController(svc *admin.CommentService) *CommentController {
+	return &CommentController{svc: svc}
+}
+
+func (ctrl *CommentController) GetDiscussionMetric(c *gin.Context) {
 	daysStr := c.Query("days")
 	days, e := strconv.Atoi(daysStr)
 	if e != nil {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, e.Error())
 		return
 	}
-	res, err := commentService.GetDiscussionMetric(c, days)
+	res, err := ctrl.svc.GetDiscussionMetric(c, days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
@@ -31,14 +33,14 @@ func GetDiscussionMetric(c *gin.Context) {
 	common.Success(c, res)
 }
 
-func GetDiscussionTrend(c *gin.Context) {
+func (ctrl *CommentController) GetDiscussionTrend(c *gin.Context) {
 	daysStr := c.Query("days")
 	days, e := strconv.Atoi(daysStr)
 	if e != nil {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, e.Error())
 		return
 	}
-	res, err := commentService.GetDiscussionTrend(c, days)
+	res, err := ctrl.svc.GetDiscussionTrend(c, days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
@@ -46,7 +48,7 @@ func GetDiscussionTrend(c *gin.Context) {
 	common.Success(c, res)
 }
 
-func GetDiscussionNewFeed(c *gin.Context) {
+func (ctrl *CommentController) GetDiscussionNewFeed(c *gin.Context) {
 	limitStr := c.Query("limit")
 	limit, e := strconv.Atoi(limitStr)
 	if e != nil {
@@ -54,7 +56,7 @@ func GetDiscussionNewFeed(c *gin.Context) {
 		return
 
 	}
-	res, err := commentService.GetDiscussionNewFeed(c, limit)
+	res, err := ctrl.svc.GetDiscussionNewFeed(c, limit)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
@@ -62,14 +64,14 @@ func GetDiscussionNewFeed(c *gin.Context) {
 	common.Success(c, res)
 }
 
-func GetDiscussionActiveUser(c *gin.Context) {
+func (ctrl *CommentController) GetDiscussionActiveUser(c *gin.Context) {
 	limitStr := c.Query("limit")
 	limit, e := strconv.Atoi(limitStr)
 	if e != nil {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, e.Error())
 		return
 	}
-	res, err := commentService.GetDiscussionActiveUser(c, limit)
+	res, err := ctrl.svc.GetDiscussionActiveUser(c, limit)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return

@@ -12,9 +12,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var collectService = public.NewCollectService()
+type CollectController struct {
+	svc *public.CollectService
+}
 
-func CollectHandler(c *gin.Context) {
+func NewCollectController(svc *public.CollectService) *CollectController {
+	return &CollectController{svc: svc}
+}
+
+func (ctrl *CollectController) CollectHandler(c *gin.Context) {
 	var req request.CollectRequest
 
 	if err := c.ShouldBind(&req); err != nil {
@@ -51,10 +57,7 @@ func CollectHandler(c *gin.Context) {
 		Source:     meta.Source,
 	}
 
-	// 创建上下文
-	ctx := c.Request.Context()
-
-	if err := collectService.Collect(ctx, info); err != nil {
+	if err := ctrl.svc.Collect(info); err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}

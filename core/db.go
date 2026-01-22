@@ -4,6 +4,7 @@ import (
 	"Blog-Backend/consts"
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"sync"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var (
@@ -52,11 +54,23 @@ func initPG() error {
 		return consts.ErrPostgresNotConfigured
 	}
 
+	/* 初始化日志打印器 */
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		logger.Config{
+			SlowThreshold:             200 * time.Millisecond,
+			Colorful:                  false,
+			IgnoreRecordNotFoundError: true,
+			ParameterizedQueries:      false,
+			LogLevel:                  logger.Info,
+		},
+	)
 	var err error
 
 	/* 获取实例 */
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		PrepareStmt: false,
+		Logger:      newLogger,
 	})
 
 	/* 判断是否出错 */

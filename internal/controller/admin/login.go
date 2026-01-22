@@ -10,13 +10,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var loginService *admin.LoginService
-
-func InitLoginService() {
-	loginService = admin.NewLoginService()
+type LoginController struct {
+	svc *admin.LoginService
 }
 
-func Login(c *gin.Context) {
+func NewLoginController(svc *admin.LoginService) *LoginController {
+	return &LoginController{svc: svc}
+}
+
+func (ctrl *LoginController) Login(c *gin.Context) {
 	var req request.LoginRequest
 
 	if err := c.ShouldBind(&req); err != nil {
@@ -24,7 +26,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, err := loginService.AdminLogin(req.Username, req.Password)
+	token, err := ctrl.svc.AdminLogin(req.Username, req.Password)
 
 	if err != nil {
 		common.Fail(c, http.StatusUnauthorized, consts.CodeUnauthorized, err.Error())

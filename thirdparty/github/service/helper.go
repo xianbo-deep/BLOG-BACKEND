@@ -57,6 +57,10 @@ func handleTrendRes(trendMap map[string]*response.TrendItem, timeRangeDays int) 
 		key := date.Format(consts.DateLayout)
 		trends = append(trends, *trendMap[key])
 	}
+
+	sort.Slice(trends, func(i, j int) bool {
+		return trends[i].Date < trends[j].Date
+	})
 	return trends, nil
 }
 

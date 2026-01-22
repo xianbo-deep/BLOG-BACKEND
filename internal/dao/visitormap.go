@@ -2,16 +2,25 @@ package dao
 
 import (
 	"Blog-Backend/consts"
-	"Blog-Backend/core"
 	"Blog-Backend/dto/response"
 	"Blog-Backend/model"
 	"time"
+
+	"gorm.io/gorm"
 )
 
-func GetVisitorMap(startTime, endTime *time.Time) ([]response.VisitorMapItem, error) {
+type VisitorMapDao struct {
+	db *gorm.DB
+}
+
+func NewVisitorMapDao(db *gorm.DB) *VisitorMapDao {
+	return &VisitorMapDao{db: db}
+}
+
+func (d *VisitorMapDao) GetVisitorMap(startTime, endTime *time.Time) ([]response.VisitorMapItem, error) {
 	var results []response.VisitorMapItem
 
-	db := core.DB.Model(&model.VisitLog{})
+	db := d.db.Model(&model.VisitLog{})
 
 	if startTime != nil {
 		db = db.Where("visit_time >= ?", *startTime)
@@ -27,10 +36,10 @@ func GetVisitorMap(startTime, endTime *time.Time) ([]response.VisitorMapItem, er
 	return results, err
 }
 
-func GetChineseVisitorMap(startTime, endTime *time.Time) ([]response.ChineseVisitorMapItem, error) {
+func (d *VisitorMapDao) GetChineseVisitorMap(startTime, endTime *time.Time) ([]response.ChineseVisitorMapItem, error) {
 	var results []response.ChineseVisitorMapItem
 
-	db := core.DB.Model(&model.VisitLog{})
+	db := d.db.Model(&model.VisitLog{})
 	if startTime != nil {
 		db = db.Where("visit_time >= ?", *startTime)
 	}

@@ -26,13 +26,13 @@ func main() {
 	}
 
 	/* 初始化组件 它们依赖于数据库 */
-	bootstrap.InitComponet()
+	comps := bootstrap.InitComponet()
 
 	/* 启动定时任务*/
 	task.InitCron()
 
 	/* 初始化路由 */
-	rEngine = router.SetupRouter()
+	rEngine = router.SetupRouter(comps)
 
 	/* 获取端口 */
 	port := os.Getenv(consts.EnvPort)

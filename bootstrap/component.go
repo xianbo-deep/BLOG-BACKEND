@@ -1,20 +1,72 @@
 package bootstrap
 
 import (
+	"Blog-Backend/consts"
 	"Blog-Backend/core"
-	"Blog-Backend/internal/controller/admin"
+	"Blog-Backend/thirdparty/github"
+	"Blog-Backend/thirdparty/github/service"
+	"os"
+
+	ctrl_admin "Blog-Backend/internal/controller/admin"
+	ctrl_public "Blog-Backend/internal/controller/public"
+	"Blog-Backend/internal/dao"
+	"Blog-Backend/internal/dao/cache"
+	svc_admin "Blog-Backend/internal/service/admin"
+	svc_public "Blog-Backend/internal/service/public"
 )
 
-// TODO 对GithubService也在这做初始化 还有一个Client
-func InitComponet() {
-	// service初始化
-	admin.InitAccessLogService(core.DB)
-	admin.InitAnalysisService(core.DB)
-	admin.InitCommentService()
-	admin.InitDashboardService()
-	admin.InitLoginService()
-	admin.InitPerformanceService()
-	admin.InitVisitorMapService()
+type Components struct {
+	Admin struct {
+		AccessLog   *ctrl_admin.AccessLogController
+		Analysis    *ctrl_admin.AnalysisController
+		Comment     *ctrl_admin.CommentController
+		Login       *ctrl_admin.LoginController
+		Dashboard   *ctrl_admin.DashboardController
+		Performance *ctrl_admin.PerformanceController
+		VisitorMap  *ctrl_admin.VisitorMapController
+	}
+	Public struct {
+		Collect *ctrl_public.CollectController
+	}
+}
 
-	// TODO 封装dao和controller
+func InitComponet() *Components {
+	c := &Components{}
+	// CacheClient初始化
+	cache := cache.NewCacheDAO(core.RDB)
+
+	// GithubClient初始化
+	client := github.NewClient(os.Getenv(consts.EnvDiscussionToken))
+
+	// GithubDiscussionService初始化
+	discussionService := service.NewDiscussionService(client)
+
+	// dao初始化
+	analysisDao := dao.NewAnalysisDao(core.DB)
+	collectDao := dao.NewCollectDao(core.DB, core.RDB)
+	dashboardDao := dao.NewDashboardDao(core.DB, core.RDB)
+	performanceDao := dao.NewPerformanceDao(core.DB, core.RDB)
+	visitormapDao := dao.NewVisitorMapDao(core.DB)
+
+	// service初始化
+	accesslogService := svc_admin.NewAccessLogService(core.DB)
+	analysisService := svc_admin.NewAnalysisService(analysisDao)
+	commentService := svc_admin.NewCommentService(cache, discussionService)
+	dashboardService := svc_admin.NewDashboardService(dashboardDao)
+	loginService := svc_admin.NewLoginService()
+	performanceService := svc_admin.NewPerformanceService(performanceDao)
+	visitormapService := svc_admin.NewVisitorMapSerive(visitormapDao)
+	collectService := svc_public.NewCollectService(collectDao)
+
+	// controller初始化
+	c.Admin.AccessLog = ctrl_admin.NewAccessLogController(accesslogService)
+	c.Admin.Analysis = ctrl_admin.NewAnalysisController(analysisService)
+	c.Admin.Comment = ctrl_admin.NewCommentController(commentService)
+	c.Admin.Login = ctrl_admin.NewLoginController(loginService)
+	c.Admin.Dashboard = ctrl_admin.NewDashboardController(dashboardService)
+	c.Admin.Performance = ctrl_admin.NewPerformanceController(performanceService)
+	c.Admin.VisitorMap = ctrl_admin.NewVisitorMapController(visitormapService)
+	c.Public.Collect = ctrl_public.NewCollectController(collectService)
+
+	return c
 }

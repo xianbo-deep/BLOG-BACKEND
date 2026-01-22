@@ -4,7 +4,6 @@ import (
 	"Blog-Backend/consts"
 	"Blog-Backend/dto/response"
 	"Blog-Backend/internal/dao/cache"
-	"Blog-Backend/thirdparty/github"
 	"Blog-Backend/thirdparty/github/service"
 	"context"
 )
@@ -14,8 +13,8 @@ type CommentService struct {
 	ds     *service.DiscussionService
 }
 
-func NewCommentService() *CommentService {
-	return &CommentService{cached: cache.NewCacheDAO(), ds: service.NewDiscussionService(github.NewClient())}
+func NewCommentService(cached *cache.CacheDAO, ds *service.DiscussionService) *CommentService {
+	return &CommentService{cached: cached, ds: ds}
 }
 
 func (s *CommentService) GetDiscussionMetric(c context.Context, days int) (response.Metric, error) {

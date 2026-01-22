@@ -7,12 +7,22 @@ import (
 	"Blog-Backend/dto/response"
 	"Blog-Backend/model"
 	"time"
+
+	"gorm.io/gorm"
 )
 
-func GetAnalysisMetric(days int) (response.AnalysisMetric, error) {
+type AnalysisDao struct {
+	db *gorm.DB
+}
+
+func NewAnalysisDao(db *gorm.DB) *AnalysisDao {
+	return &AnalysisDao{db: db}
+}
+
+func (d *AnalysisDao) GetAnalysisMetric(days int) (response.AnalysisMetric, error) {
 	cutoffTime := time.Now().AddDate(0, 0, -days)
 	var res response.AnalysisMetric
-	err := core.DB.Model(&model.VisitLog{}).
+	err := d.db.Model(&model.VisitLog{}).
 		Select(`
 				count(*) as total_pv,
 				count(distinct visitor_id) as total_uv,
@@ -44,10 +54,10 @@ func GetAnalysisMetric(days int) (response.AnalysisMetric, error) {
 	return res, nil
 }
 
-func GetAnalysisTrend(days int) ([]response.AnalysisTrendItem, error) {
+func (d *AnalysisDao) GetAnalysisTrend(days int) ([]response.AnalysisTrendItem, error) {
 	cutoffTime := time.Now().AddDate(0, 0, -days)
 	var res []response.AnalysisTrendItem
-	err := core.DB.Model(&model.VisitLog{}).
+	err := d.db.Model(&model.VisitLog{}).
 		Select("date(visit_time) as date,count(*) as pv,count(distinct visitor_id) as uv").
 		Where("visit_time > ?", cutoffTime).
 		Group("date(visit_time)").
@@ -63,10 +73,10 @@ func GetAnalysisTrend(days int) ([]response.AnalysisTrendItem, error) {
 	return res, nil
 }
 
-func GetAnalysisPathRank(days int) ([]response.AnalysisPathRankItem, error) {
+func (d *AnalysisDao) GetAnalysisPathRank(days int) ([]response.AnalysisPathRankItem, error) {
 	cutoffTime := time.Now().AddDate(0, 0, -days)
 	var res []response.AnalysisPathRankItem
-	err := core.DB.Model(&model.VisitLog{}).
+	err := d.db.Model(&model.VisitLog{}).
 		Select("path,count(*) as pv").
 		Where("visit_time > ?", cutoffTime).
 		Order("pv desc").
@@ -80,9 +90,9 @@ func GetAnalysisPathRank(days int) ([]response.AnalysisPathRankItem, error) {
 	return res, nil
 }
 
-func GetAnalysisPath(req common.PageRequest, days int) (*common.PageResponse[response.AnalysisPathItem], error) {
+func (d *AnalysisDao) GetAnalysisPath(req common.PageRequest, days int) (*common.PageResponse[response.AnalysisPathItem], error) {
 	cutoffTime := time.Now().AddDate(0, 0, -days)
-	db := core.DB.Where("visit_time >= ?", cutoffTime)
+	db := d.db.Where("visit_time >= ?", cutoffTime)
 
 	// 这里不能用分页插件，因为返回的不是原始数据模型的数据，是其聚合之后的数据
 	var total int64
@@ -121,9 +131,9 @@ func GetAnalysisPath(req common.PageRequest, days int) (*common.PageResponse[res
 	}, nil
 }
 
-func GetAnalysisPathByQuery(req common.PageRequest, path string, days int) (*common.PageResponse[response.AnalysisPathItem], error) {
+func (d *AnalysisDao) GetAnalysisPathByQuery(req common.PageRequest, path string, days int) (*common.PageResponse[response.AnalysisPathItem], error) {
 	cutoffTime := time.Now().AddDate(0, 0, -days)
-	db := core.DB.Where("visit_time >= ? and path like ?", cutoffTime, "%"+path+"%")
+	db := d.db.Where("visit_time >= ? and path like ?", cutoffTime, "%"+path+"%")
 
 	// 这里不能用分页插件，因为返回的不是原始数据模型的数据，是其聚合之后的数据
 	var total int64
@@ -162,9 +172,9 @@ func GetAnalysisPathByQuery(req common.PageRequest, path string, days int) (*com
 	}, nil
 }
 
-func GetAnalysisPathSource(path string, days int) (response.AnalysisPathItemDetail, error) {
+func (d *AnalysisDao) GetAnalysisPathSource(path string, days int) (response.AnalysisPathItemDetail, error) {
 	cutoffTime := time.Now().AddDate(0, 0, -days)
-	db := core.DB.Model(&model.VisitLog{}).Where("visit_time >= ? and path like ?", cutoffTime, "%"+path+"%")
+	db := d.db.Model(&model.VisitLog{}).Where("visit_time >= ? and path like ?", cutoffTime, "%"+path+"%")
 	var res response.AnalysisPathItemDetail
 
 	var totalPV int64
@@ -229,9 +239,9 @@ func GetAnalysisPathSource(path string, days int) (response.AnalysisPathItemDeta
 	return res, nil
 }
 
-func GetAnalysisPathDetailTrend(path string) ([]response.PathDetailTrendItem, error) {
+func (d *AnalysisDao) GetAnalysisPathDetailTrend(path string) ([]response.PathDetailTrendItem, error) {
 	var res []response.PathDetailTrendItem
-	db := core.DB.Model(&model.VisitLog{})
+	db := d.db.Model(&model.VisitLog{})
 
 	startTime := time.Now().Add(-consts.TimeRangeDay)
 
@@ -251,9 +261,9 @@ func GetAnalysisPathDetailTrend(path string) ([]response.PathDetailTrendItem, er
 	return res, nil
 }
 
-func GetAnalysisPathDetailSource(path string) ([]response.PathDetailSourceItem, error) {
+func (d *AnalysisDao) GetAnalysisPathDetailSource(path string) ([]response.PathDetailSourceItem, error) {
 	var res []response.PathDetailSourceItem
-	db := core.DB.Model(&model.VisitLog{})
+	db := d.db.Model(&model.VisitLog{})
 
 	err := db.Select("source,coalesce(count(*),0) as count").
 		Where("path = ?", path).
@@ -265,9 +275,10 @@ func GetAnalysisPathDetailSource(path string) ([]response.PathDetailSourceItem, 
 	}
 	return res, nil
 }
-func GetAnalysisPathDetailDevice(path string) ([]response.PathDetailDeviceItem, error) {
+
+func (d *AnalysisDao) GetAnalysisPathDetailDevice(path string) ([]response.PathDetailDeviceItem, error) {
 	var res []response.PathDetailDeviceItem
-	db := core.DB.Model(&model.VisitLog{})
+	db := d.db.Model(&model.VisitLog{})
 
 	err := db.Select("device,coalesce(count(*),0) as count").
 		Where("path = ?", path).
@@ -280,8 +291,8 @@ func GetAnalysisPathDetailDevice(path string) ([]response.PathDetailDeviceItem, 
 
 	return res, nil
 }
-func GetAnalysisPathDetailMetric(path string) (response.PathDetailMetric, error) {
-	db := core.DB.Model(&model.DailyArticleStat{})
+func (d *AnalysisDao) GetAnalysisPathDetailMetric(path string) (response.PathDetailMetric, error) {
+	db := d.db.Model(&model.DailyArticleStat{})
 	var res response.PathDetailMetric
 	err := db.Select("coalesce(sum(uv),0) as uv,coalesce(sum(pv),0) as pv").
 		Where("path = ?", path).

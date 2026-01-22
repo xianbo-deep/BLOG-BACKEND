@@ -10,16 +10,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var dashboardService *admin.DashboardService
+type DashboardController struct {
+	svc *admin.DashboardService
+}
 
-func InitDashboardService() {
-	dashboardService = admin.NewDashboardService()
+func NewDashboardController(svc *admin.DashboardService) *DashboardController {
+	return &DashboardController{svc: svc}
 }
 
 // 除了总日志数，其它都在REDIS拿
-func GetDashboardSummary(c *gin.Context) {
+func (ctrl *DashboardController) GetDashboardSummary(c *gin.Context) {
 	ctx := c.Request.Context()
-	res, err := dashboardService.GetDashboardSummary(ctx)
+	res, err := ctrl.svc.GetDashboardSummary(ctx)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
@@ -28,9 +30,9 @@ func GetDashboardSummary(c *gin.Context) {
 }
 
 // 在数据库查前六天，今天的在Redis拿
-func GetDashboardTrend(c *gin.Context) {
+func (ctrl *DashboardController) GetDashboardTrend(c *gin.Context) {
 	ctx := c.Request.Context()
-	res, err := dashboardService.GetDashboardTrend(ctx)
+	res, err := ctrl.svc.GetDashboardTrend(ctx)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
@@ -39,12 +41,12 @@ func GetDashboardTrend(c *gin.Context) {
 
 }
 
-func GetDashboardInsights(c *gin.Context) {
+func (ctrl *DashboardController) GetDashboardInsights(c *gin.Context) {
 	// 转换类型
 	limitstr := c.DefaultQuery("limit", "10")
 	limit, _ := strconv.Atoi(limitstr)
 
-	res, err := dashboardService.GetDashboardInsights(limit)
+	res, err := ctrl.svc.GetDashboardInsights(limit)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
