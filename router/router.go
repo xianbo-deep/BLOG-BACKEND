@@ -57,6 +57,9 @@ func SetupRouter(c *bootstrap.Components) *gin.Engine {
 		adminAuth := adminGroup.Group("")
 		adminAuth.Use(middleware.AuthMiddleware())
 		{
+			// WebSocket实时数据
+			adminAuth.GET("/ws", c.Admin.WebSocket.Handle)
+			
 			// 监控面板
 			dashboard := adminAuth.Group("/dashboard")
 			{

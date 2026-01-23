@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"Blog-Backend/consts"
 	"Blog-Backend/core"
+	"Blog-Backend/internal/ws"
 	"Blog-Backend/thirdparty/github"
 	"Blog-Backend/thirdparty/github/service"
 	"os"
@@ -24,6 +25,7 @@ type Components struct {
 		Dashboard   *ctrl_admin.DashboardController
 		Performance *ctrl_admin.PerformanceController
 		VisitorMap  *ctrl_admin.VisitorMapController
+		Websocket   *ctrl_admin.WebSocketController
 	}
 	Public struct {
 		Collect *ctrl_public.CollectController
@@ -41,6 +43,10 @@ func InitComponet() *Components {
 	// GithubDiscussionService初始化
 	discussionService := service.NewDiscussionService(client)
 
+	// 初始化websocket的hub并启动它
+	hub := ws.NewHub()
+	go hub.Run()
+
 	// dao初始化
 	analysisDao := dao.NewAnalysisDao(core.DB)
 	collectDao := dao.NewCollectDao(core.DB, core.RDB)
@@ -56,7 +62,7 @@ func InitComponet() *Components {
 	loginService := svc_admin.NewLoginService()
 	performanceService := svc_admin.NewPerformanceService(performanceDao)
 	visitormapService := svc_admin.NewVisitorMapSerive(visitormapDao)
-	collectService := svc_public.NewCollectService(collectDao)
+	collectService := svc_public.NewCollectService(collectDao, hub)
 
 	// controller初始化
 	c.Admin.AccessLog = ctrl_admin.NewAccessLogController(accesslogService)
@@ -66,6 +72,7 @@ func InitComponet() *Components {
 	c.Admin.Dashboard = ctrl_admin.NewDashboardController(dashboardService)
 	c.Admin.Performance = ctrl_admin.NewPerformanceController(performanceService)
 	c.Admin.VisitorMap = ctrl_admin.NewVisitorMapController(visitormapService)
+	c.Admin.Websocket = ctrl_admin.NewWebSocketController(hub)
 	c.Public.Collect = ctrl_public.NewCollectController(collectService)
 
 	return c

@@ -4,16 +4,18 @@ import (
 	"Blog-Backend/consts"
 	"Blog-Backend/dto/request"
 	"Blog-Backend/internal/dao"
+	"Blog-Backend/internal/ws"
 	"Blog-Backend/model"
 	"context"
 )
 
 type CollectService struct {
 	dao *dao.CollectDao
+	hub *ws.Hub
 }
 
-func NewCollectService(dao *dao.CollectDao) *CollectService {
-	return &CollectService{dao: dao}
+func NewCollectService(dao *dao.CollectDao, hub *ws.Hub) *CollectService {
+	return &CollectService{dao: dao, hub: hub}
 }
 
 func (s *CollectService) Collect(info request.CollectServiceDTO) error {
@@ -50,6 +52,11 @@ func (s *CollectService) Collect(info request.CollectServiceDTO) error {
 		_ = s.dao.IncrementUV(bg, info.Path, info.VisitorID)
 		_ = s.dao.RecordOnline(bg, info.VisitorID)
 		_ = s.dao.RecordLatency(bg, info.Path, info.Latency)
+
+		// 广播
+		if s.hub != nil {
+			
+		}
 	}()
 
 	return nil
