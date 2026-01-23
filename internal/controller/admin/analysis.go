@@ -124,6 +124,7 @@ func (ctrl *AnalysisController) GetAnalysisPathDetailMetric(c *gin.Context) {
 
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
+		return
 	}
 
 	common.Success(c, res)
@@ -134,6 +135,7 @@ func (ctrl *AnalysisController) GetAnalysisPathDetailSource(c *gin.Context) {
 	res, err := ctrl.svc.GetAnalysisPathDetailSource(path)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
+		return
 	}
 	common.Success(c, res)
 }
@@ -143,6 +145,7 @@ func (ctrl *AnalysisController) GetAnalysisPathDetailDevice(c *gin.Context) {
 	res, err := ctrl.svc.GetAnalysisPathDetailDevice(path)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
+		return
 	}
 	common.Success(c, res)
 }

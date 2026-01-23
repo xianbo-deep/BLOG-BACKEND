@@ -247,7 +247,7 @@ func (d *AnalysisDao) GetAnalysisPathDetailTrend(path string) ([]response.PathDe
 
 	err := db.Select("date_trunc('hour',visit_time) as date,count (*) as pv,count(distinct visitor_id) as uv").
 		Where("visit_time > ? and path = ?", startTime, path).
-		Group("date_trunc('hour',visit_time) as date").
+		Group("date_trunc('hour',visit_time)").
 		Order("date asc").
 		Scan(&res).Error
 
@@ -265,9 +265,9 @@ func (d *AnalysisDao) GetAnalysisPathDetailSource(path string) ([]response.PathD
 	var res []response.PathDetailSourceItem
 	db := d.db.Model(&model.VisitLog{})
 
-	err := db.Select("source,coalesce(count(*),0) as count").
+	err := db.Select("refr_source as source,count(*) as count").
 		Where("path = ?", path).
-		Group("source").
+		Group("refr_source").
 		Order("count desc").
 		Scan(&res).Error
 	if err != nil {

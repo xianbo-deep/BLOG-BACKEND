@@ -49,9 +49,9 @@ func (s *AccessLogService) GetAccessLogByQuery(req request.AccessLogRequest) (*c
 		dtoList = append(dtoList, response.AccessLog{
 			VisitorID:       v.VisitorID,
 			Path:            os.Getenv(consts.EnvBaseURL) + v.Path,
-			VisitTime:       v.VisitTime,
+			VisitTime:       consts.TransferTimeByLoc(v.VisitTime).Format(consts.TimeLayout),
 			IP:              v.IP,
-			ClientTime:      v.ClientTime,
+			ClientTime:      consts.TransferTimeByLoc(v.ClientTime).Format(consts.TimeLayout),
 			UserAgent:       v.UserAgent,
 			Referer:         v.Referer,
 			Country:         v.Country,
