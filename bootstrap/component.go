@@ -25,7 +25,7 @@ type Components struct {
 		Dashboard   *ctrl_admin.DashboardController
 		Performance *ctrl_admin.PerformanceController
 		VisitorMap  *ctrl_admin.VisitorMapController
-		Websocket   *ctrl_admin.WebSocketController
+		WebSocket   *ctrl_admin.WebSocketController
 	}
 	Public struct {
 		Collect *ctrl_public.CollectController
@@ -72,7 +72,7 @@ func InitComponet() *Components {
 	c.Admin.Dashboard = ctrl_admin.NewDashboardController(dashboardService)
 	c.Admin.Performance = ctrl_admin.NewPerformanceController(performanceService)
 	c.Admin.VisitorMap = ctrl_admin.NewVisitorMapController(visitormapService)
-	c.Admin.Websocket = ctrl_admin.NewWebSocketController(hub)
+	c.Admin.WebSocket = ctrl_admin.NewWebSocketController(hub)
 	c.Public.Collect = ctrl_public.NewCollectController(collectService)
 
 	return c

@@ -99,3 +99,26 @@ func verifyGitHubSignature(body []byte, sig string, secret string) bool {
 
 	return hmac.Equal([]byte(expect), []byte(got))
 }
+
+func WebSocketAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.Query("token")
+		if token == "" {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		claims, err := utils.ParseToken(token)
+		if err != nil {
+			common.Fail(c, http.StatusUnauthorized, consts.CodeInvalidToken, err.Error())
+			c.Abort()
+		}
+
+		if claims.Username != os.Getenv("ADMIN_USER") {
+			common.Fail(c, http.StatusUnauthorized, consts.CodeUserNotFound, consts.ErrorMessage(consts.CodeUserNotFound))
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
