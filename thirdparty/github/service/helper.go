@@ -11,9 +11,8 @@ import (
 	"github.com/shurcooL/githubv4"
 )
 
-/* 返回指标 */
-
 /* 返回最新动态 */
+
 // 组装返回信息
 func handleNewFeedRes(allItems []*response.NewFeedItem, limit int) ([]*response.NewFeedItem, error) {
 	// 对动态按照时间进行排序

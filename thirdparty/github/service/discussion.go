@@ -120,6 +120,8 @@ func (s *DiscussionService) GetTotalMetric(ctx context.Context, timeRangeDays in
 func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*response.NewFeedItem, error) {
 	var after *githubv4.String
 	var allItems []*response.NewFeedItem
+	// 站点URL
+	baseURL := os.Getenv(consts.EnvBaseURL)
 	// 不统计一定时间前的
 	cutoffTime := time.Now().AddDate(0, -3, 0)
 	for {
@@ -154,7 +156,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 					allItems = append(allItems, &response.NewFeedItem{
 						EventType: consts.Reaction,
 						Name:      string(reaction.User.Login),
-						Path:      concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+						Path:      concatToUrl(baseURL, string(discussion.Title)),
 						Content:   string(reaction.Content),
 						Avatar:    string(reaction.User.AvatarUrl),
 						Time:      consts.TransferTimeByLoc(reaction.CreatedAt.Time),
@@ -168,7 +170,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 					allItems = append(allItems, &response.NewFeedItem{
 						EventType: consts.Comment,
 						Name:      string(comment.Author.Login),
-						Path:      concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+						Path:      concatToUrl(baseURL, string(discussion.Title)),
 						Content:   string(comment.BodyText),
 						Avatar:    string(comment.Author.AvatarUrl),
 						Time:      consts.TransferTimeByLoc(comment.CreatedAt.Time),
@@ -181,7 +183,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 						allItems = append(allItems, &response.NewFeedItem{
 							EventType: consts.Reaction,
 							Name:      string(reaction.User.Login),
-							Path:      concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+							Path:      concatToUrl(baseURL, string(discussion.Title)),
 							Content:   string(reaction.Content),
 							Avatar:    string(reaction.User.AvatarUrl),
 							Time:      consts.TransferTimeByLoc(reaction.CreatedAt.Time),
@@ -196,7 +198,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 						allItems = append(allItems, &response.NewFeedItem{
 							EventType:      consts.Reply,
 							Name:           string(reply.Author.Login),
-							Path:           os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+							Path:           baseURL + string(discussion.Title),
 							Content:        string(reply.BodyText),
 							Avatar:         string(reply.Author.AvatarUrl),
 							Time:           consts.TransferTimeByLoc(reply.CreatedAt.Time),
@@ -212,7 +214,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 							allItems = append(allItems, &response.NewFeedItem{
 								EventType: consts.Reaction,
 								Name:      string(reaction.User.Login),
-								Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+								Path:      baseURL + string(discussion.Title),
 								Content:   string(reaction.Content),
 								Avatar:    string(reaction.User.AvatarUrl),
 								Time:      consts.TransferTimeByLoc(reaction.CreatedAt.Time),

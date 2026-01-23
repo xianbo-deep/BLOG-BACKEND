@@ -49,8 +49,6 @@ func SetupRouter(c *bootstrap.Components) *gin.Engine {
 
 	// 后台统计
 	adminGroup := r.Group("/admin")
-	// 使用中间件
-	adminGroup.Use(middleware.TimeoutMiddleware())
 	{
 		// 登录
 		adminGroup.POST("/login", c.Admin.Login.Login)

@@ -33,7 +33,7 @@ type Components struct {
 func InitComponet() *Components {
 	c := &Components{}
 	// CacheClient初始化
-	cache := cache.NewCacheDAO(core.RDB)
+	cacheClient := cache.NewCacheDAO(core.RDB)
 
 	// GithubClient初始化
 	client := github.NewClient(os.Getenv(consts.EnvDiscussionToken))
@@ -51,7 +51,7 @@ func InitComponet() *Components {
 	// service初始化
 	accesslogService := svc_admin.NewAccessLogService(core.DB)
 	analysisService := svc_admin.NewAnalysisService(analysisDao)
-	commentService := svc_admin.NewCommentService(cache, discussionService)
+	commentService := svc_admin.NewCommentService(cacheClient, discussionService)
 	dashboardService := svc_admin.NewDashboardService(dashboardDao)
 	loginService := svc_admin.NewLoginService()
 	performanceService := svc_admin.NewPerformanceService(performanceDao)
