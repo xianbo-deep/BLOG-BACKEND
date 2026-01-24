@@ -33,4 +33,6 @@ type CollectServiceDTO struct {
 	Device      string
 	OS          string
 	Browser     string
+	Lat         float64
+	Lon         float64
 }

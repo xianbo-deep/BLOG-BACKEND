@@ -38,7 +38,13 @@ func HeaderMiddleware() gin.HandlerFunc {
 }
 
 func GetClientIP(c *gin.Context, hdr common.RequestHeader) string {
-	ip := strings.TrimSpace(hdr.RealIP)
+	ip := strings.TrimSpace(hdr.CFConnectingIP)
+	if ip == "" {
+		ip = strings.TrimSpace(hdr.TrueClientIP)
+	}
+	if ip == "" {
+		ip = strings.TrimSpace(hdr.RealIP)
+	}
 	if ip == "" {
 		ip = hdr.GetFirstFowardIP()
 	}

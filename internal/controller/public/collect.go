@@ -60,6 +60,8 @@ func (ctrl *CollectController) CollectHandler(c *gin.Context) {
 		Referer:     meta.Referer,
 		Medium:      meta.Medium,
 		Source:      meta.Source,
+		Lat:         geoInfo.Lat,
+		Lon:         geoInfo.Lon,
 	}
 
 	if err := ctrl.svc.Collect(info); err != nil {

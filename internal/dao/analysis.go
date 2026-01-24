@@ -58,10 +58,10 @@ func (d *AnalysisDao) GetAnalysisTrend(days int) ([]response.AnalysisTrendItem, 
 	cutoffTime := time.Now().AddDate(0, 0, -days)
 	var res []response.AnalysisTrendItem
 	err := d.db.Model(&model.VisitLog{}).
-		Select("date(visit_time) as date,count(*) as pv,count(distinct visitor_id) as uv").
+		Select("date(visit_time AT TIME ZONE 'Asia/Shanghai') as date,count(*) as pv,count(distinct visitor_id) as uv").
 		Where("visit_time > ?", cutoffTime).
-		Group("date(visit_time)").
-		Order("date(visit_time) asc").
+		Group("date(visit_time AT TIME ZONE 'Asia/Shanghai')").
+		Order("date asc").
 		Scan(&res).
 		Error
 	if err != nil {

@@ -43,6 +43,8 @@ func (s *CollectService) Collect(info request.CollectServiceDTO) error {
 		Device:      info.Device,
 		OS:          info.OS,
 		Browser:     info.Browser,
+		Lat:         info.Lat,
+		Lon: info.Lon
 	}
 
 	if err := s.dao.InsertVisitLog(log); err != nil {
