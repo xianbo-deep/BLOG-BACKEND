@@ -43,7 +43,7 @@ func (ctrl *VisitorMapController) GetChineseVisitorMap(c *gin.Context) {
 	startTime, _ := strconv.Atoi(startTimeStr)
 	endTime, _ := strconv.Atoi(endTimeStr)
 
-	res, err := ctrl.svc.GetVisitorMap(startTime, endTime)
+	res, err := ctrl.svc.GetChineseVisitorMap(startTime, endTime)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return

@@ -292,9 +292,9 @@ func (d *AnalysisDao) GetAnalysisPathDetailDevice(path string) ([]response.PathD
 	return res, nil
 }
 func (d *AnalysisDao) GetAnalysisPathDetailMetric(path string) (response.PathDetailMetric, error) {
-	db := d.db.Model(&model.DailyArticleStat{})
+	db := d.db.Model(&model.VisitLog{})
 	var res response.PathDetailMetric
-	err := db.Select("coalesce(sum(uv),0) as uv,coalesce(sum(pv),0) as pv").
+	err := db.Select("count(distinct visitor_id) as uv,count(*) as pv").
 		Where("path = ?", path).
 		Scan(&res).Error
 	if err != nil {
