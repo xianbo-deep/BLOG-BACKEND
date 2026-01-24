@@ -21,23 +21,28 @@ func NewCollectService(dao *dao.CollectDao, hub *ws.Hub) *CollectService {
 func (s *CollectService) Collect(info request.CollectServiceDTO) error {
 
 	log := model.VisitLog{
-		VisitTime:  consts.GetCurrentUTCTime(),
-		ClientTime: info.ClientTime,
-		Path:       info.Path,
-		Country:    info.Country,
-		City:       info.City,
-		UserAgent:  info.UserAgent,
-		IP:         info.IP,
-		Region:     info.Region,
-		Referer:    info.Referer,
-		Status:     info.Status,
-		VisitorID:  info.VisitorID,
-		Latency:    info.Latency,
-		Medium:     info.Medium,
-		Source:     info.Source,
-		Device:     info.Device,
-		OS:         info.OS,
-		Browser:    info.Browser,
+		VisitTime:   consts.GetCurrentUTCTime(),
+		ClientTime:  info.ClientTime,
+		Path:        info.Path,
+		Country:     info.Country,
+		CountryCode: info.CountryCode,
+		CountryEN:   info.CountryEN,
+		CityEN:      info.CityEN,
+		RegionCode:  info.RegionCode,
+		RegionEN:    info.RegionEN,
+		City:        info.City,
+		UserAgent:   info.UserAgent,
+		IP:          info.IP,
+		Region:      info.Region,
+		Referer:     info.Referer,
+		Status:      info.Status,
+		VisitorID:   info.VisitorID,
+		Latency:     info.Latency,
+		Medium:      info.Medium,
+		Source:      info.Source,
+		Device:      info.Device,
+		OS:          info.OS,
+		Browser:     info.Browser,
 	}
 
 	if err := s.dao.InsertVisitLog(log); err != nil {
@@ -55,7 +60,7 @@ func (s *CollectService) Collect(info request.CollectServiceDTO) error {
 
 		// 广播
 		if s.hub != nil {
-			
+
 		}
 	}()
 

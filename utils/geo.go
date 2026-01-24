@@ -18,7 +18,7 @@ func LookupIP(ipSyr string) (res common.GeoInfo, ok bool) {
 	}
 	// 获取国家码
 	res.CountryCode = record.Country.IsoCode
-	res.CountryEn = pick(record.Country.Names, "zh-CN", res.CountryCode)
+	res.CountryZh = pick(record.Country.Names, "zh-CN", res.CountryCode)
 	res.CountryEn = pick(record.Country.Names, "en", res.CountryCode)
 
 	if len(record.Subdivisions) > 0 {
