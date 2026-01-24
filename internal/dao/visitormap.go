@@ -29,8 +29,8 @@ func (d *VisitorMapDao) GetVisitorMap(startTime, endTime *time.Time) ([]response
 		db = db.Where("visit_time <= ?", *endTime)
 	}
 
-	err := db.Select("country, count(*) as visitors").
-		Group("country").
+	err := db.Select("country_en as country, count(*) as visitors").
+		Group("country_en").
 		Scan(&results).Error
 
 	return results, err
@@ -48,7 +48,7 @@ func (d *VisitorMapDao) GetChineseVisitorMap(startTime, endTime *time.Time) ([]r
 	}
 
 	err := db.Select("region, count(*) as visitors").
-		Where("country = ?", consts.CountryChina).
+		Where("country_code = ?", consts.CountryChinaCode).
 		Group("region").
 		Scan(&results).Error
 

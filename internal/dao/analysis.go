@@ -187,50 +187,50 @@ func (d *AnalysisDao) GetAnalysisPathSource(path string, days int) (response.Ana
 		return res, nil
 	}
 
-	// 统计refer
-	var referers []struct {
-		Referer string
-		Count   int64
+	// 统计source
+	var sources []struct {
+		Source string
+		Count  int64
 	}
 
-	err := db.Select("refr_source,count(*) as count").
+	err := db.Select("refr_source as source,count(*) as count").
 		Group("refr_source").
 		Order("count desc").
 		Limit(3).
-		Scan(&referers).Error
+		Scan(&sources).Error
 	if err != nil {
 		return res, err
 	}
 
 	// 填充数据
-	for _, r := range referers {
+	for _, r := range sources {
 		percent := int64(float64(r.Count) / float64(totalPV) * 100)
-		res.Referers = append(res.Referers, response.AnalysisPathItemReferer{
-			Referer: r.Referer,
+		res.Referers = append(res.Referers, response.AnalysisPathItemSource{
+			Source:  r.Source,
 			Percent: percent,
 		})
 	}
 
-	// 统计country
-	var countries []struct {
-		Country string
-		Count   int64
+	// 统计device
+	var devices []struct {
+		Device string
+		Count  int64
 	}
 
-	err = db.Select("country, count(*) as count").
-		Group("country").
+	err = db.Select("device, count(*) as count").
+		Group("device").
 		Order("count desc").
 		Limit(3).
-		Scan(&countries).Error
+		Scan(&devices).Error
 	if err != nil {
 		return res, err
 	}
 
 	// 填充数据
-	for _, c := range countries {
+	for _, c := range devices {
 		percent := int64(float64(c.Count) / float64(totalPV) * 100)
-		res.Country = append(res.Country, response.AnalysisPathItemCountry{
-			Country: c.Country,
+		res.Devices = append(res.Devices, response.AnalysisPathItemDevice{
+			Device:  c.Device,
 			Percent: percent,
 		})
 	}

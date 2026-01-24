@@ -29,20 +29,20 @@ type AnalysisPathItem struct {
 	AvgLatency int    `json:"avgLatency"`
 }
 
-type AnalysisPathItemReferer struct {
-	Referer string `json:"referer"`
+type AnalysisPathItemSource struct {
+	Source  string `json:"source"`
 	Percent int64  `json:"percent"`
 }
 
-type AnalysisPathItemCountry struct {
-	Country string `json:"country"`
+type AnalysisPathItemDevice struct {
+	Device  string `json:"device"`
 	Percent int64  `json:"percent"`
 }
 
 type AnalysisPathItemDetail struct {
-	Path     string                    `json:"path"`
-	Referers []AnalysisPathItemReferer `json:"referers"`
-	Country  []AnalysisPathItemCountry `json:"country"`
+	Path     string                   `json:"path"`
+	Referers []AnalysisPathItemSource `json:"sources"`
+	Devices  []AnalysisPathItemDevice `json:"devices"`
 }
 
 type HotPageResult struct {

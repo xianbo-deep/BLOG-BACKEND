@@ -1,7 +1,7 @@
 package consts
 
 const (
-	CountryChina = "中国"
+	CountryChinaCode = "CN"
 
 	RefererDirect  = "direct"
 	RefererUnknown = "unknown"

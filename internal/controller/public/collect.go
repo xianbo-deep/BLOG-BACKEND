@@ -35,26 +35,31 @@ func (ctrl *CollectController) CollectHandler(c *gin.Context) {
 	meta, _ := GetRequestMeta(c)
 
 	// 调用geo工具包获取具体信息
-	country, region, city := utils.LookupIP(meta.IP)
 
+	geoInfo, _ := utils.LookupIP(meta.IP)
 	info := request.CollectServiceDTO{
 		VisitorID: req.VisitorID,
 		Path:      req.Path,
 		Status:    req.Status,
 		Latency:   req.Latency,
 
-		ClientTime: clientTime,
-		IP:         meta.IP,
-		Country:    country,
-		UserAgent:  meta.UserAgent,
-		Device:     meta.Device,
-		Browser:    meta.Browser,
-		OS:         meta.OS,
-		City:       city,
-		Region:     region,
-		Referer:    meta.Referer,
-		Medium:     meta.Medium,
-		Source:     meta.Source,
+		ClientTime:  clientTime,
+		IP:          meta.IP,
+		Country:     geoInfo.CountryZh,
+		CountryCode: geoInfo.CountryCode,
+		CountryEN:   geoInfo.CountryEn,
+		UserAgent:   meta.UserAgent,
+		Device:      meta.Device,
+		Browser:     meta.Browser,
+		OS:          meta.OS,
+		City:        geoInfo.CityZh,
+		CityEN:      geoInfo.CityEn,
+		Region:      geoInfo.RegionZh,
+		RegionCode:  geoInfo.RegionCode,
+		RegionEN:    geoInfo.RegionEn,
+		Referer:     meta.Referer,
+		Medium:      meta.Medium,
+		Source:      meta.Source,
 	}
 
 	if err := ctrl.svc.Collect(info); err != nil {
