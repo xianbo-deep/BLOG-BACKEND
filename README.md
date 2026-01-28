@@ -1,6 +1,6 @@
 # Blog-Backend
 
-<p style="text-align:center">
+<div align="center">
   <img src="https://img.shields.io/badge/Go-1.24.0-00ADD8?logo=go&logoColor=white" />
   <img src="https://img.shields.io/badge/PostgreSQL-17.6-4169E1?logo=postgresql&logoColor=white" />
   <img src="https://img.shields.io/badge/Redis-8.0.5-DC382D?logo=redis&logoColor=white" />
@@ -8,13 +8,11 @@
   <img src="https://img.shields.io/badge/Gin-1.11.0-00ADD8?logo=go&logoColor=white" />
   <img src="https://img.shields.io/badge/GORM-1.31.1-00ADD8?logo=go&logoColor=white" />
   <img src="https://img.shields.io/github/v/release/xianbo-deep/BLOG-BACKEND?label=release&include_prereleases" />
-</p>
-
-
-
-
 
 这是一个基于 Go 语言和 Gin 框架开发的博客后台服务系统。主要用于博客站点的流量统计、性能监控以及后台管理功能。
+</div>
+
+--- 
 
 ## 项目目的
 
