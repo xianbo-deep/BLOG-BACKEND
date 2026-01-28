@@ -126,6 +126,9 @@ go build -o blog-backend .
 - 需要使用其它数据库请预先下载好对应的驱动库
 - 请将环境变量更替为你自己的值
 - 您拉取的分支可能并不是最新的，如遇报错请提交Issue
+- 请根据您博客的部署情况配置您自己的可信代理以获取真实客户端IP
+
+**环境变量**
 
 ```go
 const (
@@ -142,3 +145,7 @@ const (
 	EnvGithubWebhookSecret = "GITHUB_WEBHOOK_SECRET"    // Github Webhook密钥
 )
 ```
+
+**可信代理**
+
+请在[router.go](https://github.com/xianbo-deep/BLOG-BACKEND/router/router.go)中配置您自己的可信代理
