@@ -1,12 +1,18 @@
 # Blog-Backend
 
+<div style="text-align: center;">
+
 ![Go](https://img.shields.io/badge/Go-1.24.0-00ADD8?logo=go&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17.6-4169E1?logo=postgresql&logoColor=white)
 ![Redis](https://img.shields.io/badge/Redis-8.0.5-DC382D?logo=redis&logoColor=white)
 ![Nginx](https://img.shields.io/badge/Nginx-1.26.3-009639?logo=nginx&logoColor=white)
 ![Gin](https://img.shields.io/badge/Gin-1.11.0-00ADD8?logo=go&logoColor=white)
 ![GORM](https://img.shields.io/badge/GORM-1.31.1-00ADD8?logo=go&logoColor=white)
-![release](https://img.shields.io/github/v/release/xianbo-deep/BLOG-BACKEND?label=tag)
+![release](https://img.shields.io/github/v/release/xianbo-deep/BLOG-BACKEND?label=release&include_prereleases)
+
+</div>
+
+
 
 
 
@@ -31,32 +37,6 @@
 -   **定时任务**: Robfig Cron
 -   **IP 地理位置**: GeoIP2
 
-## 功能模块
-
-### 1. 公共接口 (Public)
--   **数据采集 (`/blog/collect`)**: 接收前端上报的访问数据，包括时间戳、路径、延迟、IP、User-Agent 等信息。
-
-### 2. 管理后台 (Admin)
-后台接口需要 JWT 认证。
-
--   **仪表盘 (`/admin/dashboard`)**:
-    -   数据概览 (Summary): 获取总访问量、今日访问量等概览数据。
-    -   访问趋势 (Trend): 展示近期的访问趋势图表数据。
-    -   洞察分析 (Insights): 提供基于数据的深度分析。
--   **访问日志 (`/admin/accesslog`)**:
-    -   日志查询 (`/logs`): 分页查询详细的访客记录。
--   **性能监控 (`/admin/performance`)**:
-    -   平均延迟 (`/averageDelay`): 统计页面的平均加载延迟。
-    -   慢页面分析 (`/slowPages`): 识别加载速度较慢的页面。
--   **页面分析 (`/admin/analysis`)**:
-    -   全站统计 (`/total`): 全站页面的访问统计。
-    -   今日统计 (`/today`): 今日页面的访问统计。
--   **访客地图 (`/admin/visitormap`)**:
-    -   世界地图 (`/map`): 基于 IP 的全球访客分布。
-    -   中国地图 (`/chineseMap`): 基于 IP 的中国访客分布。
-
-### 3. 定时任务
--   **数据同步**: 每日凌晨自动将 Redis 中的缓存数据同步到 PostgreSQL 数据库，确保数据持久化。
 
 ## 项目结构
 
@@ -100,3 +80,8 @@ Blog-Backend/
 |   docs   | 文档变更  |
 |  chore   |  杂项   |
 |    ci    | CI/CD |
+
+
+## 部署说明
+
+本项目使用Github Action执行自动化脚本，将推送后的代码自动编译、部署到服务器
