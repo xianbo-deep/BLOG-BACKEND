@@ -1,16 +1,14 @@
 # Blog-Backend
 
-<div style="text-align: center;">
-
-![Go](https://img.shields.io/badge/Go-1.24.0-00ADD8?logo=go&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17.6-4169E1?logo=postgresql&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-8.0.5-DC382D?logo=redis&logoColor=white)
-![Nginx](https://img.shields.io/badge/Nginx-1.26.3-009639?logo=nginx&logoColor=white)
-![Gin](https://img.shields.io/badge/Gin-1.11.0-00ADD8?logo=go&logoColor=white)
-![GORM](https://img.shields.io/badge/GORM-1.31.1-00ADD8?logo=go&logoColor=white)
-![release](https://img.shields.io/github/v/release/xianbo-deep/BLOG-BACKEND?label=release&include_prereleases)
-
-</div>
+<p style="text-align:center">
+  <img src="https://img.shields.io/badge/Go-1.24.0-00ADD8?logo=go&logoColor=white" />
+  <img src="https://img.shields.io/badge/PostgreSQL-17.6-4169E1?logo=postgresql&logoColor=white" />
+  <img src="https://img.shields.io/badge/Redis-8.0.5-DC382D?logo=redis&logoColor=white" />
+  <img src="https://img.shields.io/badge/Nginx-1.26.3-009639?logo=nginx&logoColor=white" />
+  <img src="https://img.shields.io/badge/Gin-1.11.0-00ADD8?logo=go&logoColor=white" />
+  <img src="https://img.shields.io/badge/GORM-1.31.1-00ADD8?logo=go&logoColor=white" />
+  <img src="https://img.shields.io/github/v/release/xianbo-deep/BLOG-BACKEND?label=release&include_prereleases" />
+</p>
 
 
 
@@ -84,4 +82,64 @@ Blog-Backend/
 
 ## 部署说明
 
-本项目使用Github Action执行自动化脚本，将推送后的代码自动编译、部署到服务器
+本项目使用Github Action执行自动化脚本，将推送后的代码自动编译、部署到服务器，并使用了Nginx进行反向代理。
+
+## 快速开始
+
+1. 克隆本项目
+
+```shell
+git clone https://github.com/xianbo-deep/BLOG-BACKEND.git
+```
+
+
+2. 查看项目依赖
+
+```shell
+cd BLOG-BACKEND 
+cat go.mod
+```
+
+3. 下载依赖
+
+```shell
+go mod download
+```
+
+4. 运行
+
+- 直接运行
+
+```shell
+go run main.go
+```
+
+- 编译后运行
+
+```shell
+go build -o blog-backend .
+./blog-backend
+```
+
+**注意**
+
+- 执行上述命令前请先下载好 Go 编译器
+- 请基于Bash执行上述命令
+- 需要使用其它数据库请预先下载好对应的驱动库
+- 请将环境变量更替为你自己的值
+
+```go
+const (
+	EnvPgURI               = "PG_URI"                   // 数据库地址
+	EnvRedisURL            = "REDIS_URL"                // Redis地址
+	EnvJWTSecret           = "JWT_SECRET"               // JWT密钥
+	EnvAdminUser           = "ADMIN_USER"               // 统计后台用户名
+	EnvAdminPwd            = "ADMIN_PASSWORD"           // 统计后台用户密码
+	EnvGeoDBPath           = "GEODB_PATH"               // Geo数据库路径
+	EnvBaseURL             = "BASE_URL"                 // 你的博客地址
+	EnvAdminURL            = "ADMIN_URL"                // 统计后台地址
+	EnvPort                = "PORT"                     // Gin监听的端口
+	EnvDiscussionToken     = "DISCUSSION_TOKEN"         // Github Discussion密钥
+	EnvGithubWebhookSecret = "GITHUB_WEBHOOK_SECRET"    // Github Webhook密钥
+)
+```
