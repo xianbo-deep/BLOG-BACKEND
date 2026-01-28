@@ -2,7 +2,6 @@ package dao
 
 import (
 	"Blog-Backend/consts"
-	"Blog-Backend/core"
 	"Blog-Backend/dto/common"
 	"Blog-Backend/dto/response"
 	"Blog-Backend/model"
@@ -20,7 +19,7 @@ func NewAnalysisDao(db *gorm.DB) *AnalysisDao {
 }
 
 func (d *AnalysisDao) GetAnalysisMetric(days int) (response.AnalysisMetric, error) {
-	cutoffTime := time.Now().AddDate(0, 0, -days)
+	cutoffTime := consts.TransferTimeByLoc(time.Now()).Truncate(consts.TimeRangeDay).AddDate(0, 0, -days)
 	var res response.AnalysisMetric
 	err := d.db.Model(&model.VisitLog{}).
 		Select(`
@@ -36,7 +35,7 @@ func (d *AnalysisDao) GetAnalysisMetric(days int) (response.AnalysisMetric, erro
 
 	var hotpage response.HotPageResult
 
-	err = core.DB.Model(&model.VisitLog{}).
+	err = d.db.Model(&model.VisitLog{}).
 		Select("path,count(*) as pv").
 		Group("path").
 		Order("pv desc").
@@ -55,7 +54,7 @@ func (d *AnalysisDao) GetAnalysisMetric(days int) (response.AnalysisMetric, erro
 }
 
 func (d *AnalysisDao) GetAnalysisTrend(days int) ([]response.AnalysisTrendItem, error) {
-	cutoffTime := time.Now().AddDate(0, 0, -days)
+	cutoffTime := consts.TransferTimeByLoc(time.Now()).Truncate(consts.TimeRangeDay).AddDate(0, 0, -days)
 	var res []response.AnalysisTrendItem
 	err := d.db.Model(&model.VisitLog{}).
 		Select("date(visit_time AT TIME ZONE 'Asia/Shanghai') as date,count(*) as pv,count(distinct visitor_id) as uv").
@@ -67,14 +66,14 @@ func (d *AnalysisDao) GetAnalysisTrend(days int) ([]response.AnalysisTrendItem, 
 	if err != nil {
 		return nil, err
 	}
-	for _, v := range res {
-		v.Timestamp = consts.TransferTimeToTimestamp(v.Date)
+	for i := range res {
+		res[i].Timestamp = consts.TransferTimeToTimestamp(res[i].Date)
 	}
 	return res, nil
 }
 
 func (d *AnalysisDao) GetAnalysisPathRank(days int) ([]response.AnalysisPathRankItem, error) {
-	cutoffTime := time.Now().AddDate(0, 0, -days)
+	cutoffTime := consts.TransferTimeByLoc(time.Now()).Truncate(consts.TimeRangeDay).AddDate(0, 0, -days)
 	var res []response.AnalysisPathRankItem
 	err := d.db.Model(&model.VisitLog{}).
 		Select("path,count(*) as pv").
@@ -91,7 +90,7 @@ func (d *AnalysisDao) GetAnalysisPathRank(days int) ([]response.AnalysisPathRank
 }
 
 func (d *AnalysisDao) GetAnalysisPath(req common.PageRequest, days int) (*common.PageResponse[response.AnalysisPathItem], error) {
-	cutoffTime := time.Now().AddDate(0, 0, -days)
+	cutoffTime := consts.TransferTimeByLoc(time.Now()).Truncate(consts.TimeRangeDay).AddDate(0, 0, -days)
 	db := d.db.Where("visit_time >= ?", cutoffTime)
 
 	// 这里不能用分页插件，因为返回的不是原始数据模型的数据，是其聚合之后的数据
@@ -132,7 +131,7 @@ func (d *AnalysisDao) GetAnalysisPath(req common.PageRequest, days int) (*common
 }
 
 func (d *AnalysisDao) GetAnalysisPathByQuery(req common.PageRequest, path string, days int) (*common.PageResponse[response.AnalysisPathItem], error) {
-	cutoffTime := time.Now().AddDate(0, 0, -days)
+	cutoffTime := consts.TransferTimeByLoc(time.Now()).Truncate(consts.TimeRangeDay).AddDate(0, 0, -days)
 	db := d.db.Where("visit_time >= ? and path like ?", cutoffTime, "%"+path+"%")
 
 	// 这里不能用分页插件，因为返回的不是原始数据模型的数据，是其聚合之后的数据
@@ -173,7 +172,7 @@ func (d *AnalysisDao) GetAnalysisPathByQuery(req common.PageRequest, path string
 }
 
 func (d *AnalysisDao) GetAnalysisPathSource(path string, days int) (response.AnalysisPathItemDetail, error) {
-	cutoffTime := time.Now().AddDate(0, 0, -days)
+	cutoffTime := consts.TransferTimeByLoc(time.Now()).Truncate(consts.TimeRangeDay).AddDate(0, 0, -days)
 	db := d.db.Model(&model.VisitLog{}).Where("visit_time >= ? and path like ?", cutoffTime, "%"+path+"%")
 	var res response.AnalysisPathItemDetail
 
@@ -243,11 +242,11 @@ func (d *AnalysisDao) GetAnalysisPathDetailTrend(path string) ([]response.PathDe
 	var res []response.PathDetailTrendItem
 	db := d.db.Model(&model.VisitLog{})
 
-	startTime := time.Now().Add(-consts.TimeRangeDay)
+	startTime := consts.TransferTimeByLoc(time.Now()).Add(-consts.TimeRangeDay)
 
-	err := db.Select("date_trunc('hour',visit_time) as date,count (*) as pv,count(distinct visitor_id) as uv").
+	err := db.Select("date_trunc('hour',visit_time AT TIME ZONE 'Asia/Shanghai') as date,count (*) as pv,count(distinct visitor_id) as uv").
 		Where("visit_time > ? and path = ?", startTime, path).
-		Group("date_trunc('hour',visit_time)").
+		Group("date_trunc('hour',visit_time AT TIME ZONE 'Asia/Shanghai')").
 		Order("date asc").
 		Scan(&res).Error
 

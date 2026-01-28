@@ -30,16 +30,19 @@ func SetupRouter(c *bootstrap.Components) *gin.Engine {
 	r.Use(gin.Recovery())
 
 	/* 使用中间件 */
-	r.Use(
-		middleware.CORSMiddleware(),
-		middleware.TimeoutMiddleware(),
-	)
+	r.Use(middleware.CORSMiddleware())
+
+	// WebSocket实时数据
+	adminWS := r.Group("/admin")
+	adminWS.GET("/ws", middleware.WebSocketAuth(), c.Admin.WebSocket.Handle)
 
 	/* 定义路由组 */
+	api := r.Group("")
+	api.Use(middleware.TimeoutMiddleware())
 	// 前端请求
 
 	// 博客统计
-	blogGroup := r.Group("/blog")
+	blogGroup := api.Group("/blog")
 	// 使用中间件，简化业务
 	blogGroup.Use(middleware.HeaderMiddleware())
 	{
@@ -48,13 +51,10 @@ func SetupRouter(c *bootstrap.Components) *gin.Engine {
 	}
 
 	// 后台统计
-	adminGroup := r.Group("/admin")
+	adminGroup := api.Group("/admin")
 	{
 		// 登录
 		adminGroup.POST("/login", c.Admin.Login.Login)
-
-		// WebSocket实时数据
-		adminGroup.GET("/ws", middleware.WebSocketAuth(), c.Admin.WebSocket.Handle)
 
 		// 鉴权
 		adminAuth := adminGroup.Group("")

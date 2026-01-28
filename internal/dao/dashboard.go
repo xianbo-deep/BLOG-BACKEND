@@ -73,12 +73,12 @@ func (d *DashboardDao) GetHistoryTrends(limit int) ([]response.DashboardTrends, 
 	// 初始化变量
 	var result []response.DashboardTrends
 	// 给定日期
-	today := time.Now().Format(consts.DateLayout)
+	today := consts.TransferTimeByLoc(time.Now()).Truncate(consts.TimeRangeDay)
 	err := d.db.Table("daily_article_stats").
-		Select("to_char(date, 'YYYY-MM-DD') as date, sum(pv) as pv,sum(uv) as uv").
+		Select("to_char(date at time zone 'Asia/Shanghai', 'YYYY-MM-DD') as date, sum(pv) as pv,sum(uv) as uv").
 		Where("date < ?", today).
-		Order("date desc").
-		Group("date").
+		Order("to_char(date at time zone 'Asia/Shanghai', 'YYYY-MM-DD') desc").
+		Group("to_char(date at time zone 'Asia/Shanghai', 'YYYY-MM-DD')").
 		Limit(limit).
 		Scan(&result).Error
 
@@ -86,8 +86,11 @@ func (d *DashboardDao) GetHistoryTrends(limit int) ([]response.DashboardTrends, 
 		return nil, err
 	}
 	for i := range result {
-		result[i].Date = consts.TransferTimeByLoc(result[i].Date)
-		result[i].Timestamp = consts.TransferTimeToTimestamp(result[i].Date)
+		date, e := time.ParseInLocation(consts.DateLayout, result[i].Date, consts.DefaultLoc)
+		if e != nil {
+			return nil, e
+		}
+		result[i].Timestamp = consts.TransferTimeToTimestamp(date)
 	}
 	return result, nil
 }
@@ -95,7 +98,7 @@ func (d *DashboardDao) GetHistoryTrends(limit int) ([]response.DashboardTrends, 
 // 在Redis获取今天的访问量
 func (d *DashboardDao) GetTodayPV(ctx context.Context) (response.DashboardTrends, error) {
 	var result response.DashboardTrends
-	today := time.Now()
+	today := consts.TransferTimeByLoc(time.Now()).Format(consts.DateLayout)
 	// 调用函数获取今日PV
 	uv, pv, _ := d.GetTodayPVUV(ctx)
 	// 组装结果
@@ -175,7 +178,7 @@ func (d *DashboardDao) GetErrorLogs(limit int) ([]response.ErrorLogItem, error) 
 
 // 获取前一天的PV和UV
 func (d *DashboardDao) GetLastDayPVUV() (response.DashboardTrends, error) {
-	yesterday := time.Now().AddDate(0, 0, -1)
+	yesterday := consts.TransferTimeByLoc(time.Now().AddDate(0, 0, -1)).Format(consts.DateLayout)
 	// 复用结构体
 	var result response.DashboardTrends
 	err := d.db.Table("daily_article_stats").

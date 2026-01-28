@@ -1,3 +1,4 @@
 go.service
 .config/
 test/
+.idea
