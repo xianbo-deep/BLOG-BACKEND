@@ -148,4 +148,4 @@ const (
 
 **可信代理**
 
-请在[router.go](https://github.com/xianbo-deep/BLOG-BACKEND/router/router.go)中配置您自己的可信代理
+请在[router.go](https://github.com/xianbo-deep/BLOG-BACKEND/blob/main/router/router.go)中配置您自己的可信代理
