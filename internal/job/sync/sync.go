@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func SyncRedisToDB() {
+func syncRedisToDB() {
 	ctx := context.Background()
 	// 分布式锁
 	lockKey := consts.RedisLockKey
