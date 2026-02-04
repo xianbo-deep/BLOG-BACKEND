@@ -23,6 +23,8 @@ func RegisterDeadLink(c *cron.Cron) {
 			log.Printf("[deadlink] err=%v", err)
 			return
 		}
-		// 发送邮箱通知
+		// TODO 发送邮箱通知
+
+		// TODO 加入数据库
 	})
 }
