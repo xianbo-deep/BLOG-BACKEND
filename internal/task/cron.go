@@ -1,6 +1,7 @@
 package task
 
 import (
+	"Blog-Backend/internal/job/deadlink"
 	"Blog-Backend/internal/job/sync"
 	"log"
 
@@ -11,15 +12,11 @@ func InitCron() {
 	// 创建cron
 	c := cron.New(cron.WithSeconds())
 
-	// 加入定时任务
-	_, err := c.AddFunc("0 5 0 * * *", func() {
-		log.Println("执行每日数据同步")
-		sync.SyncRedisToDB()
-	})
+	// 注册数据同步
+	sync.RegisterSyncData(c)
 
-	if err != nil {
-		log.Printf("添加定时任务失败: %v", err)
-	}
+	// 注册死链检测
+	deadlink.RegisterDeadLink(c)
 
 	// 启动定时任务
 	c.Start()
