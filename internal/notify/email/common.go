@@ -1,16 +1,116 @@
 package email
 
+import "time"
+
+// 环境变量
+const (
+	EnvEmailHost = "EMAIL_HOST"
+	EnvEmailPort = "EMAIL_PORT"
+	EnvEmailSMTP = "EMAIL_SMTP"
+	EnvEmailFrom = "EMAIL_FROM"
+	EnvEmailUser = "EMAIL_USER"
+)
+
+// 邮件类型
+const (
+	MailDeadlinkReport   = "deadlink_report"
+	MailDiscussionNotify = "discussion_notify"
+	MailDiscussionDigest = "discussion_digest"
+	MailSubscribeNotify  = "subscribe_notify"
+)
+
+// 标题
+const (
+	DeadLinkSubject         = "博客死链检测报告"
+	DiscussionNotifySubject = "博客有新评论"
+	DiscussionDigestSubject = "博客评论区周报"
+	SubscribeNotifySubject  = "您订阅的博客更新了"
+)
+
+// 文件路径
+const (
+	DeadLinkFile         = "./template/deadlink_report.html"
+	DiscussionReportFile = "./template/discussion_report.html"
+	DiscussionNotifyFile = "./template/discussion_notify.html"
+	SubscribeNotifyFile  = "./template/subscribe_notify.html"
+)
+
 type EmailConfig struct {
 	Host string // 执行发送的主机
-	Port string // 执行发送的端口
-	User string // 目标用户邮箱
-	Pass string // SMTP授权码
+	Port int    // 执行发送的端口
+	User string // 发送的用户邮箱
+	Pass string // SMTP密钥
+	From string
 }
 
-type EmailClient struct {
-	cfg EmailConfig
+// 死链检测
+type DeadLinkReport struct {
+	FinishedAt   time.Time
+	PagesScanned int
+	DeadlinkCnt  int
+	LinksChecked int
+	Items        []DeadLinkItem
 }
 
-func NewEmailClient(cfg EmailConfig) *EmailClient {
-	return &EmailClient{cfg: cfg}
+type DeadLinkItem struct {
+	FromPage   string
+	LinkURL    string
+	StatusCode int
+	Err        string
+}
+
+// 评论通知
+type DiscussionNotify struct {
+	Type           string
+	User           string
+	DiscussionTime time.Time
+	Avatar         string
+	PageURL        string
+	Text           string
+	ReplyToUser    string
+	ReplyToMessage string
+}
+
+// 评论汇总
+type DiscussionDigest struct {
+	StartTime     time.Time
+	EndTime       time.Time
+	Comments      int
+	Reactions     int
+	Replies       int
+	CommentItems  []CommentItem
+	ReplyItems    []ReplyItem
+	ReactionItems []ReactionItem
+}
+
+type CommentItem struct {
+	User        string
+	Avatar      string
+	CommentTime time.Time
+	PageURL     string
+	Text        string
+}
+
+type ReplyItem struct {
+	User           string
+	Avatar         string
+	ReplyTime      time.Time
+	Text           string
+	ReplyToUser    string
+	ReplyToAvatar  string
+	ReplyToMessage string
+	PageURL        string
+}
+
+type ReactionItem struct {
+	User         string
+	Avatar       string
+	ReactionTime time.Time
+	PageURL      string
+	ReactionType int
+}
+
+// TODO 订阅通知
+
+type SubscribeNotify struct {
 }
