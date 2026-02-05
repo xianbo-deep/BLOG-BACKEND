@@ -12,7 +12,7 @@
 这是一个基于 Go 语言和 Gin 框架开发的博客后台服务系统。主要用于博客站点的流量统计、性能监控以及后台管理功能。
 </div>
 
---- 
+---
 
 ## 项目目的
 
@@ -37,21 +37,25 @@
 ## 项目结构
 
 ```text
-Blog-Backend/
-├── api/            # Serverless 入口 (如 Vercel)
-├── consts/         # 常量定义 (环境配置, 业务常量)
-├── core/           # 核心组件初始化 (数据库, Redis, GeoIP)
-├── dto/            # 数据传输对象 (Request/Response 定义)
-├── internal/       # 内部业务逻辑
-│   ├── controller/ # 控制器层 (处理 HTTP 请求)
-│   ├── dao/        # 数据访问层 (数据库操作)
-│   ├── service/    # 业务逻辑层
-│   └── task/       # 定时任务 (数据同步)
-├── middleware/     # 中间件 (认证, CORS)
-├── model/          # 数据库模型定义
-├── router/         # 路由配置
-├── thirdparty/     # 第三方服务集成 (GitHub)
-└── utils/          # 工具函数 (GeoIP, JWT, 分页)
+├── api/              # Serverless 函数入口点（如用于 Vercel 部署）
+├── bootstrap/        # 应用启动和依赖注入
+├── consts/           # 全局常量（环境变量键名、业务状态码）
+├── core/             # 核心基础设施（数据库、Redis、GeoIP 初始化）
+├── dto/              # 数据传输对象（请求/响应数据结构）
+├── internal/         # 内部应用逻辑（外部不可直接访问）
+│   ├── controller/   # HTTP 处理器（公共接口和管理后台）
+│   ├── dao/          # 数据访问对象（数据库操作层）
+│   ├── job/          # 后台任务（数据同步、死链检查等）
+│   ├── notify/       # 通知服务（邮件通知等）
+│   ├── service/      # 业务逻辑服务层
+│   ├── task/         # 定时任务调度器
+│   └── ws/           # WebSocket 中心（实时推送）
+├── middleware/       # Gin 中间件（认证、跨域、超时控制等）
+├── model/           # GORM 数据库模型
+├── router/          # 路由定义
+├── test/            # 单元测试和集成测试
+├── thirdparty/       # 第三方 API 客户端（GitHub GraphQL 等）
+└── utils/           # 共享工具函数（JWT、GeoIP 助手等）
 ```
 
 
@@ -94,7 +98,7 @@ git clone https://github.com/xianbo-deep/BLOG-BACKEND.git
 2. 查看项目依赖
 
 ```shell
-cd BLOG-BACKEND 
+cd BLOG-BACKEND
 cat go.mod
 ```
 
