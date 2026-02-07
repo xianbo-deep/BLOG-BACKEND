@@ -13,6 +13,9 @@ const (
 	// 日期格式
 	DateLayout = "2006-01-02"
 
+	// 标准时间不算秒
+	TimeWithoutSecond = "2006-01-02 15:04"
+
 	// 标准时间格式
 	TimeLayout = "2006-01-02 15:04:05"
 
