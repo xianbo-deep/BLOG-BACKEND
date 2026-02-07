@@ -1,6 +1,7 @@
 package deadlink
 
 import (
+	"Blog-Backend/bootstrap"
 	"Blog-Backend/consts"
 	"Blog-Backend/internal/notify/email"
 	"log"
@@ -9,7 +10,7 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-func RegisterDeadLink(c *cron.Cron) {
+func RegisterDeadLink(c *cron.Cron, cmp *bootstrap.Components) {
 	cfg := Config{
 		SitemapURL:  os.Getenv(consts.EnvBaseURL) + sitemapURLSuffix,
 		Retry:       retryTimes,
@@ -17,7 +18,7 @@ func RegisterDeadLink(c *cron.Cron) {
 		Timeout:     timeout,
 	}
 
-	mailer := email.RegisterEmail()
+	mailer := cmp.Mailer
 
 	checker := NewChecker(cfg, mailer)
 	// 注册定时任务
