@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"Blog-Backend/consts"
 	"Blog-Backend/core"
+	"Blog-Backend/internal/notify/email"
 	"Blog-Backend/internal/ws"
 	"Blog-Backend/thirdparty/github"
 	"Blog-Backend/thirdparty/github/service"
@@ -19,6 +20,10 @@ import (
 )
 
 type Components struct {
+	Mailer *email.Mailer
+
+	GithubSVC *service.DiscussionService
+
 	Admin struct {
 		AccessLog   *ctrl_admin.AccessLogController
 		Analysis    *ctrl_admin.AnalysisController
@@ -48,9 +53,16 @@ func InitComponet() *Components {
 	// GithubDiscussionService初始化
 	discussionService := service.NewDiscussionService(client)
 
+	c.GithubSVC = discussionService
+
 	// 初始化websocket的hub并启动它
 	hub := ws.NewHub()
 	go hub.Run()
+
+	// 初始化邮箱组件
+	mailer := email.RegisterEmail()
+
+	c.Mailer = mailer
 
 	// dao初始化
 	analysisDao := dao.NewAnalysisDao(core.DB)

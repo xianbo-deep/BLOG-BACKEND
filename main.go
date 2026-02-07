@@ -29,7 +29,7 @@ func main() {
 	comps := bootstrap.InitComponet()
 
 	/* 启动定时任务*/
-	task.InitCron()
+	task.InitCron(comps)
 
 	/* 初始化路由 */
 	rEngine = router.SetupRouter(comps)

@@ -3,6 +3,7 @@ package service
 import (
 	"Blog-Backend/consts"
 	"Blog-Backend/dto/response"
+	"Blog-Backend/internal/notify/email"
 	"Blog-Backend/thirdparty/github/query"
 	"context"
 	"os"
@@ -363,4 +364,9 @@ func (s *DiscussionService) GetActiveUser(ctx context.Context, limit int) ([]res
 	}
 
 	return handleActiveUserRes(userMap, limit)
+}
+
+// 返回评论区报告
+func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, endAt time.Time) email.DiscussionDigest {
+
 }
