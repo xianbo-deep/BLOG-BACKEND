@@ -49,3 +49,14 @@ type LinkPair struct {
 	fromPage string
 	linkURL  string
 }
+
+// TODO 完善模板结构体
+type DeadLinkReportData struct {
+	Color        string
+	BJTime       string
+	Year         int
+	PagesScanned int
+	DeadLinkCnt  int
+	LinksChecked int
+	DeadLinks    []string
+}

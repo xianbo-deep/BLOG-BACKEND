@@ -1,6 +1,8 @@
 package deadlink
 
 import (
+	"Blog-Backend/consts"
+	"Blog-Backend/internal/notify/email"
 	"encoding/xml"
 	"fmt"
 	"net/http"
@@ -16,9 +18,10 @@ import (
 type Checker struct {
 	cfg    Config
 	client *http.Client
+	mailer *email.Mailer
 }
 
-func NewChecker(cfg Config) *Checker {
+func NewChecker(cfg Config, mailer *email.Mailer) *Checker {
 	if cfg.Concurrency <= 0 || cfg.Concurrency > 100 {
 		cfg.Concurrency = 10
 	}
@@ -28,6 +31,7 @@ func NewChecker(cfg Config) *Checker {
 	return &Checker{
 		cfg:    cfg,
 		client: &http.Client{Timeout: cfg.Timeout},
+		mailer: mailer,
 	}
 }
 
@@ -329,4 +333,15 @@ func (c *Checker) headThenGet(link string) (status int, ok bool, errStr string) 
 		return status, true, ""
 	}
 	return status, false, failedMsg
+}
+
+// 组装成模板需要的结构体
+func (c *Checker) processData(summary Summary, results []Result) DeadLinkReportData {
+	var data DeadLinkReportData
+	data.PagesScanned = summary.PagesScanned
+	data.LinksChecked = summary.LinksChecked
+	data.BJTime = consts.TransferTimeByLoc(summary.FinishedAT).Format(consts.TimeWithoutSecond)
+	data.Year = consts.TransferTimeByLoc(time.Now()).Year()
+
+	return data
 }

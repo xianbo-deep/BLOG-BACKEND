@@ -4,12 +4,21 @@ import (
 	"Blog-Backend/consts"
 	"Blog-Backend/core"
 	"Blog-Backend/dto/common"
+	"Blog-Backend/internal/service/github"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetNewNotify(c *gin.Context) {
+type GithubWebhookController struct {
+	svc *github.GithubWebhookService
+}
+
+func NewGithubWebhookController(svc *github.GithubWebhookService) *GithubWebhookController {
+	return &GithubWebhookController{svc: svc}
+}
+
+func (ctrl *GithubWebhookController) GetNewNotify(c *gin.Context) {
 	event := c.GetHeader("X-GitHub-Event")
 	if event != "discussion" && event != "discussion_comment" {
 		c.Status(200)
@@ -20,6 +29,9 @@ func GetNewNotify(c *gin.Context) {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
 	}
+
+	// 调用svc函数
+	ctrl.svc.GetNewNotify(c.Request.Context())
 
 	common.Success(c, consts.CodeSuccess)
 }

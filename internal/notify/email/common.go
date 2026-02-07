@@ -69,6 +69,7 @@ type DiscussionNotify struct {
 	Text           string
 	ReplyToUser    string
 	ReplyToMessage string
+	ReplyToAvatar  string
 }
 
 // 评论汇总

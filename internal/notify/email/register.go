@@ -1,18 +1,17 @@
 package email
 
 import (
-	"Blog-Backend/consts"
 	"os"
 	"strconv"
 )
 
-func RegisterEmail() {
-	host := os.Getenv("EMAIL_HOST")
-	portStr := os.Getenv("EMAIL_PORT")
+func RegisterEmail() *Mailer {
+	host := os.Getenv(EnvEmailHost)
+	portStr := os.Getenv(EnvEmailPort)
 	port, _ := strconv.Atoi(portStr)
-	user := os.Getenv("EMAIL_USER")
-	smtp := os.Getenv("EMAIL_SMTP")
-	from := os.Getenv("EMAIL_FROM")
+	user := os.Getenv(EnvEmailUser)
+	smtp := os.Getenv(EnvEmailSMTP)
+	from := os.Getenv(EnvEmailFrom)
 	cfg := EmailConfig{
 		Host: host,
 		Port: port,
@@ -26,4 +25,5 @@ func RegisterEmail() {
 
 	mailer := NewMailer(emailClient, renderer)
 
+	return mailer
 }
