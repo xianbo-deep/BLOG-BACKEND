@@ -4,8 +4,6 @@ import (
 	"Blog-Backend/bootstrap"
 	"Blog-Backend/consts"
 
-	"Blog-Backend/internal/controller/github"
-
 	"Blog-Backend/middleware"
 	"os"
 
@@ -120,7 +118,7 @@ func SetupRouter(c *bootstrap.Components) *gin.Engine {
 
 	webhookGroup := r.Group("/webhook")
 	{
-		webhookGroup.POST("/github", middleware.GithubWebhookVerify(os.Getenv(consts.EnvGithubWebhookSecret)), github.GetNewNotify)
+		webhookGroup.POST("/github", middleware.GithubWebhookVerify(os.Getenv(consts.EnvGithubWebhookSecret)), c.Github.GithubWebhook.GetNewNotify)
 	}
 	return r
 }
