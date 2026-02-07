@@ -9,10 +9,12 @@ import (
 	"os"
 
 	ctrl_admin "Blog-Backend/internal/controller/admin"
+	ctrl_github "Blog-Backend/internal/controller/github"
 	ctrl_public "Blog-Backend/internal/controller/public"
 	"Blog-Backend/internal/dao"
 	"Blog-Backend/internal/dao/cache"
 	svc_admin "Blog-Backend/internal/service/admin"
+	svc_github "Blog-Backend/internal/service/github"
 	svc_public "Blog-Backend/internal/service/public"
 )
 
@@ -29,6 +31,9 @@ type Components struct {
 	}
 	Public struct {
 		Collect *ctrl_public.CollectController
+	}
+	Github struct {
+		GithubWebhook *ctrl_github.GithubWebhookController
 	}
 }
 
@@ -63,6 +68,7 @@ func InitComponet() *Components {
 	performanceService := svc_admin.NewPerformanceService(performanceDao)
 	visitormapService := svc_admin.NewVisitorMapSerive(visitormapDao)
 	collectService := svc_public.NewCollectService(collectDao, hub)
+	githubWebhookService := svc_github.NewGithubWebhookService(discussionService)
 
 	// controller初始化
 	c.Admin.AccessLog = ctrl_admin.NewAccessLogController(accesslogService)
@@ -74,6 +80,6 @@ func InitComponet() *Components {
 	c.Admin.VisitorMap = ctrl_admin.NewVisitorMapController(visitormapService)
 	c.Admin.WebSocket = ctrl_admin.NewWebSocketController(hub)
 	c.Public.Collect = ctrl_public.NewCollectController(collectService)
-
+	c.Github.GithubWebhook = ctrl_github.NewGithubWebhookController(githubWebhookService)
 	return c
 }
