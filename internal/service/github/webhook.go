@@ -3,6 +3,7 @@ package github
 import (
 	"Blog-Backend/consts"
 	"Blog-Backend/dto/response"
+	"Blog-Backend/internal/dao"
 	"Blog-Backend/internal/notify/email"
 	"Blog-Backend/thirdparty/github/service"
 	"context"
@@ -12,11 +13,12 @@ import (
 type GithubWebhookService struct {
 	mailer    *email.Mailer
 	githubsvc *service.DiscussionService
+	dao       *dao.GithubWebhookDao
 }
 
-func NewGithubWebhookService(githubsvc *service.DiscussionService) *GithubWebhookService {
+func NewGithubWebhookService(githubsvc *service.DiscussionService, dao *dao.GithubWebhookDao) *GithubWebhookService {
 	mailer := email.RegisterEmail()
-	return &GithubWebhookService{mailer: mailer, githubsvc: githubsvc}
+	return &GithubWebhookService{mailer: mailer, githubsvc: githubsvc, dao: dao}
 }
 
 func (s *GithubWebhookService) GetNewNotify(c context.Context) {
@@ -56,4 +58,8 @@ func (s *GithubWebhookService) processData(items []*response.NewFeedItem) (email
 		ReplyToMessage: notify.ReplyToContent,
 	}
 	return res, true
+}
+
+func (s *GithubWebhookService) NotifySubscribeUser() {
+
 }

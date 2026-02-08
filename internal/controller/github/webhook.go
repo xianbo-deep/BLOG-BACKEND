@@ -18,6 +18,7 @@ func NewGithubWebhookController(svc *github.GithubWebhookService) *GithubWebhook
 	return &GithubWebhookController{svc: svc}
 }
 
+// 有新评论
 func (ctrl *GithubWebhookController) GetNewNotify(c *gin.Context) {
 	event := c.GetHeader("X-GitHub-Event")
 	if event != "discussion" && event != "discussion_comment" {
@@ -34,4 +35,10 @@ func (ctrl *GithubWebhookController) GetNewNotify(c *gin.Context) {
 	ctrl.svc.GetNewNotify(c.Request.Context())
 
 	common.Success(c, consts.CodeSuccess)
+}
+
+// 通知订阅的用户
+func (ctrl *GithubWebhookController) NotifySubscribeUser(c *gin.Context) {
+	event := c.GetHeader("X-GitHub-Event")
+
 }

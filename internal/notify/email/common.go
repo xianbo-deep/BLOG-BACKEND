@@ -108,10 +108,13 @@ type ReactionItem struct {
 	Avatar       string
 	ReactionTime time.Time
 	PageURL      string
-	ReactionType int
+	ReactionType string
 }
 
-// TODO 订阅通知
-
+// 订阅通知
 type SubscribeNotify struct {
+	Email    string
+	Path     []string
+	Page     []string
+	UpdateAt time.Time
 }
