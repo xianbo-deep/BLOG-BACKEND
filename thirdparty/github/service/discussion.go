@@ -367,6 +367,16 @@ func (s *DiscussionService) GetActiveUser(ctx context.Context, limit int) ([]res
 }
 
 // 返回评论区报告
-func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, endAt time.Time) email.DiscussionDigest {
-
+func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, endAt time.Time) (email.DiscussionDigest, error) {
+	var after *githubv4.String
+	for {
+		var q query.FeedQuery
+		vars := map[string]interface{}{
+			"first": githubv4.Int(consts.DefaultDiscussionQuerySize),
+			"after": after,
+			"owner": githubv4.String(s.owner),
+			"repo":  githubv4.String(s.repo),
+		}
+		err := s.github.Query(ctx, &q, vars)
+	}
 }

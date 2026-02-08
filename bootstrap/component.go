@@ -70,6 +70,7 @@ func InitComponet() *Components {
 	dashboardDao := dao.NewDashboardDao(core.DB, core.RDB)
 	performanceDao := dao.NewPerformanceDao(core.DB, core.RDB)
 	visitormapDao := dao.NewVisitorMapDao(core.DB)
+	webhookDao := dao.NewGithubWebhookDao(core.DB)
 
 	// service初始化
 	accesslogService := svc_admin.NewAccessLogService(core.DB)
@@ -80,7 +81,7 @@ func InitComponet() *Components {
 	performanceService := svc_admin.NewPerformanceService(performanceDao)
 	visitormapService := svc_admin.NewVisitorMapSerive(visitormapDao)
 	collectService := svc_public.NewCollectService(collectDao, hub)
-	githubWebhookService := svc_github.NewGithubWebhookService(discussionService)
+	githubWebhookService := svc_github.NewGithubWebhookService(discussionService, webhookDao)
 
 	// controller初始化
 	c.Admin.AccessLog = ctrl_admin.NewAccessLogController(accesslogService)

@@ -22,7 +22,7 @@ func RegisterDeadLink(c *cron.Cron, cmp *bootstrap.Components) {
 
 	checker := NewChecker(cfg, mailer)
 	// 注册定时任务
-	c.AddFunc("0 0 0 * * *", func() {
+	_, err := c.AddFunc("0 0 0 * * *", func() {
 		sum, res, err := checker.Check()
 		if err != nil {
 			log.Printf("[deadlink] err=%v", err)
@@ -39,4 +39,7 @@ func RegisterDeadLink(c *cron.Cron, cmp *bootstrap.Components) {
 		}
 
 	})
+	if err != nil {
+		log.Printf("死链检测定时任务启动失败: %v", err)
+	}
 }
