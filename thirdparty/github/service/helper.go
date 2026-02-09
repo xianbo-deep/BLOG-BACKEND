@@ -117,3 +117,8 @@ func concatToUrl(base, url string) string {
 	url = strings.TrimPrefix(url, "/")
 	return base + "/" + url
 }
+
+// 判断是否在查询范围内
+func inRange(t, start, end time.Time) bool {
+	return (t.Equal(start) || t.After(start)) && t.Before(end)
+}

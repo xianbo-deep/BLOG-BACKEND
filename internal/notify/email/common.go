@@ -35,6 +35,13 @@ const (
 	SubscribeNotifyFile  = "./template/subscribe_notify.html"
 )
 
+// 页面改变类型
+const (
+	Added    = "Added"
+	Modified = "Modified"
+	Removed  = "Removed"
+)
+
 type EmailConfig struct {
 	Host string // 执行发送的主机
 	Port int    // 执行发送的端口
@@ -113,8 +120,13 @@ type ReactionItem struct {
 
 // 订阅通知
 type SubscribeNotify struct {
-	Email    string
-	Path     []string
-	Page     []string
-	UpdateAt time.Time
+	Pages     []ChangedPage
+	UpdatedAt time.Time
+	Author    string
+}
+
+type ChangedPage struct {
+	Page       string
+	ChangeType string
+	Path       string
 }

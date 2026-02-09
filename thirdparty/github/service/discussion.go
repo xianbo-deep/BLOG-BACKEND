@@ -367,10 +367,14 @@ func (s *DiscussionService) GetActiveUser(ctx context.Context, limit int) ([]res
 }
 
 // 返回评论区报告
-func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, endAt time.Time) (email.DiscussionDigest, error) {
+func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, endAt time.Time) (*email.DiscussionDigest, error) {
 	var after *githubv4.String
+	res := &email.DiscussionDigest{
+		StartTime: startAt,
+		EndTime:   endAt,
+	}
 	for {
-		var q query.FeedQuery
+		var q query.DiscussionDigestQuery
 		vars := map[string]interface{}{
 			"first": githubv4.Int(consts.DefaultDiscussionQuerySize),
 			"after": after,
@@ -378,5 +382,76 @@ func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, en
 			"repo":  githubv4.String(s.repo),
 		}
 		err := s.github.Query(ctx, &q, vars)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, discussion := range q.Repository.Discussions.Nodes {
+			for _, comment := range discussion.Comments.Nodes {
+				if inRange(comment.CreatedAt.Time, startAt, endAt) {
+					res.CommentItems = append(res.CommentItems, email.CommentItem{
+						User:        string(comment.Login),
+						Avatar:      string(comment.AvatarUrl),
+						CommentTime: comment.CreatedAt.Time,
+						PageURL:     concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+						Text:        string(comment.BodyText),
+					})
+				}
+				for _, reaction := range comment.Reactions.Nodes {
+					if inRange(reaction.CreatedAt.Time, startAt, endAt) {
+						res.ReactionItems = append(res.ReactionItems, email.ReactionItem{
+							User:         string(reaction.Login),
+							Avatar:       string(reaction.AvatarUrl),
+							ReactionTime: reaction.CreatedAt.Time,
+							PageURL:      concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+							ReactionType: string(reaction.Content),
+						})
+					}
+				}
+
+				for _, reply := range comment.Replies.Nodes {
+					if inRange(reply.CreatedAt.Time, startAt, endAt) {
+						res.ReplyItems = append(res.ReplyItems, email.ReplyItem{
+							User:           string(reply.Login),
+							Avatar:         string(reply.AvatarUrl),
+							ReplyTime:      reply.CreatedAt.Time,
+							Text:           string(reply.BodyText),
+							PageURL:        concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+							ReplyToUser:    string(comment.Login),
+							ReplyToAvatar:  string(comment.AvatarUrl),
+							ReplyToMessage: string(comment.BodyText),
+						})
+					}
+
+					for _, reaction := range reply.Reactions.Nodes {
+						if inRange(reaction.CreatedAt.Time, startAt, endAt) {
+							res.ReactionItems = append(res.ReactionItems, email.ReactionItem{
+								User:         string(reaction.Login),
+								Avatar:       string(reaction.AvatarUrl),
+								ReactionTime: reaction.CreatedAt.Time,
+								PageURL:      concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+								ReactionType: string(reaction.Content),
+							})
+						}
+					}
+				}
+			}
+			for _, reaction := range discussion.Reactions.Nodes {
+				if inRange(reaction.CreatedAt.Time, startAt, endAt) {
+					res.ReactionItems = append(res.ReactionItems, email.ReactionItem{
+						User:         string(reaction.Login),
+						Avatar:       string(reaction.AvatarUrl),
+						ReactionTime: reaction.CreatedAt.Time,
+						PageURL:      concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+						ReactionType: string(reaction.Content),
+					})
+				}
+			}
+		}
+		if !q.Repository.Discussions.PageInfo.HasNextPage {
+			break
+		}
+		after = nextCursor(q.Repository.Discussions.PageInfo)
 	}
+	return res, nil
 }
