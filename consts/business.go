@@ -12,8 +12,8 @@ const (
 )
 
 const (
-	Subsucribed   = 1
-	UnSubsucribed = 0
+	Subscribed   = 1
+	UnSubscribed = 0
 )
 
 const (

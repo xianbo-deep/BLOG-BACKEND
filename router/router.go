@@ -46,6 +46,9 @@ func SetupRouter(c *bootstrap.Components) *gin.Engine {
 	{
 		// 统计流量
 		blogGroup.Any("/collect", c.Public.Collect.CollectHandler)
+
+		// 订阅
+		blogGroup.GET("/subscribe", c.Public.Subscribe.SubscribeBlog)
 	}
 
 	// 后台统计

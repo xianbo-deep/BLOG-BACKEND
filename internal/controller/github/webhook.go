@@ -55,8 +55,6 @@ func (ctrl *GithubWebhookController) NotifySubscribeUsers(c *gin.Context) {
 	switch event {
 	case "push":
 		ctrl.handlePush(c)
-	case "pull_request":
-		ctrl.handlePullMerge(c)
 	default:
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, errors.New("unknown event").Error())
 		return
@@ -91,16 +89,6 @@ func (ctrl *GithubWebhookController) handlePush(c *gin.Context) {
 		return
 	}
 	common.Success(c, consts.CodeSuccess)
-}
-
-// 处理merge事件
-func (ctrl *GithubWebhookController) handlePullMerge(c *gin.Context) {
-	var p g.PushRequestPayload
-	if err := c.ShouldBindJSON(&p); err != nil {
-		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
-		return
-	}
-
 }
 
 func latestCommitDocsPages(p g.PushPayload) (pages []email.ChangedPage, updatedAt time.Time, author string, err error) {

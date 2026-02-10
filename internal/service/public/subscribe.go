@@ -28,10 +28,10 @@ func (s *SubscribeService) SubscribeBlog(mail string, subscribe int) error {
 
 	data := email.SubscribeOrNot{Year: consts.TransferTimeByLoc(time.Now()).Year()}
 	// 发送邮件通知
-	if subscribe == consts.Subsucribed {
+	if subscribe == consts.Subscribed {
 		e := s.mailer.SendTemplate([]string{mail}, email.MailSubscribe, data)
 		return e
-	} else if subscribe == consts.UnSubsucribed {
+	} else if subscribe == consts.UnSubscribed {
 		e := s.mailer.SendTemplate([]string{mail}, email.MailUnSubscribe, data)
 		return e
 	}

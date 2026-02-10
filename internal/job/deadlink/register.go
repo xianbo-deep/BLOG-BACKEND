@@ -3,7 +3,9 @@ package deadlink
 import (
 	"Blog-Backend/bootstrap"
 	"Blog-Backend/consts"
+	"Blog-Backend/internal/dao"
 	"Blog-Backend/internal/notify/email"
+	"Blog-Backend/model"
 	"log"
 	"os"
 
@@ -21,6 +23,9 @@ func RegisterDeadLink(c *cron.Cron, cmp *bootstrap.Components) {
 	mailer := cmp.Mailer
 
 	checker := NewChecker(cfg, mailer)
+
+	deadlinkDao := dao.NewDeadLinkDao(cmp.DB)
+
 	// 注册定时任务
 	_, err := c.AddFunc("0 0 0 * * *", func() {
 		sum, res, err := checker.Check()
@@ -30,10 +35,32 @@ func RegisterDeadLink(c *cron.Cron, cmp *bootstrap.Components) {
 		}
 		data := checker.processData(sum, res)
 
-		// TODO 加入数据库
+		// 加入数据库
+		run := model.DeadLinkRun{
+			StartedAt:    sum.StartedAT,
+			FinishedAt:   sum.FinishedAT,
+			PagesScanned: sum.PagesScanned,
+			DeadLinkCnt:  sum.DeadlinkCnt,
+			LinksChecked: sum.LinksChecked,
+		}
 
-		// TODO 发送邮箱通知
-		err := mailer.SendTemplate([]string{}, email.MailDeadlinkReport, data)
+		items := make([]model.DeadLinkItem, 0, len(res))
+		for _, r := range res {
+			items = append(items, model.DeadLinkItem{
+				FromPage:   r.FromPage,
+				LinkURL:    r.LinkURL,
+				StatusCode: r.StatusCode,
+				OK:         r.OK,
+				Err:        r.Err,
+				CheckedAt:  r.CheckedAT,
+			})
+		}
+		if err := deadlinkDao.SaveRunAndItems(run, items); err != nil {
+			log.Printf("死链检测数据插入数据库失败:%v", err)
+		}
+
+		// 发送邮箱通知
+		err = mailer.SendTemplate([]string{}, email.MailDeadlinkReport, data)
 		if err != nil {
 			log.Printf("[deadlink] err=%v", err)
 		}

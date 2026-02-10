@@ -17,12 +17,16 @@ import (
 	svc_admin "Blog-Backend/internal/service/admin"
 	svc_github "Blog-Backend/internal/service/github"
 	svc_public "Blog-Backend/internal/service/public"
+
+	"gorm.io/gorm"
 )
 
 type Components struct {
 	Mailer *email.Mailer
 
 	GithubSVC *service.DiscussionService
+
+	DB *gorm.DB
 
 	Admin struct {
 		AccessLog   *ctrl_admin.AccessLogController
@@ -35,7 +39,8 @@ type Components struct {
 		WebSocket   *ctrl_admin.WebSocketController
 	}
 	Public struct {
-		Collect *ctrl_public.CollectController
+		Collect   *ctrl_public.CollectController
+		Subscribe *ctrl_public.SubscribeController
 	}
 	Github struct {
 		GithubWebhook *ctrl_github.GithubWebhookController
@@ -64,6 +69,8 @@ func InitComponet() *Components {
 
 	c.Mailer = mailer
 
+	c.DB = core.DB
+
 	// dao初始化
 	analysisDao := dao.NewAnalysisDao(core.DB)
 	collectDao := dao.NewCollectDao(core.DB, core.RDB)
@@ -71,6 +78,7 @@ func InitComponet() *Components {
 	performanceDao := dao.NewPerformanceDao(core.DB, core.RDB)
 	visitormapDao := dao.NewVisitorMapDao(core.DB)
 	webhookDao := dao.NewGithubWebhookDao(core.DB)
+	subscribeDao := dao.NewSubscribeDao(core.DB)
 
 	// service初始化
 	accesslogService := svc_admin.NewAccessLogService(core.DB)
@@ -82,6 +90,7 @@ func InitComponet() *Components {
 	visitormapService := svc_admin.NewVisitorMapSerive(visitormapDao)
 	collectService := svc_public.NewCollectService(collectDao, hub)
 	githubWebhookService := svc_github.NewGithubWebhookService(discussionService, webhookDao)
+	subscribeService := svc_public.NewSubscribeService(subscribeDao, mailer)
 
 	// controller初始化
 	c.Admin.AccessLog = ctrl_admin.NewAccessLogController(accesslogService)
@@ -94,5 +103,6 @@ func InitComponet() *Components {
 	c.Admin.WebSocket = ctrl_admin.NewWebSocketController(hub)
 	c.Public.Collect = ctrl_public.NewCollectController(collectService)
 	c.Github.GithubWebhook = ctrl_github.NewGithubWebhookController(githubWebhookService)
+	c.Public.Subscribe = ctrl_public.NewSubscribeController(subscribeService)
 	return c
 }

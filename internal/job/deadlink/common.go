@@ -38,7 +38,7 @@ type Config struct {
 }
 
 // sitemap标准格式
-// TODO vuepress的标准格式
+// vuepress的标准格式
 type SitemapURLSet struct {
 	URLs []struct {
 		Loc string `xml:"loc"`
@@ -50,13 +50,19 @@ type LinkPair struct {
 	linkURL  string
 }
 
-// TODO 完善模板结构体
+// 完善模板结构体
 type DeadLinkReportData struct {
-	Color        string
 	BJTime       string
 	Year         int
 	PagesScanned int
 	DeadLinkCnt  int
 	LinksChecked int
-	DeadLinks    []string
+	DeadLinks    []DeadLinkItem
+}
+
+type DeadLinkItem struct {
+	Page    string
+	Status  int
+	URL     string
+	Message string
 }

@@ -29,8 +29,8 @@ type AnalysisPathItem struct {
 	AvgLatency int    `json:"avgLatency"`
 }
 
-type AnalysisPathItemSource struct {
-	Source  string `json:"source"`
+type AnalysisPathItemCountry struct {
+	Country string `json:"country"`
 	Percent int64  `json:"percent"`
 }
 
@@ -40,9 +40,9 @@ type AnalysisPathItemDevice struct {
 }
 
 type AnalysisPathItemDetail struct {
-	Path     string                   `json:"path"`
-	Referers []AnalysisPathItemSource `json:"sources"`
-	Devices  []AnalysisPathItemDevice `json:"devices"`
+	Path      string                    `json:"path"`
+	Countries []AnalysisPathItemCountry `json:"countries"`
+	Devices   []AnalysisPathItemDevice  `json:"devices"`
 }
 
 type HotPageResult struct {
@@ -62,9 +62,9 @@ type PathDetailTrendItem struct {
 	Timestamp int64     `json:"timestamp"`
 }
 
-type PathDetailSourceItem struct {
-	Source string `json:"source"`
-	Count  int64  `json:"count"`
+type PathDetailCountryItem struct {
+	Country string `json:"country"`
+	Count   int64  `json:"count"`
 }
 
 type PathDetailDeviceItem struct {

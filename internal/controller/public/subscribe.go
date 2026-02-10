@@ -31,7 +31,7 @@ func (ctrl *SubscribeController) SubscribeBlog(c *gin.Context) {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, e.Error())
 		return
 	}
-	if subscribe == consts.UnSubsucribed {
+	if subscribe == consts.UnSubscribed {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, errors.New("还未订阅，无法进行取消").Error())
 		return
 	}

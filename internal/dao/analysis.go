@@ -186,26 +186,26 @@ func (d *AnalysisDao) GetAnalysisPathSource(path string, days int) (response.Ana
 		return res, nil
 	}
 
-	// 统计source
-	var sources []struct {
-		Source string
-		Count  int64
+	// 统计country
+	var countries []struct {
+		Country string
+		Count   int64
 	}
 
-	err := db.Select("refr_source as source,count(*) as count").
-		Group("refr_source").
+	err := db.Select("country,count(*) as count").
+		Group("country").
 		Order("count desc").
 		Limit(3).
-		Scan(&sources).Error
+		Scan(&countries).Error
 	if err != nil {
 		return res, err
 	}
 
 	// 填充数据
-	for _, r := range sources {
+	for _, r := range countries {
 		percent := int64(float64(r.Count) / float64(totalPV) * 100)
-		res.Referers = append(res.Referers, response.AnalysisPathItemSource{
-			Source:  r.Source,
+		res.Countries = append(res.Countries, response.AnalysisPathItemCountry{
+			Country: r.Country,
 			Percent: percent,
 		})
 	}
@@ -260,13 +260,13 @@ func (d *AnalysisDao) GetAnalysisPathDetailTrend(path string) ([]response.PathDe
 	return res, nil
 }
 
-func (d *AnalysisDao) GetAnalysisPathDetailSource(path string) ([]response.PathDetailSourceItem, error) {
-	var res []response.PathDetailSourceItem
+func (d *AnalysisDao) GetAnalysisPathDetailSource(path string) ([]response.PathDetailCountryItem, error) {
+	var res []response.PathDetailCountryItem
 	db := d.db.Model(&model.VisitLog{})
 
-	err := db.Select("refr_source as source,count(*) as count").
+	err := db.Select("country,count(*) as count").
 		Where("path = ?", path).
-		Group("refr_source").
+		Group("country").
 		Order("count desc").
 		Scan(&res).Error
 	if err != nil {

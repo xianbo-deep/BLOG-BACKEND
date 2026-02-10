@@ -42,7 +42,7 @@ func (s *AnalysisService) GetAnalysisPathDetailTrend(path string) ([]response.Pa
 	return s.dao.GetAnalysisPathDetailTrend(path)
 }
 
-func (s *AnalysisService) GetAnalysisPathDetailSource(path string) ([]response.PathDetailSourceItem, error) {
+func (s *AnalysisService) GetAnalysisPathDetailSource(path string) ([]response.PathDetailCountryItem, error) {
 	return s.dao.GetAnalysisPathDetailSource(path)
 }
 func (s *AnalysisService) GetAnalysisPathDetailDevice(path string) ([]response.PathDetailDeviceItem, error) {

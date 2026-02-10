@@ -338,10 +338,25 @@ func (c *Checker) headThenGet(link string) (status int, ok bool, errStr string) 
 // 组装成模板需要的结构体
 func (c *Checker) processData(summary Summary, results []Result) DeadLinkReportData {
 	var data DeadLinkReportData
+	// 组装全局信息
 	data.PagesScanned = summary.PagesScanned
 	data.LinksChecked = summary.LinksChecked
 	data.BJTime = consts.TransferTimeByLoc(summary.FinishedAT).Format(consts.TimeWithoutSecond)
 	data.Year = consts.TransferTimeByLoc(time.Now()).Year()
+
+	// 组装详细信息
+	var deadLinks []DeadLinkItem
+	for _, item := range results {
+		if item.OK {
+			continue
+		}
+		deadLinks = append(deadLinks, DeadLinkItem{
+			Page:    item.FromPage,
+			URL:     item.LinkURL,
+			Status:  item.StatusCode,
+			Message: item.Err,
+		})
+	}
 
 	return data
 }

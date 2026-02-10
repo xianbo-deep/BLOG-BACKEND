@@ -22,7 +22,7 @@ func (d *GithubWebhookDao) GetSubscribeUsers() ([]model.SubscribeUser, error) {
 
 	db := d.db.Model(&model.SubscribeUser{})
 	// 获取已订阅的用户
-	err := db.Where("status = ?", consts.Subsucribed).Find(&res).Error
+	err := db.Where("status = ?", consts.Subscribed).Find(&res).Error
 	if err != nil {
 		return nil, err
 	}
