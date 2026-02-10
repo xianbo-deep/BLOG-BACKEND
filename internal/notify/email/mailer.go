@@ -19,6 +19,10 @@ func (m *Mailer) selectSubject(subject string) string {
 		return DiscussionDigestSubject
 	case MailSubscribeNotify:
 		return SubscribeNotifySubject
+	case MailSubscribe:
+		return SubscribeSubject
+	case MailUnSubscribe:
+		return UnSubscribeSubject
 	default:
 		return ""
 	}

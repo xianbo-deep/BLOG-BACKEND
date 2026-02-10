@@ -8,7 +8,6 @@ import (
 	"Blog-Backend/internal/notify/email"
 	"Blog-Backend/internal/service/github"
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"sort"
@@ -86,7 +85,7 @@ func (ctrl *GithubWebhookController) handlePush(c *gin.Context) {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, "没有更改的文件")
 		return
 	}
-	err = ctrl.svc.NotifySubscribeUser(pages, updatedAt, author)
+	err = ctrl.svc.NotifySubscribeUsers(pages, updatedAt, author)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
@@ -96,6 +95,11 @@ func (ctrl *GithubWebhookController) handlePush(c *gin.Context) {
 
 // 处理merge事件
 func (ctrl *GithubWebhookController) handlePullMerge(c *gin.Context) {
+	var p g.PushRequestPayload
+	if err := c.ShouldBindJSON(&p); err != nil {
+		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
+		return
+	}
 
 }
 
@@ -103,25 +107,26 @@ func latestCommitDocsPages(p g.PushPayload) (pages []email.ChangedPage, updatedA
 	// 获取提交作者
 	author = p.Sender.Login
 
-	var head *struct {
-		ID        string
-		Timestamp string
-		Added     []string
-		Modified  []string
-		Removed   []string
-	}
-
+	headIdx := -1
 	for i := range p.Commits {
 		if p.Commits[i].ID == p.HeadCommit.ID {
-			head = &p.Commits[i]
+			headIdx = i
 			break
 		}
 	}
+	if headIdx == -1 {
+		if len(p.Commits) == 0 {
+			return nil, consts.TransferTimeByLoc(time.Now()), author, errors.New("找不到最新的提交")
+		}
+		headIdx = len(p.Commits) - 1
+	}
+
+	haed := p.Commits[headIdx]
 
 	// 解析时间
 	ts := p.HeadCommit.Timestamp
-	if ts == "" && head != nil {
-		ts = head.Timestamp
+	if ts == "" {
+		ts = haed.Timestamp
 	}
 	if ts != "" {
 		if t, err := time.Parse(time.RFC3339, ts); err == nil {
@@ -132,33 +137,73 @@ func latestCommitDocsPages(p g.PushPayload) (pages []email.ChangedPage, updatedA
 	if updatedAt.IsZero() {
 		updatedAt = consts.TransferTimeByLoc(time.Now())
 	}
-	if head == nil {
-		return nil, updatedAt, author, errors.New("找不到最新的提交")
-	}
 
 	// 获取变更文件
 	base := os.Getenv(consts.EnvBaseURL)
 	addPage := func(file, typ string) {
 		if strings.HasPrefix(file, "docs/") && !strings.HasSuffix(file, "README.md") {
-			path := strings.Trim(file, "docs")
+			path, ok := vuepressRouteHTML(file)
+			if !ok {
+				return
+			}
 			pages = append(pages, email.ChangedPage{
 				Page:       file,
 				ChangeType: typ,
-				Path:       fmt.Sprintf("%s%s", base, path),
+				Path:       joinURL(base, path),
 			})
 		}
 	}
 
-	for _, f := range head.Added {
+	for _, f := range haed.Added {
 		addPage(f, email.Added)
 	}
-	for _, f := range head.Modified {
+	for _, f := range haed.Modified {
 		addPage(f, email.Modified)
 	}
-	for _, f := range head.Removed {
+	for _, f := range haed.Removed {
 		addPage(f, email.Removed)
 	}
 	// 排序
 	sort.Slice(pages, func(i, j int) bool { return pages[i].Path < pages[j].Path })
 	return pages, updatedAt, author, nil
+}
+
+/* 工具函数 */
+
+// 获取网页真实的相对路径
+func vuepressRouteHTML(repoFile string) (string, bool) {
+	if !strings.HasPrefix(repoFile, "docs/") {
+		return "", false
+	}
+	rel := strings.TrimPrefix(repoFile, "docs/")
+
+	// 根README.md
+	if rel == "README.md" {
+		return "/", true
+	}
+
+	// 目录README
+	if strings.HasSuffix(rel, "README.md") {
+		dir := strings.TrimSuffix(rel, "README.md")
+		return "/" + dir, true
+	}
+
+	// 普通md
+	if strings.HasSuffix(rel, ".md") {
+		dir := strings.TrimSuffix(rel, ".md")
+		return "/" + dir + ".html", true
+	}
+	return "", false
+}
+
+// 将域名和相对路径进行拼接
+func joinURL(base, route string) string {
+	base = strings.TrimRight(base, "/")
+	if route == "" {
+		return base + "/"
+	}
+	if !strings.HasPrefix(route, "/") {
+		return base + "/" + route
+	}
+	return base + route
 }

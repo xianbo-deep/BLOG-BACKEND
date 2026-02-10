@@ -69,8 +69,10 @@ func (s *GithubWebhookService) NotifySubscribeUsers(pages []email.ChangedPage, u
 		return err
 	}
 	emails := make([]string, len(res))
+	ids := make([]int64, len(res))
 	for _, u := range res {
 		emails = append(emails, u.Email)
+		ids = append(ids, u.ID)
 	}
 	data := email.SubscribeNotify{
 		Pages:     pages,
@@ -81,6 +83,12 @@ func (s *GithubWebhookService) NotifySubscribeUsers(pages []email.ChangedPage, u
 	e := s.mailer.SendTemplate(emails, email.MailDiscussionNotify, data)
 	if e != nil {
 		log.Printf("发送订阅邮件失败: %v", e)
+		return e
+	}
+	// 更新订阅用户信息
+	e = s.dao.UpdateSubscribeUsersLastSentTime(ids)
+	if e != nil {
+		log.Printf("更新用户信息失败: %v", e)
 		return e
 	}
 	return nil

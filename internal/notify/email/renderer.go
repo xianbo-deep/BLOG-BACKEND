@@ -16,6 +16,8 @@ func NewRenderer() *Renderer {
 		MailDiscussionNotify: template.Must(template.ParseFiles(DiscussionNotifyFile)),
 		MailDiscussionDigest: template.Must(template.ParseFiles(DiscussionReportFile)),
 		MailSubscribeNotify:  template.Must(template.ParseFiles(SubscribeNotifyFile)),
+		MailSubscribe:        template.Must(template.ParseFiles(SubscribeFile)),
+		MailUnSubscribe:      template.Must(template.ParseFiles(UnSubscribeFile)),
 	}
 	return &Renderer{tpls}
 }

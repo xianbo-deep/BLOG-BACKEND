@@ -17,6 +17,8 @@ const (
 	MailDiscussionNotify = "discussion_notify"
 	MailDiscussionDigest = "discussion_digest"
 	MailSubscribeNotify  = "subscribe_notify"
+	MailSubscribe        = "subscribe"
+	MailUnSubscribe      = "unsubscribe"
 )
 
 // 标题
@@ -25,6 +27,8 @@ const (
 	DiscussionNotifySubject = "博客有新评论"
 	DiscussionDigestSubject = "博客评论区周报"
 	SubscribeNotifySubject  = "您订阅的博客更新了"
+	SubscribeSubject        = "您已成功订阅"
+	UnSubscribeSubject      = "您已取消订阅"
 )
 
 // 文件路径
@@ -33,6 +37,8 @@ const (
 	DiscussionReportFile = "./template/discussion_report.html"
 	DiscussionNotifyFile = "./template/discussion_notify.html"
 	SubscribeNotifyFile  = "./template/subscribe_notify.html"
+	SubscribeFile        = "./template/subscribe.html"
+	UnSubscribeFile      = "./template/unsubscribe.html"
 )
 
 // 页面改变类型
@@ -129,4 +135,9 @@ type ChangedPage struct {
 	Page       string
 	ChangeType string
 	Path       string
+}
+
+// 订阅与取消订阅
+type SubscribeOrNot struct {
+	Year int
 }
