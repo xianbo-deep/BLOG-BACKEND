@@ -23,7 +23,7 @@ func (d *SubscribeDao) SubscribeBlog(email string, subscribe int) error {
 	err := db.Where("email = ?", email).First(&user).Error
 	// 用户已经存在
 	if err == nil {
-		if user.Status == uint8(subscribe) {
+		if user.Status == subscribe {
 			return errors.New("之前已经成功/取消订阅，请勿重复操作")
 		}
 		return db.
@@ -40,7 +40,7 @@ func (d *SubscribeDao) SubscribeBlog(email string, subscribe int) error {
 	// 不存在则创建新记录
 	newUser := model.SubscribeUser{
 		Email:         email,
-		Status:        uint8(subscribe),
+		Status:        subscribe,
 		SubscribeTime: time.Now().UTC(),
 		UpdatedAt:     time.Now().UTC(),
 	}

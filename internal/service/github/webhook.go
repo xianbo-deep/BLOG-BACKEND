@@ -59,6 +59,8 @@ func processData(items []*response.NewFeedItem) (email.DiscussionNotify, bool) {
 		ReplyToAvatar:  notify.ReplyToAvatar,
 		ReplyToUser:    notify.ReplyToName,
 		ReplyToMessage: notify.ReplyToContent,
+		FormattedTime:  consts.TransferTimeByLoc(notify.Time).Format(consts.TimeLayout),
+		Year:           time.Now().Year(),
 	}
 	return res, true
 }
@@ -75,9 +77,11 @@ func (s *GithubWebhookService) NotifySubscribeUsers(pages []email.ChangedPage, u
 		ids = append(ids, u.ID)
 	}
 	data := email.SubscribeNotify{
-		Pages:     pages,
-		UpdatedAt: updatedAt,
-		Author:    author,
+		Pages:               pages,
+		UpdatedAt:           updatedAt,
+		Author:              author,
+		FormattedUpdateTime: updatedAt.Format(consts.TimeWithoutSecond),
+		Year:                time.Now().Year(),
 	}
 	// 发送邮件
 	e := s.mailer.SendTemplate(emails, email.MailDiscussionNotify, data)

@@ -170,8 +170,8 @@ func (d *DashboardDao) GetErrorLogs(limit int) ([]response.ErrorLogItem, error) 
 	if err != nil {
 		return nil, err
 	}
-	for _, v := range result {
-		v.Timestamp = consts.TransferTimeToTimestamp(v.Time)
+	for i := range result {
+		result[i].Timestamp = consts.TransferTimeToTimestamp(result[i].Time)
 	}
 	return result, nil
 }
