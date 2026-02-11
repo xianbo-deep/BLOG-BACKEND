@@ -10,9 +10,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var visitorMapService = admin.NewVisitorMapSerive()
+type VisitorMapController struct {
+	svc *admin.VisitorMapSerive
+}
 
-func GetVisitorMap(c *gin.Context) {
+func NewVisitorMapController(svc *admin.VisitorMapSerive) *VisitorMapController {
+	return &VisitorMapController{svc: svc}
+}
+
+func (ctrl *VisitorMapController) GetVisitorMap(c *gin.Context) {
 	// 传递毫秒级时间戳
 	startTimeStr := c.DefaultQuery("startTime", "0")
 	endTimeStr := c.DefaultQuery("endTime", "0")
@@ -20,7 +26,7 @@ func GetVisitorMap(c *gin.Context) {
 	startTime, _ := strconv.Atoi(startTimeStr)
 	endTime, _ := strconv.Atoi(endTimeStr)
 
-	res, err := visitorMapService.GetVisitorMap(startTime, endTime)
+	res, err := ctrl.svc.GetVisitorMap(startTime, endTime)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
@@ -29,7 +35,7 @@ func GetVisitorMap(c *gin.Context) {
 
 }
 
-func GetChineseVisitorMap(c *gin.Context) {
+func (ctrl *VisitorMapController) GetChineseVisitorMap(c *gin.Context) {
 	// 传递毫秒级时间戳
 	startTimeStr := c.DefaultQuery("startTime", "0")
 	endTimeStr := c.DefaultQuery("endTime", "0")
@@ -37,7 +43,7 @@ func GetChineseVisitorMap(c *gin.Context) {
 	startTime, _ := strconv.Atoi(startTimeStr)
 	endTime, _ := strconv.Atoi(endTimeStr)
 
-	res, err := visitorMapService.GetVisitorMap(startTime, endTime)
+	res, err := ctrl.svc.GetChineseVisitorMap(startTime, endTime)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return

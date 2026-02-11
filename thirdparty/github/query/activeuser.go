@@ -5,54 +5,44 @@ import "github.com/shurcooL/githubv4"
 type ActiveUserQuery struct {
 	Repository struct {
 		Discussions struct {
-			Nodes []struct {
-				Reactions struct {
-					Nodes []struct {
-						User struct {
-							AvatarUrl githubv4.String
-							Url       githubv4.String
-							Login     githubv4.String
-						}
-					}
-				} `graphql:"reactions(first:100)"`
-				Comments struct {
-					Nodes []struct {
-						Author struct {
-							AvatarUrl githubv4.String
-							Url       githubv4.String
-							Login     githubv4.String
-						}
-						Replies struct {
-							Nodes []struct {
-								Author struct {
-									AvatarUrl githubv4.String
-									Url       githubv4.String
-									Login     githubv4.String
-								}
-								Reactions struct {
-									Nodes []struct {
-										User struct {
-											AvatarUrl githubv4.String
-											Url       githubv4.String
-											Login     githubv4.String
-										}
-									}
-								} `graphql:"reactions(first:100)"`
-							}
-						} `graphql:"replies(first:100)"`
-						Reactions struct {
-							Nodes []struct {
-								User struct {
-									AvatarUrl githubv4.String
-									Url       githubv4.String
-									Login     githubv4.String
-								}
-							}
-						} `graphql:"reactions(first:100)"`
-					}
-				} `graphql:"comments(first:100)"`
-			}
-			PageInfo
-		} `graphql:"discussion(first: $first, after: $after)"`
+			Nodes    []ActiveUserDiscussion
+			PageInfo PageInfo `graphql:"pageInfo"`
+		} `graphql:"discussions(first: $first, after: $after)"`
 	} `graphql:"repository(owner: $owner, name: $repo)"`
+}
+
+type ActiveUserAuthor struct {
+	AvatarUrl githubv4.String
+	Url       githubv4.String
+	Login     githubv4.String
+}
+
+type ActiveUserReaction struct {
+	User ActiveUserAuthor
+}
+
+type ActiveUserReply struct {
+	Author    ActiveUserAuthor
+	Reactions struct {
+		Nodes []ActiveUserReaction
+	} `graphql:"reactions(first:20)"`
+}
+
+type ActiveUserComment struct {
+	Author  ActiveUserAuthor
+	Replies struct {
+		Nodes []ActiveUserReply
+	} `graphql:"replies(first:20)"`
+	Reactions struct {
+		Nodes []ActiveUserReaction
+	} `graphql:"reactions(first:20)"`
+}
+
+type ActiveUserDiscussion struct {
+	Reactions struct {
+		Nodes []ActiveUserReaction
+	} `graphql:"reactions(first:20)"`
+	Comments struct {
+		Nodes []ActiveUserComment
+	} `graphql:"comments(first:20)"`
 }

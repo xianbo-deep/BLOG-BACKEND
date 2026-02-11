@@ -1,5 +1,7 @@
 package response
 
+import "time"
+
 type Metric struct {
 	TotalComments  int64 `json:"total_comments"`  // 总评论数
 	TotalReplies   int64 `json:"total_replies"`   // 总回复数
@@ -7,17 +9,17 @@ type Metric struct {
 }
 
 type NewFeedItem struct {
-	Path           string `json:"path"`           // 动态页面路径
-	URL            string `json:"url"`            // 用户主页
-	Name           string `json:"name"`           // 用户名称
-	EventType      string `json:"event_type"`     // 事件类型
-	Avatar         string `json:"avatar"`         // 用户头像
-	Time           string `json:"time"`           // 动态发生时间
-	Content        string `json:"content"`        // 动态内容
-	ReplyToName    string `json:"replyToName"`    // 被回复者的名字
-	ReplyToAvatar  string `json:"replyToAvatar"`  // 被回复者头像
-	ReplyToContent string `json:"replyToContent"` // 被回复者评论内容
-	Timestamp      int64  `json:"timestamp"`      // 时间戳
+	Path           string    `json:"path"`           // 动态页面路径
+	URL            string    `json:"url"`            // 用户主页
+	Name           string    `json:"name"`           // 用户名称
+	EventType      string    `json:"event_type"`     // 事件类型
+	Avatar         string    `json:"avatar"`         // 用户头像
+	Time           time.Time `json:"time"`           // 动态发生时间
+	Content        string    `json:"content"`        // 动态内容
+	ReplyToName    string    `json:"replyToName"`    // 被回复者的名字
+	ReplyToAvatar  string    `json:"replyToAvatar"`  // 被回复者头像
+	ReplyToContent string    `json:"replyToContent"` // 被回复者评论内容
+	Timestamp      int64     `json:"timestamp"`      // 时间戳
 }
 
 type ActiveUserItem struct {
@@ -32,5 +34,4 @@ type TrendItem struct {
 	TotalComments  int64  `json:"totalComments"`  // 总评论数
 	TotalReplies   int64  `json:"totalReplies"`   // 总回复数
 	TotalReactions int64  `json:"totalResponses"` // 总回应数
-	Timestamp      int64  `json:"timestamp"`      // 时间戳
 }

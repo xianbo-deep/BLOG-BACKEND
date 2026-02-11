@@ -4,9 +4,7 @@ const (
 	OWNER = "xianbo-deep"
 	REPO  = "MyBlogComments"
 
-	Week = 7
-
-	DefaultQuerySize = 100
+	DefaultDiscussionQuerySize = 50
 
 	Reaction = "reaction"
 	Reply    = "reply"

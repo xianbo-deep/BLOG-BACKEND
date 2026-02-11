@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Blog-Backend/bootstrap"
 	"Blog-Backend/consts"
 	"Blog-Backend/core"
 	"Blog-Backend/internal/task"
@@ -24,12 +25,14 @@ func main() {
 		panic(err)
 	}
 
+	/* 初始化组件 它们依赖于数据库 */
+	comps := bootstrap.InitComponet()
+
 	/* 启动定时任务*/
-	task.InitCron()
+	task.InitCron(comps)
 
 	/* 初始化路由 */
-
-	rEngine = router.SetupRouter()
+	rEngine = router.SetupRouter(comps)
 
 	/* 获取端口 */
 	port := os.Getenv(consts.EnvPort)

@@ -5,19 +5,19 @@ import (
 	"Blog-Backend/dto/response"
 	"Blog-Backend/thirdparty/github/query"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/shurcooL/githubv4"
 )
 
-/* 返回指标 */
-
 /* 返回最新动态 */
+
 // 组装返回信息
 func handleNewFeedRes(allItems []*response.NewFeedItem, limit int) ([]*response.NewFeedItem, error) {
 	// 对动态按照时间进行排序
 	sort.Slice(allItems, func(i, j int) bool {
-		return allItems[i].Time > allItems[j].Time
+		return allItems[i].Time.After(allItems[j].Time)
 	})
 
 	// 截取动态
@@ -25,6 +25,9 @@ func handleNewFeedRes(allItems []*response.NewFeedItem, limit int) ([]*response.
 		allItems = allItems[:limit]
 	}
 
+	for i := range allItems {
+		allItems[i].Timestamp = allItems[i].Time.UnixMilli()
+	}
 	return allItems, nil
 }
 
@@ -53,6 +56,10 @@ func handleTrendRes(trendMap map[string]*response.TrendItem, timeRangeDays int) 
 		key := date.Format(consts.DateLayout)
 		trends = append(trends, *trendMap[key])
 	}
+
+	sort.Slice(trends, func(i, j int) bool {
+		return trends[i].Date < trends[j].Date
+	})
 	return trends, nil
 }
 
@@ -102,4 +109,16 @@ func shouldCount(cufoffTime time.Time, t time.Time) bool {
 func nextCursor(pi query.PageInfo) *githubv4.String {
 	c := pi.EndCursor
 	return &c
+}
+
+// 合并URL
+func concatToUrl(base, url string) string {
+	base = strings.TrimSuffix(base, "/")
+	url = strings.TrimPrefix(url, "/")
+	return base + "/" + url
+}
+
+// 判断是否在查询范围内
+func inRange(t, start, end time.Time) bool {
+	return (t.Equal(start) || t.After(start)) && t.Before(end)
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"Blog-Backend/consts"
 	"Blog-Backend/dto/response"
+	"Blog-Backend/internal/notify/email"
 	"Blog-Backend/thirdparty/github/query"
 	"context"
 	"os"
@@ -51,7 +52,7 @@ func (s *DiscussionService) GetTotalMetric(ctx context.Context, timeRangeDays in
 			"owner":   githubv4.String(s.owner),
 			"repo":    githubv4.String(s.repo),
 			"after":   after,
-			"first":   githubv4.Int(consts.DefaultQuerySize),
+			"first":   githubv4.Int(consts.DefaultDiscussionQuerySize),
 			"orderBy": orderBy,
 		}
 
@@ -120,11 +121,12 @@ func (s *DiscussionService) GetTotalMetric(ctx context.Context, timeRangeDays in
 func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*response.NewFeedItem, error) {
 	var after *githubv4.String
 	var allItems []*response.NewFeedItem
-	// 不统计7天前的
-	cutoffTime := time.Now().AddDate(0, 0, -consts.Week)
+	// 站点URL
+	baseURL := os.Getenv(consts.EnvBaseURL)
+	// 不统计一定时间前的
+	cutoffTime := time.Now().AddDate(0, -3, 0)
 	for {
 		var q query.FeedQuery
-
 		vars := map[string]interface{}{
 			"owner": githubv4.String(s.owner),
 			"repo":  githubv4.String(s.repo),
@@ -132,10 +134,9 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 				Field:     githubv4.DiscussionOrderFieldUpdatedAt,
 				Direction: githubv4.OrderDirectionDesc,
 			},
-			"first": githubv4.Int(consts.DefaultQuerySize),
+			"first": githubv4.Int(consts.DefaultDiscussionQuerySize),
 			"after": after,
 		}
-
 		err := s.github.Query(ctx, &q, vars)
 
 		if err != nil {
@@ -156,10 +157,10 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 					allItems = append(allItems, &response.NewFeedItem{
 						EventType: consts.Reaction,
 						Name:      string(reaction.User.Login),
-						Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+						Path:      concatToUrl(baseURL, string(discussion.Title)),
 						Content:   string(reaction.Content),
 						Avatar:    string(reaction.User.AvatarUrl),
-						Time:      reaction.CreatedAt.Format(time.RFC3339),
+						Time:      consts.TransferTimeByLoc(reaction.CreatedAt.Time),
 						URL:       string(reaction.User.Url),
 					})
 				}
@@ -170,10 +171,10 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 					allItems = append(allItems, &response.NewFeedItem{
 						EventType: consts.Comment,
 						Name:      string(comment.Author.Login),
-						Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+						Path:      concatToUrl(baseURL, string(discussion.Title)),
 						Content:   string(comment.BodyText),
 						Avatar:    string(comment.Author.AvatarUrl),
-						Time:      comment.CreatedAt.Format(time.RFC3339),
+						Time:      consts.TransferTimeByLoc(comment.CreatedAt.Time),
 						URL:       string(comment.Author.Url),
 					})
 				}
@@ -183,10 +184,10 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 						allItems = append(allItems, &response.NewFeedItem{
 							EventType: consts.Reaction,
 							Name:      string(reaction.User.Login),
-							Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+							Path:      concatToUrl(baseURL, string(discussion.Title)),
 							Content:   string(reaction.Content),
 							Avatar:    string(reaction.User.AvatarUrl),
-							Time:      reaction.CreatedAt.Format(time.RFC3339),
+							Time:      consts.TransferTimeByLoc(reaction.CreatedAt.Time),
 							URL:       string(reaction.User.Url),
 						})
 					}
@@ -198,10 +199,10 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 						allItems = append(allItems, &response.NewFeedItem{
 							EventType:      consts.Reply,
 							Name:           string(reply.Author.Login),
-							Path:           os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+							Path:           baseURL + string(discussion.Title),
 							Content:        string(reply.BodyText),
 							Avatar:         string(reply.Author.AvatarUrl),
-							Time:           reply.CreatedAt.Format(time.RFC3339),
+							Time:           consts.TransferTimeByLoc(reply.CreatedAt.Time),
 							URL:            string(reply.Author.Url),
 							ReplyToName:    string(comment.Author.Login),
 							ReplyToAvatar:  string(comment.Author.AvatarUrl),
@@ -214,10 +215,10 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 							allItems = append(allItems, &response.NewFeedItem{
 								EventType: consts.Reaction,
 								Name:      string(reaction.User.Login),
-								Path:      os.Getenv(consts.EnvBaseURL) + string(discussion.Title),
+								Path:      baseURL + string(discussion.Title),
 								Content:   string(reaction.Content),
 								Avatar:    string(reaction.User.AvatarUrl),
-								Time:      reaction.CreatedAt.Format(time.RFC3339),
+								Time:      consts.TransferTimeByLoc(reaction.CreatedAt.Time),
 								URL:       string(reaction.User.Url),
 							})
 						}
@@ -226,7 +227,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 			}
 		}
 		// 若长度过长
-		if len(allItems) > 2*consts.DefaultQuerySize {
+		if len(allItems) > 2*consts.DefaultDiscussionQuerySize {
 			break
 		}
 		// 退出 装载信息
@@ -237,7 +238,6 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 		// 更新after
 		after = nextCursor(q.Repository.Discussions.PageInfo)
 	}
-
 	return handleNewFeedRes(allItems, limit)
 }
 
@@ -265,10 +265,10 @@ func (s *DiscussionService) GetTrend(ctx context.Context, timeRangeDays int) ([]
 		var q query.TrendQuery
 
 		vars := map[string]interface{}{
-			"first": consts.DefaultQuerySize,
+			"first": githubv4.Int(consts.DefaultDiscussionQuerySize),
 			"after": after,
-			"owner": s.owner,
-			"repo":  s.repo,
+			"owner": githubv4.String(s.owner),
+			"repo":  githubv4.String(s.repo),
 		}
 
 		err := s.github.Query(ctx, &q, vars)
@@ -325,12 +325,12 @@ func (s *DiscussionService) GetActiveUser(ctx context.Context, limit int) ([]res
 		var q query.ActiveUserQuery
 
 		vars := map[string]interface{}{
-			"first": consts.DefaultQuerySize,
+			"first": githubv4.Int(consts.DefaultDiscussionQuerySize),
 			"after": after,
-			"owner": s.owner,
-			"repo":  s.repo,
+			"owner": githubv4.String(s.owner),
+			"repo":  githubv4.String(s.repo),
 		}
-		err := s.github.Query(ctx, q, vars)
+		err := s.github.Query(ctx, &q, vars)
 		if err != nil {
 			return nil, err
 		}
@@ -364,4 +364,127 @@ func (s *DiscussionService) GetActiveUser(ctx context.Context, limit int) ([]res
 	}
 
 	return handleActiveUserRes(userMap, limit)
+}
+
+// 返回评论区报告
+func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, endAt time.Time) (*email.DiscussionDigest, error) {
+	var after *githubv4.String
+	res := &email.DiscussionDigest{
+		StartTime:      startAt,
+		EndTime:        endAt,
+		FormattedStart: startAt.Format(consts.DateLayout),
+		FormattedEnd:   endAt.Format(consts.DateLayout),
+		Year:           consts.TransferTimeByLoc(time.Now()).Year(),
+	}
+	for {
+		var q query.DiscussionDigestQuery
+		vars := map[string]interface{}{
+			"first": githubv4.Int(consts.DefaultDiscussionQuerySize),
+			"after": after,
+			"owner": githubv4.String(s.owner),
+			"repo":  githubv4.String(s.repo),
+		}
+		err := s.github.Query(ctx, &q, vars)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, discussion := range q.Repository.Discussions.Nodes {
+			for _, comment := range discussion.Comments.Nodes {
+				if inRange(comment.CreatedAt.Time, startAt, endAt) {
+					res.CommentItems = append(res.CommentItems, email.CommentItem{
+						User:          string(comment.Login),
+						Avatar:        string(comment.AvatarUrl),
+						CommentTime:   comment.CreatedAt.Time,
+						FormattedTime: comment.CreatedAt.Format(consts.TimeWithoutSecond),
+						PageURL:       concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+						Text:          string(comment.BodyText),
+					})
+				}
+				for _, reaction := range comment.Reactions.Nodes {
+					if inRange(reaction.CreatedAt.Time, startAt, endAt) {
+						res.ReactionItems = append(res.ReactionItems, email.ReactionItem{
+							User:          string(reaction.Login),
+							Avatar:        string(reaction.AvatarUrl),
+							ReactionTime:  reaction.CreatedAt.Time,
+							FormattedTime: reaction.CreatedAt.Format(consts.TimeWithoutSecond),
+							PageURL:       concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+							ReactionType:  GitHubReactionToEmoji(string(reaction.Content)),
+						})
+					}
+				}
+
+				for _, reply := range comment.Replies.Nodes {
+					if inRange(reply.CreatedAt.Time, startAt, endAt) {
+						res.ReplyItems = append(res.ReplyItems, email.ReplyItem{
+							User:           string(reply.Login),
+							Avatar:         string(reply.AvatarUrl),
+							ReplyTime:      reply.CreatedAt.Time,
+							FormattedTime:  reply.CreatedAt.Format(consts.TimeWithoutSecond),
+							Text:           string(reply.BodyText),
+							PageURL:        concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+							ReplyToUser:    string(comment.Login),
+							ReplyToAvatar:  string(comment.AvatarUrl),
+							ReplyToMessage: string(comment.BodyText),
+						})
+					}
+
+					for _, reaction := range reply.Reactions.Nodes {
+						if inRange(reaction.CreatedAt.Time, startAt, endAt) {
+							res.ReactionItems = append(res.ReactionItems, email.ReactionItem{
+								User:          string(reaction.Login),
+								Avatar:        string(reaction.AvatarUrl),
+								ReactionTime:  reaction.CreatedAt.Time,
+								FormattedTime: reaction.CreatedAt.Format(consts.TimeWithoutSecond),
+								PageURL:       concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+								ReactionType:  GitHubReactionToEmoji(string(reaction.Content)),
+							})
+						}
+					}
+				}
+			}
+			for _, reaction := range discussion.Reactions.Nodes {
+				if inRange(reaction.CreatedAt.Time, startAt, endAt) {
+					res.ReactionItems = append(res.ReactionItems, email.ReactionItem{
+						User:          string(reaction.Login),
+						Avatar:        string(reaction.AvatarUrl),
+						ReactionTime:  reaction.CreatedAt.Time,
+						FormattedTime: reaction.CreatedAt.Format(consts.TimeWithoutSecond),
+						PageURL:       concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+						ReactionType:  GitHubReactionToEmoji(string(reaction.Content)),
+					})
+				}
+			}
+		}
+		if !q.Repository.Discussions.PageInfo.HasNextPage {
+			break
+		}
+		after = nextCursor(q.Repository.Discussions.PageInfo)
+	}
+	return res, nil
+}
+
+/* 工具函数 */
+func GitHubReactionToEmoji(content string) string {
+	switch content {
+	case "THUMBS_UP":
+		return "👍"
+	case "THUMBS_DOWN":
+		return "👎"
+	case "LAUGH":
+		return "😄"
+	case "HOORAY":
+		return "🎉"
+	case "CONFUSED":
+		return "😕"
+	case "HEART":
+		return "❤️"
+	case "ROCKET":
+		return "🚀"
+	case "EYES":
+		return "👀"
+	default:
+		// 默认
+		return "✨"
+	}
 }

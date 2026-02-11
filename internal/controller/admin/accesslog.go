@@ -10,29 +10,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var accesslogService = admin.NewAccessLogService()
-
-func GetAccessLog(c *gin.Context) {
-	var req common.PageRequest
-
-	// 查看格式是否正确
-	if err := c.ShouldBindQuery(&req); err != nil {
-		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
-		return
-	}
-
-	// 调用service
-	res, err := accesslogService.GetAccessLog(req)
-
-	if err != nil {
-		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
-		return
-	}
-
-	common.Success(c, res)
+type AccessLogController struct {
+	svc *admin.AccessLogService
 }
 
-func GetAccessLogByQuery(c *gin.Context) {
+func NewAccessLogController(svc *admin.AccessLogService) *AccessLogController {
+	return &AccessLogController{svc: svc}
+}
+
+func (ctrl *AccessLogController) GetAccessLogByQuery(c *gin.Context) {
 	var req request.AccessLogRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
@@ -40,7 +26,7 @@ func GetAccessLogByQuery(c *gin.Context) {
 	}
 
 	// 调用service
-	res, err := accesslogService.GetAccessLogByQuery(req)
+	res, err := ctrl.svc.GetAccessLogByQuery(req)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return

@@ -2,16 +2,25 @@ package dao
 
 import (
 	"Blog-Backend/consts"
-	"Blog-Backend/core"
 	"Blog-Backend/dto/response"
 	"Blog-Backend/model"
 	"time"
+
+	"gorm.io/gorm"
 )
 
-func GetVisitorMap(startTime, endTime *time.Time) ([]response.VisitorMapItem, error) {
+type VisitorMapDao struct {
+	db *gorm.DB
+}
+
+func NewVisitorMapDao(db *gorm.DB) *VisitorMapDao {
+	return &VisitorMapDao{db: db}
+}
+
+func (d *VisitorMapDao) GetVisitorMap(startTime, endTime *time.Time) ([]response.VisitorMapItem, error) {
 	var results []response.VisitorMapItem
 
-	db := core.DB.Model(&model.VisitLog{})
+	db := d.db.Model(&model.VisitLog{})
 
 	if startTime != nil {
 		db = db.Where("visit_time >= ?", *startTime)
@@ -20,17 +29,17 @@ func GetVisitorMap(startTime, endTime *time.Time) ([]response.VisitorMapItem, er
 		db = db.Where("visit_time <= ?", *endTime)
 	}
 
-	err := db.Select("country, count(*) as visitors").
-		Group("country").
+	err := db.Select("country_en as country, count(*) as visitors").
+		Group("country_en").
 		Scan(&results).Error
 
 	return results, err
 }
 
-func GetChineseVisitorMap(startTime, endTime *time.Time) ([]response.ChineseVisitorMapItem, error) {
+func (d *VisitorMapDao) GetChineseVisitorMap(startTime, endTime *time.Time) ([]response.ChineseVisitorMapItem, error) {
 	var results []response.ChineseVisitorMapItem
 
-	db := core.DB.Model(&model.VisitLog{})
+	db := d.db.Model(&model.VisitLog{})
 	if startTime != nil {
 		db = db.Where("visit_time >= ?", *startTime)
 	}
@@ -39,7 +48,7 @@ func GetChineseVisitorMap(startTime, endTime *time.Time) ([]response.ChineseVisi
 	}
 
 	err := db.Select("region, count(*) as visitors").
-		Where("country = ?", consts.CountryChina).
+		Where("country_code = ?", consts.CountryChinaCode).
 		Group("region").
 		Scan(&results).Error
 

@@ -3,12 +3,14 @@ package common
 import "strings"
 
 type RequestHeader struct {
-	Authorization string `header:"Authorization" binding:"omitempty"`
-	Referer       string `header:"Referer" binding:"omitempty"`
-	UserAgent     string `header:"User-Agent" binding:"omitempty"`
-	ForwardIP     string `header:"X-Forwarded-For" binding:"omitempty"`
-	RealIP        string `header:"X-Real-IP" binding:"omitempty,ip"`
-	Origin        string `header:"Origin" binding:"omitempty"`
+	Authorization  string `header:"Authorization" binding:"omitempty"`
+	Referer        string `header:"Referer" binding:"omitempty"`
+	UserAgent      string `header:"User-Agent" binding:"omitempty"`
+	CFConnectingIP string `header:"CF-Connecting-IP" binding:"omitempty,ip"`
+	TrueClientIP   string `header:"True-Client-IP" binding:"omitempty,ip"`
+	ForwardIP      string `header:"X-Forwarded-For" binding:"omitempty"`
+	RealIP         string `header:"X-Real-IP" binding:"omitempty,ip"`
+	Origin         string `header:"Origin" binding:"omitempty"`
 }
 
 func (r RequestHeader) GetFirstFowardIP() string {

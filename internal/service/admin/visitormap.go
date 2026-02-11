@@ -7,10 +7,11 @@ import (
 )
 
 type VisitorMapSerive struct {
+	dao *dao.VisitorMapDao
 }
 
-func NewVisitorMapSerive() *VisitorMapSerive {
-	return &VisitorMapSerive{}
+func NewVisitorMapSerive(dao *dao.VisitorMapDao) *VisitorMapSerive {
+	return &VisitorMapSerive{dao: dao}
 }
 
 func (s *VisitorMapSerive) GetVisitorMap(startTime int, endTime int) ([]response.VisitorMapItem, error) {
@@ -25,7 +26,7 @@ func (s *VisitorMapSerive) GetVisitorMap(startTime int, endTime int) ([]response
 		end = &e
 	}
 
-	return dao.GetVisitorMap(start, end)
+	return s.dao.GetVisitorMap(start, end)
 }
 
 func (s *VisitorMapSerive) GetChineseVisitorMap(startTime int, endTime int) ([]response.ChineseVisitorMapItem, error) {
@@ -40,6 +41,6 @@ func (s *VisitorMapSerive) GetChineseVisitorMap(startTime int, endTime int) ([]r
 		end = &e
 	}
 
-	return dao.GetChineseVisitorMap(start, end)
+	return s.dao.GetChineseVisitorMap(start, end)
 
 }

@@ -16,16 +16,23 @@ type CollectServiceDTO struct {
 	Status    int64
 	Latency   int64
 
-	ClientTime time.Time
-	IP         string
-	Country    string
-	City       string
-	Region     string
-	UserAgent  string
-	Referer    string
-	Medium     string
-	Source     string
-	Device     string
-	OS         string
-	Browser    string
+	ClientTime  time.Time
+	IP          string
+	Country     string
+	CountryCode string
+	CountryEN   string
+	City        string
+	CityEN      string
+	Region      string
+	UserAgent   string
+	Referer     string
+	RegionCode  string
+	RegionEN    string
+	Medium      string
+	Source      string
+	Device      string
+	OS          string
+	Browser     string
+	Lat         float64
+	Lon         float64
 }

@@ -6,27 +6,29 @@ import (
 	"context"
 )
 
-type DashboardService struct{}
+type DashboardService struct {
+	dao *dao.DashboardDao
+}
 
-func NewDashboardService() *DashboardService {
-	return &DashboardService{}
+func NewDashboardService(dao *dao.DashboardDao) *DashboardService {
+	return &DashboardService{dao: dao}
 }
 
 // 去REDIS查PV、UV、实时在线人数
 func (s *DashboardService) GetDashboardSummary(ctx context.Context) (response.DashboardSummary, error) {
 	var result response.DashboardSummary
 	// 获取总日志数
-	totalLogs, _ := dao.GetTotalLogs()
+	totalLogs, _ := s.dao.GetTotalLogs()
 	result.TotalLogCount = totalLogs
 	// 获取在线人数
-	count, _ := dao.GetOnlineCount(ctx)
+	count, _ := s.dao.GetOnlineCount(ctx)
 	result.OnlineCount = count
 	// 获取PV和UV
-	UV, PV, _ := dao.GetTodayPVUV(ctx)
+	UV, PV, _ := s.dao.GetTodayPVUV(ctx)
 	result.UV = UV
 	result.PV = PV
 	// 获取前一天的PV和UV
-	res, err := dao.GetLastDayPVUV()
+	res, err := s.dao.GetLastDayPVUV()
 	if err != nil {
 		return result, err
 	}
@@ -54,13 +56,13 @@ func (s *DashboardService) GetDashboardSummary(ctx context.Context) (response.Da
 // 查博客总趋势
 func (s *DashboardService) GetDashboardTrend(ctx context.Context) ([]response.DashboardTrends, error) {
 	// 查过去6天
-	history, err := dao.GetHistoryTrends(6)
+	history, err := s.dao.GetHistoryTrends(6)
 	if err != nil {
 		return nil, err
 	}
 
 	// 查今天的
-	today, _ := dao.GetTodayPV(ctx)
+	today, _ := s.dao.GetTodayPV(ctx)
 
 	result := make([]response.DashboardTrends, 0)
 	// 倒序查的数据库，需要倒序遍历，让第一天在切片的第一位
@@ -75,12 +77,12 @@ func (s *DashboardService) GetDashboardTrend(ctx context.Context) ([]response.Da
 
 // 查国家分布和访问错误路径的日志
 func (s *DashboardService) GetDashboardInsights(limit int) (*response.DashboardInsights, error) {
-	geoResult, err := dao.GetGeoDistribution(nil, nil, nil)
+	geoResult, err := s.dao.GetGeoDistribution(nil, nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	errLogs, err := dao.GetErrorLogs(limit)
+	errLogs, err := s.dao.GetErrorLogs(limit)
 	if err != nil {
 		return nil, err
 	}

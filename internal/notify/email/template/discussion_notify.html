@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新互动通知</title>
+    <style type="text/css">
+        @media screen and (min-width: 601px) {
+            .container { width: 600px !important; }
+            .content-padding { padding-left: 40px !important; padding-right: 40px !important; }
+            .btn-desktop-limit { max-width: 240px !important; }
+        }
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+        table { border-collapse: collapse !important; }
+        body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f6f8; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f6f8;">
+    <tr>
+        <td align="center" style="padding: 40px 10px;">
+
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+
+                <tr>
+                    <td align="center" style="background-color: #4285f4; padding: 20px;">
+                        <span style="color: #ffffff; font-size: 18px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                            Giscus Notification
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td height="4" style="background: linear-gradient(90deg, #4285f4, #34a853, #fbbc05, #ea4335);"></td>
+                </tr>
+
+                <tr>
+                    <td class="content-padding" style="padding: 24px 20px 0 20px;">
+
+                        <div style="font-size: 18px; font-weight: 700; color: #202124; margin-bottom: 16px; text-align: left;">
+                            {{if eq .Type "comment"}}💬 博客收到新评论
+                            {{else if eq .Type "reply"}}↩️ 博客收到新回复
+                            {{else if eq .Type "reaction"}}👍 博客收到新互动
+                            {{else}}🔔 博客收到新通知{{end}}
+                        </div>
+
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                                <td width="48" valign="top" style="padding-right: 12px;">
+                                    <img src="{{.Avatar}}" width="48" height="48" style="border-radius: 50%; display: block; border: 1px solid #eeeeee;">
+                                </td>
+                                <td valign="middle">
+                                    <div style="font-size: 16px; font-weight: 700; color: #202124; margin-bottom: 4px;">
+                                        {{.User}}
+                                        <span style="font-weight: normal; font-size: 13px; color: #5f6368; margin-left: 4px; background-color: #f1f3f4; padding: 2px 6px; border-radius: 4px;">Giscus</span>
+                                    </div>
+                                    <div style="font-size: 12px; color: #999999; margin-top: 4px;">
+                                        {{.FormattedTime}} <span style="margin: 0 4px;">|</span> <span style="color: #4285f4; font-weight: 600;">{{.Type}}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td height="20"></td>
+                </tr>
+
+                {{if eq .Type "reply"}}
+                <tr>
+                    <td class="content-padding" style="padding: 0 20px;">
+                        <div style="background-color: #f8f9fa; border-left: 3px solid #dfe1e5; padding: 12px 15px; border-radius: 0 4px 4px 0;">
+                            <div style="font-size: 12px; color: #5f6368; margin-bottom: 4px;">
+                                回复 <strong style="color: #202124;">{{.ReplyToUser}}</strong>：
+                            </div>
+                            <div style="font-size: 13px; color: #5f6368; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; max-height: 38px;">
+                                {{.ReplyToMessage}}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td height="16"></td>
+                </tr>
+                {{end}}
+
+                <tr>
+                    <td class="content-padding" style="padding: 0 20px;">
+                        <div style="background-color: #f1f8ff; border: 1px solid #dbe9f9; border-radius: 6px; padding: 16px; font-size: 15px; line-height: 1.6; color: #202124; text-align: left;">
+                            {{if eq .Type "reaction"}}
+                            <span style="font-size: 24px;">{{.Text}}</span>
+                            {{else}}
+                            {{.Text}}
+                            {{end}}
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td height="24"></td>
+                </tr>
+
+                <tr>
+                    <td class="content-padding" style="padding: 0 20px 30px 20px;">
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                                <td align="center">
+                                    <a href="{{.PageURL}}" target="_blank" class="btn-desktop-limit" style="display: block; width: 100%; box-sizing: border-box; background-color: #1a1a1a; color: #ffffff; text-decoration: none; padding: 12px 0; border-radius: 4px; font-size: 15px; font-weight: 500; text-align: center; margin-bottom: 12px;">
+                                        查看文章
+                                    </a>
+
+                                    <a href="{{.PageURL}}" target="_blank" class="btn-desktop-limit" style="display: block; width: 100%; box-sizing: border-box; background-color: #ffffff; color: #5f6368; text-decoration: none; padding: 12px 0; border-radius: 4px; font-size: 15px; font-weight: 500; text-align: center; border: 1px solid #dadce0;">
+                                        回复评论
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="content-padding" style="padding: 0 20px 20px 20px; border-top: 1px solid #f1f3f4;">
+                        <div style="padding-top: 16px; font-size: 12px; color: #9aa0a6; text-align: center; line-height: 1.5;">
+                            文章链接：<a href="{{.PageURL}}" style="color: #9aa0a6; text-decoration: underline;">{{.PageURL}}</a>
+                        </div>
+                    </td>
+                </tr>
+
+            </table>
+
+            <div style="margin-top: 24px; font-size: 12px; color: #bdc1c6; text-align: center;">
+                © {{.Year}} xbzhong.cn
+            </div>
+
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

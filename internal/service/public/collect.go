@@ -4,39 +4,53 @@ import (
 	"Blog-Backend/consts"
 	"Blog-Backend/dto/request"
 	"Blog-Backend/internal/dao"
+	"Blog-Backend/internal/ws"
 	"Blog-Backend/model"
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
+	"time"
 )
 
-type CollectService struct{}
-
-func NewCollectService() *CollectService {
-	return &CollectService{}
+type CollectService struct {
+	dao *dao.CollectDao
+	hub *ws.Hub
 }
 
-func (s *CollectService) Collect(ctx context.Context, info request.CollectServiceDTO) error {
+func NewCollectService(dao *dao.CollectDao, hub *ws.Hub) *CollectService {
+	return &CollectService{dao: dao, hub: hub}
+}
+
+func (s *CollectService) Collect(info request.CollectServiceDTO) error {
 
 	log := model.VisitLog{
-		VisitTime:  consts.GetCurrentUTCTime(),
-		ClientTime: info.ClientTime,
-		Path:       info.Path,
-		Country:    info.Country,
-		City:       info.City,
-		UserAgent:  info.UserAgent,
-		IP:         info.IP,
-		Region:     info.Region,
-		Referer:    info.Referer,
-		Status:     info.Status,
-		VisitorID:  info.VisitorID,
-		Latency:    info.Latency,
-		Medium:     info.Medium,
-		Source:     info.Source,
-		Device:     info.Device,
-		OS:         info.OS,
-		Browser:    info.Browser,
+		VisitTime:   consts.GetCurrentUTCTime(),
+		ClientTime:  info.ClientTime,
+		Path:        info.Path,
+		Country:     info.Country,
+		CountryCode: info.CountryCode,
+		CountryEN:   info.CountryEN,
+		CityEN:      info.CityEN,
+		RegionCode:  info.RegionCode,
+		RegionEN:    info.RegionEN,
+		City:        info.City,
+		UserAgent:   info.UserAgent,
+		IP:          info.IP,
+		Region:      info.Region,
+		Referer:     info.Referer,
+		Status:      info.Status,
+		VisitorID:   info.VisitorID,
+		Latency:     info.Latency,
+		Medium:      info.Medium,
+		Source:      info.Source,
+		Device:      info.Device,
+		OS:          info.OS,
+		Browser:     info.Browser,
+		Lat:         info.Lat,
+		Lon:         info.Lon,
 	}
 
-	if err := dao.InsertVisitLog(log); err != nil {
+	if err := s.dao.InsertVisitLog(log); err != nil {
 		return err
 	}
 
@@ -44,12 +58,27 @@ func (s *CollectService) Collect(ctx context.Context, info request.CollectServic
 	go func() {
 		bg, cancel := consts.GetTimeoutContext(context.Background(), consts.RedisOperationTimeout)
 		defer cancel()
-		_ = dao.IncrementPV(bg, info.Path)
-		_ = dao.IncrementUV(bg, info.Path, info.VisitorID)
-		_ = dao.RecordOnline(bg, info.VisitorID)
-		_ = dao.RecordLatency(bg, info.Path, info.Latency)
+		_ = s.dao.IncrementPV(bg, info.Path)
+		_ = s.dao.IncrementUV(bg, info.Path, info.VisitorID)
+		_ = s.dao.RecordOnline(bg, info.VisitorID)
+		_ = s.dao.RecordLatency(bg, info.Path, info.Latency)
+
+		// 广播
+		if s.hub != nil {
+
+		}
 	}()
 
 	return nil
 
+}
+
+func (s *CollectService) DedupeVisitorPath(c context.Context, visitorID, path string, duration time.Duration) (bool, error) {
+	// 生成哈希
+	h := sha1.Sum([]byte(path))
+	pathHash := hex.EncodeToString(h[:])
+
+	key := consts.DedupePathKey + visitorID + ":" + pathHash
+
+	return s.dao.SetNX(c, key, duration)
 }

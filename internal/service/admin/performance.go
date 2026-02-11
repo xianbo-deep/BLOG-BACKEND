@@ -6,16 +6,18 @@ import (
 	"context"
 )
 
-type PerformanceService struct{}
+type PerformanceService struct {
+	dao *dao.PerformanceDao
+}
 
-func NewPerformanceService() *PerformanceService {
-	return &PerformanceService{}
+func NewPerformanceService(dao *dao.PerformanceDao) *PerformanceService {
+	return &PerformanceService{dao: dao}
 }
 
 func (s *PerformanceService) GetSlowPages(ctx context.Context, limit int) ([]response.SlowDelayItem, error) {
-	return dao.GetSlowPages(ctx, limit)
+	return s.dao.GetSlowPages(ctx, limit)
 }
 
 func (s *PerformanceService) GetAverageDelay() ([]response.AverageDelayItem, error) {
-	return dao.GetAverageDelay()
+	return s.dao.GetAverageDelay()
 }

@@ -10,15 +10,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var analysisService = admin.NewAnalysisService()
+type AnalysisController struct {
+	svc *admin.AnalysisService
+}
 
-func GetAnalysisMetrics(c *gin.Context) {
+func NewAnalysisController(svc *admin.AnalysisService) *AnalysisController {
+	return &AnalysisController{svc: svc}
+}
+
+func (ctrl *AnalysisController) GetAnalysisMetrics(c *gin.Context) {
 	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
 		return
 	}
-	res, err := analysisService.GetAnalysisMetric(req.Days)
+	res, err := ctrl.svc.GetAnalysisMetric(req.Days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
@@ -26,13 +32,13 @@ func GetAnalysisMetrics(c *gin.Context) {
 	common.Success(c, res)
 }
 
-func GetAnalysisTrend(c *gin.Context) {
+func (ctrl *AnalysisController) GetAnalysisTrend(c *gin.Context) {
 	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
 		return
 	}
-	res, err := analysisService.GetAnalysisTrend(req.Days)
+	res, err := ctrl.svc.GetAnalysisTrend(req.Days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
@@ -40,13 +46,13 @@ func GetAnalysisTrend(c *gin.Context) {
 	common.Success(c, res)
 }
 
-func GetAnalysisPathRank(c *gin.Context) {
+func (ctrl *AnalysisController) GetAnalysisPathRank(c *gin.Context) {
 	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
 		return
 	}
-	res, err := analysisService.GetAnalysisPathRank(req.Days)
+	res, err := ctrl.svc.GetAnalysisPathRank(req.Days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
@@ -54,13 +60,13 @@ func GetAnalysisPathRank(c *gin.Context) {
 	common.Success(c, res)
 }
 
-func GetAnalysisPath(c *gin.Context) {
+func (ctrl *AnalysisController) GetAnalysisPath(c *gin.Context) {
 	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
 		return
 	}
-	res, err := analysisService.GetAnalysisPath(common.PageRequest{
+	res, err := ctrl.svc.GetAnalysisPath(common.PageRequest{
 		Page:     req.Page,
 		PageSize: req.PageSize,
 	}, req.Days)
@@ -71,13 +77,13 @@ func GetAnalysisPath(c *gin.Context) {
 	common.Success(c, res)
 }
 
-func GetAnalysisPathSource(c *gin.Context) {
+func (ctrl *AnalysisController) GetAnalysisPathSource(c *gin.Context) {
 	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
 		return
 	}
-	res, err := analysisService.GetAnalysisPathSource(req.Path, req.Days)
+	res, err := ctrl.svc.GetAnalysisPathSource(req.Path, req.Days)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
 		return
@@ -85,13 +91,13 @@ func GetAnalysisPathSource(c *gin.Context) {
 	common.Success(c, res)
 }
 
-func GetAnalysisPathByQuery(c *gin.Context) {
+func (ctrl *AnalysisController) GetAnalysisPathByQuery(c *gin.Context) {
 	var req request.AnalysisRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, err.Error())
 		return
 	}
-	res, err := analysisService.GetAnalysisPathByQuery(common.PageRequest{
+	res, err := ctrl.svc.GetAnalysisPathByQuery(common.PageRequest{
 		Page:     req.Page,
 		PageSize: req.PageSize,
 	}, req.Path, req.Days)
@@ -102,9 +108,9 @@ func GetAnalysisPathByQuery(c *gin.Context) {
 	common.Success(c, res)
 }
 
-func GetAnalysisPathDetailTrend(c *gin.Context) {
+func (ctrl *AnalysisController) GetAnalysisPathDetailTrend(c *gin.Context) {
 	path := c.Query("path")
-	res, err := analysisService.GetAnalysisPathDetailTrend(path)
+	res, err := ctrl.svc.GetAnalysisPathDetailTrend(path)
 
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
@@ -112,14 +118,34 @@ func GetAnalysisPathDetailTrend(c *gin.Context) {
 	common.Success(c, res)
 }
 
-func GetAnalysisPathDetailMetric(c *gin.Context) {
+func (ctrl *AnalysisController) GetAnalysisPathDetailMetric(c *gin.Context) {
+	path := c.Query("path")
+	res, err := ctrl.svc.GetAnalysisPathDetailMetric(path)
 
+	if err != nil {
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
+		return
+	}
+
+	common.Success(c, res)
 }
 
-func GetAnalysisPathDetailSource(c *gin.Context) {
-
+func (ctrl *AnalysisController) GetAnalysisPathDetailSource(c *gin.Context) {
+	path := c.Query("path")
+	res, err := ctrl.svc.GetAnalysisPathDetailSource(path)
+	if err != nil {
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
+		return
+	}
+	common.Success(c, res)
 }
 
-func GetAnalysisPathDetailDevice(c *gin.Context) {
-
+func (ctrl *AnalysisController) GetAnalysisPathDetailDevice(c *gin.Context) {
+	path := c.Query("path")
+	res, err := ctrl.svc.GetAnalysisPathDetailDevice(path)
+	if err != nil {
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
+		return
+	}
+	common.Success(c, res)
 }

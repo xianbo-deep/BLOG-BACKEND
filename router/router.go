@@ -1,10 +1,9 @@
 package router
 
 import (
+	"Blog-Backend/bootstrap"
 	"Blog-Backend/consts"
-	"Blog-Backend/internal/controller/admin"
-	"Blog-Backend/internal/controller/github"
-	"Blog-Backend/internal/controller/public"
+
 	"Blog-Backend/middleware"
 	"os"
 
@@ -12,7 +11,7 @@ import (
 )
 
 /* 初始化路由器 */
-func SetupRouter() *gin.Engine {
+func SetupRouter(c *bootstrap.Components) *gin.Engine {
 	/* 设置为生产模式 */
 	gin.SetMode(gin.ReleaseMode)
 
@@ -29,96 +28,101 @@ func SetupRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	/* 使用中间件 */
-	r.Use(
-		middleware.CORSMiddleware(),
-		middleware.TimeoutMiddleware(),
-	)
+	r.Use(middleware.CORSMiddleware())
+
+	// WebSocket实时数据
+	adminWS := r.Group("/admin")
+	adminWS.GET("/ws", middleware.WebSocketAuth(), c.Admin.WebSocket.Handle)
 
 	/* 定义路由组 */
+	api := r.Group("")
+	api.Use(middleware.TimeoutMiddleware())
 	// 前端请求
 
 	// 博客统计
-	blogGroup := r.Group("/blog")
+	blogGroup := api.Group("/blog")
 	// 使用中间件，简化业务
 	blogGroup.Use(middleware.HeaderMiddleware())
 	{
 		// 统计流量
-		blogGroup.Any("/collect", public.CollectHandler)
+		blogGroup.Any("/collect", c.Public.Collect.CollectHandler)
+
+		// 订阅
+		blogGroup.GET("/subscribe", c.Public.Subscribe.SubscribeBlog)
 	}
 
 	// 后台统计
-	adminGroup := r.Group("/admin")
-	// 使用中间件
-	adminGroup.Use(middleware.TimeoutMiddleware())
+	adminGroup := api.Group("/admin")
 	{
 		// 登录
-		adminGroup.POST("/login", admin.Login)
+		adminGroup.POST("/login", c.Admin.Login.Login)
 
 		// 鉴权
 		adminAuth := adminGroup.Group("")
 		adminAuth.Use(middleware.AuthMiddleware())
 		{
+
 			// 监控面板
 			dashboard := adminAuth.Group("/dashboard")
 			{
-				dashboard.GET("/summary", admin.GetDashboardSummary)
-				dashboard.GET("/trend", admin.GetDashboardTrend)
-				dashboard.GET("/insights", admin.GetDashboardInsights)
+				dashboard.GET("/summary", c.Admin.Dashboard.GetDashboardSummary)
+				dashboard.GET("/trend", c.Admin.Dashboard.GetDashboardTrend)
+				dashboard.GET("/insights", c.Admin.Dashboard.GetDashboardInsights)
 			}
 
 			// 访问日志
 			accesslog := adminAuth.Group("/accesslog")
 			{
-				accesslog.GET("/logs", admin.GetAccessLog)
-				accesslog.GET("/querylog", admin.GetAccessLogByQuery)
+				accesslog.GET("/logs", c.Admin.AccessLog.GetAccessLogByQuery)
 			}
 
 			// 性能监控
 			performance := adminAuth.Group("/performance")
 			{
-				performance.GET("/averageDelay", admin.GetAverageDelay)
-				performance.GET("/slowPages", admin.GetSlowPages)
+				performance.GET("/averageDelay", c.Admin.Performance.GetAverageDelay)
+				performance.GET("/slowPages", c.Admin.Performance.GetSlowPages)
 			}
 
 			// 页面分析
 			analysis := adminAuth.Group("/analysis")
 			{
-				analysis.GET("/metrics", admin.GetAnalysisMetrics)
-				analysis.GET("/trend", admin.GetAnalysisTrend)
-				analysis.GET("/rank", admin.GetAnalysisPathRank)
-				analysis.GET("/path", admin.GetAnalysisPath)
-				analysis.GET("/source", admin.GetAnalysisPathSource)
-				analysis.GET("/querypath", admin.GetAnalysisPathByQuery)
+				analysis.GET("/metrics", c.Admin.Analysis.GetAnalysisMetrics)
+				analysis.GET("/trend", c.Admin.Analysis.GetAnalysisTrend)
+				analysis.GET("/rank", c.Admin.Analysis.GetAnalysisPathRank)
+				analysis.GET("/path", c.Admin.Analysis.GetAnalysisPath)
+				analysis.GET("/source", c.Admin.Analysis.GetAnalysisPathSource)
+				analysis.GET("/querypath", c.Admin.Analysis.GetAnalysisPathByQuery)
 				pathDetail := analysis.Group("/pathDetail")
 				{
-					pathDetail.GET("/trend", admin.GetAnalysisPathDetailTrend)
-					pathDetail.GET("/metric", admin.GetAnalysisPathDetailMetric)
-					pathDetail.GET("/source", admin.GetAnalysisPathDetailSource)
-					pathDetail.GET("/device", admin.GetAnalysisPathDetailDevice)
+					pathDetail.GET("/trend", c.Admin.Analysis.GetAnalysisPathDetailTrend)
+					pathDetail.GET("/metric", c.Admin.Analysis.GetAnalysisPathDetailMetric)
+					pathDetail.GET("/source", c.Admin.Analysis.GetAnalysisPathDetailSource)
+					pathDetail.GET("/device", c.Admin.Analysis.GetAnalysisPathDetailDevice)
 				}
 			}
 
 			// 访客地图
 			visitormap := adminAuth.Group("/visitormap")
 			{
-				visitormap.GET("/map", admin.GetVisitorMap)
-				visitormap.GET("/chineseMap", admin.GetChineseVisitorMap)
+				visitormap.GET("/map", c.Admin.VisitorMap.GetVisitorMap)
+				visitormap.GET("/chineseMap", c.Admin.VisitorMap.GetChineseVisitorMap)
 			}
 
 			// 评论区信息
 			discussionmap := adminAuth.Group("/discussionmap")
 			{
-				discussionmap.GET("/metric", admin.GetDiscussionMetric)
-				discussionmap.GET("/trend", admin.GetDiscussionTrend)
-				discussionmap.GET("/activeuser", admin.GetDiscussionActiveUser)
-				discussionmap.GET("/feed", admin.GetDiscussionNewFeed)
+				discussionmap.GET("/metric", c.Admin.Comment.GetDiscussionMetric)
+				discussionmap.GET("/trend", c.Admin.Comment.GetDiscussionTrend)
+				discussionmap.GET("/activeuser", c.Admin.Comment.GetDiscussionActiveUser)
+				discussionmap.GET("/feed", c.Admin.Comment.GetDiscussionNewFeed)
 			}
 		}
 	}
 
 	webhookGroup := r.Group("/webhook")
 	{
-		webhookGroup.POST("/github", middleware.GithubWebhookVerify(os.Getenv(consts.EnvGithubWebhookSecret)), github.GetNewNotify)
+		webhookGroup.POST("/github", middleware.GithubWebhookVerify(os.Getenv(consts.EnvGithubWebhookSecret)), c.Github.GithubWebhook.GetNewNotify)
+		webhookGroup.POST("/notify", middleware.GithubWebhookVerify(os.Getenv(consts.EnvGithubNotifySecret)), c.Github.GithubWebhook.NotifySubscribeUsers)
 	}
 	return r
 }

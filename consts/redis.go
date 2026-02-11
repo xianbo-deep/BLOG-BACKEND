@@ -55,6 +55,13 @@ const (
 const (
 	// Redis操作超时时间
 	RedisOperationTimeout = 1 * TimeRangeSecond
+
+	// Redis版本号过期时间
+	RedisCacheVersionTimeout = 10 * TimeRangeMinute
+)
+
+const (
+	DedupePathKey = "dedupe:collect"
 )
 
 // 获取Redis Key

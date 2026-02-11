@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"Blog-Backend/core"
 	"context"
 	"encoding/json"
 	"time"
@@ -13,8 +12,8 @@ type CacheDAO struct {
 	rdb *redis.Client
 }
 
-func NewCacheDAO() *CacheDAO {
-	return &CacheDAO{rdb: core.RDB}
+func NewCacheDAO(rdb *redis.Client) *CacheDAO {
+	return &CacheDAO{rdb: rdb}
 }
 
 func (c *CacheDAO) SetJSON(ctx context.Context, key string, v any, ttl time.Duration) error {
