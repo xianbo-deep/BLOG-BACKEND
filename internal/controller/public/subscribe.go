@@ -31,10 +31,7 @@ func (ctrl *SubscribeController) SubscribeBlog(c *gin.Context) {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, e.Error())
 		return
 	}
-	if subscribe == consts.UnSubscribed {
-		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, errors.New("还未订阅，无法进行取消").Error())
-		return
-	}
+
 	err := ctrl.svc.SubscribeBlog(email, subscribe)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())

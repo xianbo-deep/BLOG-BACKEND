@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"Blog-Backend/consts"
 	"Blog-Backend/model"
 	"errors"
 	"time"
@@ -36,6 +37,11 @@ func (d *SubscribeDao) SubscribeBlog(email string, subscribe int) error {
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
+
+	if subscribe == consts.UnSubscribed {
+		return errors.New("还未订阅，无法进行取消")
+	}
+
 	// 不存在则创建新记录
 	newUser := model.SubscribeUser{
 		Email:         email,
