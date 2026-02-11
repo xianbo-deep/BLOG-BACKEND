@@ -33,12 +33,12 @@ const (
 
 // 文件路径
 const (
-	DeadLinkFile         = "./template/deadlink_report.html"
-	DiscussionReportFile = "./template/discussion_report.html"
-	DiscussionNotifyFile = "./template/discussion_notify.html"
-	SubscribeNotifyFile  = "./template/subscribe_notify.html"
-	SubscribeFile        = "./template/subscribe.html"
-	UnSubscribeFile      = "./template/unsubscribe.html"
+	DeadLinkFile         = "template/deadlink_report.html"
+	DiscussionReportFile = "template/discussion_report.html"
+	DiscussionNotifyFile = "template/discussion_notify.html"
+	SubscribeNotifyFile  = "template/subscribe_notify.html"
+	SubscribeFile        = "template/subscribe.html"
+	UnSubscribeFile      = "template/unsubscribe.html"
 )
 
 // 页面改变类型
