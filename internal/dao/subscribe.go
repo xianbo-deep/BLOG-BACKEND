@@ -17,16 +17,15 @@ func NewSubscribeDao(db *gorm.DB) *SubscribeDao {
 }
 
 func (d *SubscribeDao) SubscribeBlog(email string, subscribe int) error {
-	db := d.db.Model(&model.SubscribeUser{})
 
 	var user model.SubscribeUser
-	err := db.Where("email = ?", email).First(&user).Error
+	err := d.db.Where("email = ?", email).First(&user).Error
 	// 用户已经存在
 	if err == nil {
 		if user.Status == subscribe {
 			return errors.New("之前已经成功/取消订阅，请勿重复操作")
 		}
-		return db.
+		return d.db.
 			Where("id = ?", user.ID).
 			Updates(map[string]any{
 				"status":     uint8(subscribe),
@@ -45,5 +44,5 @@ func (d *SubscribeDao) SubscribeBlog(email string, subscribe int) error {
 		UpdatedAt:     time.Now().UTC(),
 		NotifyCount:   0,
 	}
-	return db.Create(&newUser).Error
+	return d.db.Create(&newUser).Error
 }
