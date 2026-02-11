@@ -122,6 +122,7 @@ func SetupRouter(c *bootstrap.Components) *gin.Engine {
 	webhookGroup := r.Group("/webhook")
 	{
 		webhookGroup.POST("/github", middleware.GithubWebhookVerify(os.Getenv(consts.EnvGithubWebhookSecret)), c.Github.GithubWebhook.GetNewNotify)
+		webhookGroup.POST("/notify", middleware.GithubWebhookVerify(os.Getenv(consts.EnvGithubNotifySecret)), c.Github.GithubWebhook.NotifySubscribeUsers)
 	}
 	return r
 }
