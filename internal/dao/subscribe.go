@@ -26,7 +26,7 @@ func (d *SubscribeDao) SubscribeBlog(email string, subscribe int) error {
 		if user.Status == subscribe {
 			return errors.New("之前已经成功/取消订阅，请勿重复操作")
 		}
-		return d.db.
+		return d.db.Model(&model.SubscribeUser{}).
 			Where("id = ?", user.ID).
 			Updates(map[string]any{
 				"status":     uint8(subscribe),
