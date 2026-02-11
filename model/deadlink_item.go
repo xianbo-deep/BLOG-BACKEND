@@ -9,9 +9,9 @@ type DeadLinkItem struct {
 	FromPage   string    `gorm:"column:from_page;type:text;not null"`
 	LinkURL    string    `gorm:"column:link_url;type:text;not null"`
 	StatusCode int       `gorm:"column:status_code;type:int"`
-	OK         bool      `gorm:"column:ok;type:tinyint(1);not null"`
+	OK         bool      `gorm:"column:ok;not null"`
 	Err        string    `gorm:"column:err;type:text"`
-	CheckedAt  time.Time `gorm:"column:checked_at;type:datetime;not null"`
+	CheckedAt  time.Time `gorm:"column:checked_at;type:timestamp;not null"`
 }
 
 func (DeadLinkItem) TableName() string {
