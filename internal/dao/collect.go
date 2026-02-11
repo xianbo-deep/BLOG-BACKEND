@@ -121,3 +121,8 @@ func (d *CollectDao) RecordLatency(ctx context.Context, path string, latency int
 
 	return nil
 }
+
+func (d *CollectDao) SetNX(ctx context.Context, key string, ttl time.Duration) (bool, error) {
+	ok, err := d.rdb.SetNX(ctx, key, 1, ttl).Result()
+	return ok, err
+}

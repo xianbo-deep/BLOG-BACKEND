@@ -37,6 +37,9 @@ func (d *GithubWebhookDao) UpdateSubscribeUsersLastSentTime(ids []int64) error {
 	db := d.db.Model(&model.SubscribeUser{})
 
 	return db.
-		Where("id in (?)", ids).
-		Update("last_sent_at", time.Now().UTC()).Error
+		Where("id in ?", ids).
+		Updates(map[string]any{
+			"last_sent_at": time.Now().UTC(),
+			"notify_count": gorm.Expr("notify_count + ?", 1),
+		}).Error
 }

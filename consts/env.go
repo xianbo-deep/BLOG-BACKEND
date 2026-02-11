@@ -12,4 +12,5 @@ const (
 	EnvPort                = "PORT"
 	EnvDiscussionToken     = "DISCUSSION_TOKEN"
 	EnvGithubWebhookSecret = "GITHUB_WEBHOOK_SECRET"
+	EnvGithubNotifySecret  = "GITHUB_NOTIFY_SECRET"
 )

@@ -43,6 +43,7 @@ func (d *SubscribeDao) SubscribeBlog(email string, subscribe int) error {
 		Status:        subscribe,
 		SubscribeTime: time.Now().UTC(),
 		UpdatedAt:     time.Now().UTC(),
+		NotifyCount:   0,
 	}
 	return db.Create(&newUser).Error
 }

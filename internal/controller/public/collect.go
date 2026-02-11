@@ -34,8 +34,20 @@ func (ctrl *CollectController) CollectHandler(c *gin.Context) {
 	// 获取元数据
 	meta, _ := GetRequestMeta(c)
 
-	// 调用geo工具包获取具体信息
+	// 限流
+	ctx := c.Request.Context()
 
+	ok, err := ctrl.svc.DedupeVisitorPath(ctx, req.VisitorID, req.Path, 2*time.Second)
+	if err != nil {
+		common.Fail(c, http.StatusInternalServerError, consts.CodeInternal, err.Error())
+		return
+	}
+	// 重复上报
+	if !ok {
+		common.Success(c, gin.H{"status": "ok"})
+		return
+	}
+	// 调用geo工具包获取具体信息
 	geoInfo, _ := utils.LookupIP(meta.IP)
 	info := request.CollectServiceDTO{
 		VisitorID: req.VisitorID,

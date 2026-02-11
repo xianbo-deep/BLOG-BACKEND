@@ -370,8 +370,11 @@ func (s *DiscussionService) GetActiveUser(ctx context.Context, limit int) ([]res
 func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, endAt time.Time) (*email.DiscussionDigest, error) {
 	var after *githubv4.String
 	res := &email.DiscussionDigest{
-		StartTime: startAt,
-		EndTime:   endAt,
+		StartTime:      startAt,
+		EndTime:        endAt,
+		FormattedStart: startAt.Format(consts.DateLayout),
+		FormattedEnd:   endAt.Format(consts.DateLayout),
+		Year:           consts.TransferTimeByLoc(time.Now()).Year(),
 	}
 	for {
 		var q query.DiscussionDigestQuery
@@ -390,21 +393,23 @@ func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, en
 			for _, comment := range discussion.Comments.Nodes {
 				if inRange(comment.CreatedAt.Time, startAt, endAt) {
 					res.CommentItems = append(res.CommentItems, email.CommentItem{
-						User:        string(comment.Login),
-						Avatar:      string(comment.AvatarUrl),
-						CommentTime: comment.CreatedAt.Time,
-						PageURL:     concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
-						Text:        string(comment.BodyText),
+						User:          string(comment.Login),
+						Avatar:        string(comment.AvatarUrl),
+						CommentTime:   comment.CreatedAt.Time,
+						FormattedTime: comment.CreatedAt.Format(consts.TimeWithoutSecond),
+						PageURL:       concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+						Text:          string(comment.BodyText),
 					})
 				}
 				for _, reaction := range comment.Reactions.Nodes {
 					if inRange(reaction.CreatedAt.Time, startAt, endAt) {
 						res.ReactionItems = append(res.ReactionItems, email.ReactionItem{
-							User:         string(reaction.Login),
-							Avatar:       string(reaction.AvatarUrl),
-							ReactionTime: reaction.CreatedAt.Time,
-							PageURL:      concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
-							ReactionType: string(reaction.Content),
+							User:          string(reaction.Login),
+							Avatar:        string(reaction.AvatarUrl),
+							ReactionTime:  reaction.CreatedAt.Time,
+							FormattedTime: reaction.CreatedAt.Format(consts.TimeWithoutSecond),
+							PageURL:       concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+							ReactionType:  GitHubReactionToEmoji(string(reaction.Content)),
 						})
 					}
 				}
@@ -415,6 +420,7 @@ func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, en
 							User:           string(reply.Login),
 							Avatar:         string(reply.AvatarUrl),
 							ReplyTime:      reply.CreatedAt.Time,
+							FormattedTime:  reply.CreatedAt.Format(consts.TimeWithoutSecond),
 							Text:           string(reply.BodyText),
 							PageURL:        concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
 							ReplyToUser:    string(comment.Login),
@@ -426,11 +432,12 @@ func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, en
 					for _, reaction := range reply.Reactions.Nodes {
 						if inRange(reaction.CreatedAt.Time, startAt, endAt) {
 							res.ReactionItems = append(res.ReactionItems, email.ReactionItem{
-								User:         string(reaction.Login),
-								Avatar:       string(reaction.AvatarUrl),
-								ReactionTime: reaction.CreatedAt.Time,
-								PageURL:      concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
-								ReactionType: string(reaction.Content),
+								User:          string(reaction.Login),
+								Avatar:        string(reaction.AvatarUrl),
+								ReactionTime:  reaction.CreatedAt.Time,
+								FormattedTime: reaction.CreatedAt.Format(consts.TimeWithoutSecond),
+								PageURL:       concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+								ReactionType:  GitHubReactionToEmoji(string(reaction.Content)),
 							})
 						}
 					}
@@ -439,11 +446,12 @@ func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, en
 			for _, reaction := range discussion.Reactions.Nodes {
 				if inRange(reaction.CreatedAt.Time, startAt, endAt) {
 					res.ReactionItems = append(res.ReactionItems, email.ReactionItem{
-						User:         string(reaction.Login),
-						Avatar:       string(reaction.AvatarUrl),
-						ReactionTime: reaction.CreatedAt.Time,
-						PageURL:      concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
-						ReactionType: string(reaction.Content),
+						User:          string(reaction.Login),
+						Avatar:        string(reaction.AvatarUrl),
+						ReactionTime:  reaction.CreatedAt.Time,
+						FormattedTime: reaction.CreatedAt.Format(consts.TimeWithoutSecond),
+						PageURL:       concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
+						ReactionType:  GitHubReactionToEmoji(string(reaction.Content)),
 					})
 				}
 			}
@@ -454,4 +462,29 @@ func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, en
 		after = nextCursor(q.Repository.Discussions.PageInfo)
 	}
 	return res, nil
+}
+
+/* 工具函数 */
+func GitHubReactionToEmoji(content string) string {
+	switch content {
+	case "THUMBS_UP":
+		return "👍"
+	case "THUMBS_DOWN":
+		return "👎"
+	case "LAUGH":
+		return "😄"
+	case "HOORAY":
+		return "🎉"
+	case "CONFUSED":
+		return "😕"
+	case "HEART":
+		return "❤️"
+	case "ROCKET":
+		return "🚀"
+	case "EYES":
+		return "👀"
+	default:
+		// 默认
+		return "✨"
+	}
 }

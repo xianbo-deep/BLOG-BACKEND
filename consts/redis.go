@@ -60,6 +60,10 @@ const (
 	RedisCacheVersionTimeout = 10 * TimeRangeMinute
 )
 
+const (
+	DedupePathKey = "dedupe:collect"
+)
+
 // 获取Redis Key
 func GetDailyStatKey(date string, suffix string) string {
 	return RedisKeyPrefix + date + suffix

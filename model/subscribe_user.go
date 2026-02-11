@@ -9,6 +9,7 @@ type SubscribeUser struct {
 	Status        int       `gorm:"column:status;type:tinyint(1);not null"`
 	UpdatedAt     time.Time `gorm:"column:updated_at;type:timestamp"`
 	LastSentAt    time.Time `gorm:"column:last_sent_at;type:timestamp"`
+	NotifyCount   int       `gorm:"column:notify_count;type:int;not null"`
 }
 
 func (s SubscribeUser) TableName() string {

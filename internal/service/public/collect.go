@@ -7,6 +7,9 @@ import (
 	"Blog-Backend/internal/ws"
 	"Blog-Backend/model"
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
+	"time"
 )
 
 type CollectService struct {
@@ -68,4 +71,14 @@ func (s *CollectService) Collect(info request.CollectServiceDTO) error {
 
 	return nil
 
+}
+
+func (s *CollectService) DedupeVisitorPath(c context.Context, visitorID, path string, duration time.Duration) (bool, error) {
+	// 生成哈希
+	h := sha1.Sum([]byte(path))
+	pathHash := hex.EncodeToString(h[:])
+
+	key := consts.DedupePathKey + visitorID + ":" + pathHash
+
+	return s.dao.SetNX(c, key, duration)
 }
