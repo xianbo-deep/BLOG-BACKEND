@@ -2,6 +2,7 @@ package email
 
 import (
 	"bytes"
+	"embed"
 	"errors"
 	"html/template"
 )
@@ -10,14 +11,17 @@ type Renderer struct {
 	tpls map[string]*template.Template
 }
 
+//go:embed template/*.html
+var tplFS embed.FS
+
 func NewRenderer() *Renderer {
 	tpls := map[string]*template.Template{
-		MailDeadlinkReport:   template.Must(template.ParseFiles(DeadLinkFile)),
-		MailDiscussionNotify: template.Must(template.ParseFiles(DiscussionNotifyFile)),
-		MailDiscussionDigest: template.Must(template.ParseFiles(DiscussionReportFile)),
-		MailSubscribeNotify:  template.Must(template.ParseFiles(SubscribeNotifyFile)),
-		MailSubscribe:        template.Must(template.ParseFiles(SubscribeFile)),
-		MailUnSubscribe:      template.Must(template.ParseFiles(UnSubscribeFile)),
+		MailDeadlinkReport:   template.Must(template.ParseFS(tplFS, DeadLinkFile)),
+		MailDiscussionNotify: template.Must(template.ParseFS(tplFS, DiscussionNotifyFile)),
+		MailDiscussionDigest: template.Must(template.ParseFS(tplFS, DiscussionReportFile)),
+		MailSubscribeNotify:  template.Must(template.ParseFS(tplFS, SubscribeNotifyFile)),
+		MailSubscribe:        template.Must(template.ParseFS(tplFS, SubscribeFile)),
+		MailUnSubscribe:      template.Must(template.ParseFS(tplFS, UnSubscribeFile)),
 	}
 	return &Renderer{tpls}
 }
