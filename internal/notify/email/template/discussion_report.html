@@ -12,25 +12,21 @@
 
         /* --- 移动端适配 --- */
         @media only screen and (max-width: 600px) {
-            .main-card { width: 100% !important; border-radius: 0 !important; margin-top: 0 !important; box-shadow: none !important; }
+            .main-card { width: 100% !important; border-radius: 0 !important; margin-top: 0 !important; box-shadow: none !important; border: none !important;}
             .content-padding { padding: 20px 16px !important; }
             .avatar-col { width: 44px !important; }
             .avatar-img { width: 32px !important; height: 32px !important; }
             .stats-col { display: block !important; width: 100% !important; margin-bottom: 10px !important; border-right: none !important; border-bottom: 1px solid #e1e4e8; }
-            .stats-col:last-child { border-bottom: none; }
+            .stats-col:last-child { border-bottom: none !important; }
         }
     </style>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f6f8fa; color: #24292e;">
 
-<!-- 外部容器 -->
 <div style="background-color: #f6f8fa; width: 100%; padding-bottom: 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;">
-
     <center>
-        <!-- 主卡片 -->
         <table class="main-card" role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; margin-top: 30px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.12); max-width: 600px; width: 100%; border: 1px solid #e1e4e8;">
 
-            <!-- 顶部 Header -->
             <tr>
                 <td style="background-color: #24292e; padding: 32px 24px; text-align: center;">
                     <h1 style="color: #ffffff; font-size: 18px; font-weight: 600; margin: 0; letter-spacing: 0.5px; line-height: 1.4;">
@@ -41,39 +37,33 @@
                     </p>
                 </td>
             </tr>
-            <!-- 装饰性线条 -->
             <tr>
                 <td style="height: 3px; width: 100%; background-color: #0366d6; font-size: 0; line-height: 0;">&nbsp;</td>
             </tr>
 
-            <!-- 日期范围 -->
             <tr>
                 <td class="content-padding" style="padding: 20px 32px 10px 32px; text-align: center;">
                     <div style="margin-bottom: 5px; font-size: 12px; color: #586069;">统计时间</div>
                     <div style="background-color: #f1f8ff; border: 1px solid #c8e1ff; color: #0366d6; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 100px; display: inline-block;">
-                        {{DATE_START}} ~ {{DATE_END}}
+                        {{.FormattedStart}} ~ {{.FormattedEnd}}
                     </div>
                 </td>
             </tr>
 
-            <!-- ================= 数据概览 ================= -->
             <tr>
                 <td class="content-padding" style="padding: 16px 32px 10px 32px;">
                     <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fafbfc; border: 1px solid #e1e4e8; border-radius: 8px;">
                         <tr>
-                            <!-- 统计项 1: 新评论 -->
                             <td class="stats-col" width="33%" style="padding: 12px 0; text-align: center; border-right: 1px solid #e1e4e8;">
-                                <div style="font-size: 20px; font-weight: 600; color: #24292e; line-height: 1.2;">{{NEW_COMMENT_COUNT}}</div>
+                                <div style="font-size: 20px; font-weight: 600; color: #24292e; line-height: 1.2;">{{.Comments}}</div>
                                 <div style="font-size: 11px; color: #586069; margin-top: 4px;">新评论</div>
                             </td>
-                            <!-- 统计项 2: 新回复 -->
                             <td class="stats-col" width="33%" style="padding: 12px 0; text-align: center; border-right: 1px solid #e1e4e8;">
-                                <div style="font-size: 20px; font-weight: 600; color: #6f42c1; line-height: 1.2;">{{NEW_REPLY_COUNT}}</div>
+                                <div style="font-size: 20px; font-weight: 600; color: #6f42c1; line-height: 1.2;">{{.Replies}}</div>
                                 <div style="font-size: 11px; color: #586069; margin-top: 4px;">新回复</div>
                             </td>
-                            <!-- 统计项 3: 新回应 -->
                             <td class="stats-col" width="33%" style="padding: 12px 0; text-align: center;">
-                                <div style="font-size: 20px; font-weight: 600; color: #d73a49; line-height: 1.2;">{{NEW_REACTION_COUNT}}</div>
+                                <div style="font-size: 20px; font-weight: 600; color: #d73a49; line-height: 1.2;">{{.Reactions}}</div>
                                 <div style="font-size: 11px; color: #586069; margin-top: 4px;">新回应</div>
                             </td>
                         </tr>
@@ -81,33 +71,33 @@
                 </td>
             </tr>
 
-            <!-- ================= 区域 1: 新评论 ================= -->
+            {{if gt (len .CommentItems) 0}}
             <tr>
                 <td class="content-padding" style="padding: 10px 32px 0 32px;">
                     <h2 style="margin: 20px 0 15px 0; font-size: 15px; font-weight: 600; color: #24292e; border-left: 3px solid #0366d6; padding-left: 10px; line-height: 1.2;">
-                        新评论 <span style="color: #586069; font-weight: 400; font-size: 13px; margin-left: 4px;">({{NEW_COMMENT_COUNT}})</span>
+                        新评论 <span style="color: #586069; font-weight: 400; font-size: 13px; margin-left: 4px;">({{.Comments}})</span>
                     </h2>
                 </td>
             </tr>
 
-            <!-- {{COMMENT_LOOP_START}} -->
+            {{range .CommentItems}}
             <tr>
                 <td class="content-padding" style="padding: 0 32px 16px 32px;">
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                         <tr>
                             <td valign="top" width="44" class="avatar-col" style="width: 44px; padding-right: 12px;">
-                                <img src="{{AUTHOR_AVATAR}}" alt="头像" class="avatar-img" width="32" height="32" style="border-radius: 50%; background-color: #e1e4e8; display: block;">
+                                <img src="{{.Avatar}}" alt="头像" class="avatar-img" width="32" height="32" style="border-radius: 50%; background-color: #e1e4e8; display: block;">
                             </td>
                             <td valign="top">
                                 <div style="margin-bottom: 4px; line-height: 1.4;">
-                                    <strong style="font-size: 14px; color: #24292e;">{{AUTHOR_NAME}}</strong>
-                                    <span style="font-size: 12px; color: #6a737d; margin-left: 4px;">{{TIMESTAMP}}</span>
+                                    <strong style="font-size: 14px; color: #24292e;">{{.User}}</strong>
+                                    <span style="font-size: 12px; color: #6a737d; margin-left: 4px;">{{.FormattedTime}}</span>
                                 </div>
-                                <div style="font-size: 14px; line-height: 1.6; color: #24292e; margin-bottom: 8px;">
-                                    {{COMMENT_BODY}}
+                                <div style="font-size: 14px; line-height: 1.6; color: #24292e; margin-bottom: 8px; word-break: break-word;">
+                                    {{.Text}}
                                 </div>
                                 <div style="font-size: 12px; color: #586069; background-color: #f1f8ff; padding: 4px 8px; border-radius: 4px; display: inline-block; max-width: 100%; box-sizing: border-box;">
-                                    评论于：<a href="{{DISCUSSION_LINK}}" style="color: #0366d6; text-decoration: none;">{{DISCUSSION_TITLE}}</a>
+                                    文章链接：<a href="{{.PageURL}}" style="color: #0366d6; text-decoration: none;">点击查看文章</a>
                                 </div>
                             </td>
                         </tr>
@@ -115,51 +105,50 @@
                     <div style="height: 1px; background-color: #eaecef; margin-top: 16px;"></div>
                 </td>
             </tr>
-            <!-- {{COMMENT_LOOP_END}} -->
+            {{end}}
+            {{end}}
 
-
-            <!-- ================= 区域 2: 新回复 ================= -->
+            {{if gt (len .ReplyItems) 0}}
             <tr>
                 <td class="content-padding" style="padding: 10px 32px 0 32px;">
                     <h2 style="margin: 20px 0 15px 0; font-size: 15px; font-weight: 600; color: #24292e; border-left: 3px solid #6f42c1; padding-left: 10px; line-height: 1.2;">
-                        新回复 <span style="color: #586069; font-weight: 400; font-size: 13px; margin-left: 4px;">({{NEW_REPLY_COUNT}})</span>
+                        新回复 <span style="color: #586069; font-weight: 400; font-size: 13px; margin-left: 4px;">({{.Replies}})</span>
                     </h2>
                 </td>
             </tr>
 
-            <!-- {{REPLY_LOOP_START}} -->
+            {{range .ReplyItems}}
             <tr>
                 <td class="content-padding" style="padding: 0 32px 16px 32px;">
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                         <tr>
                             <td valign="top" width="44" class="avatar-col" style="width: 44px; padding-right: 12px;">
-                                <img src="{{REPLY_AUTHOR_AVATAR}}" alt="头像" class="avatar-img" width="32" height="32" style="border-radius: 50%; background-color: #e1e4e8; display: block;">
+                                <img src="{{.Avatar}}" alt="头像" class="avatar-img" width="32" height="32" style="border-radius: 50%; background-color: #e1e4e8; display: block;">
                             </td>
                             <td valign="top">
                                 <div style="margin-bottom: 6px; line-height: 1.4;">
-                                    <strong style="font-size: 14px; color: #24292e;">{{REPLY_AUTHOR_NAME}}</strong>
-                                    <span style="font-size: 12px; color: #6a737d; margin-left: 4px;">{{REPLY_TIMESTAMP}}</span>
+                                    <strong style="font-size: 14px; color: #24292e;">{{.User}}</strong>
+                                    <span style="font-size: 12px; color: #6a737d; margin-left: 4px;">{{.FormattedTime}}</span>
                                 </div>
 
-                                <!-- 父评论引用 -->
                                 <div style="margin-bottom: 8px; background-color: #fafbfc; border: 1px solid #e1e4e8; border-radius: 6px; padding: 8px;">
                                     <table cellspacing="0" cellpadding="0" border="0" width="100%">
                                         <tr>
                                             <td valign="top" width="24" style="width: 24px;">
-                                                <img src="{{PARENT_AUTHOR_AVATAR}}" width="16" height="16" style="border-radius: 50%; display: block; margin-top: 2px;">
+                                                <img src="{{.ReplyToAvatar}}" width="16" height="16" style="border-radius: 50%; display: block; margin-top: 2px;">
                                             </td>
-                                            <td valign="top" style="font-size: 12px; color: #586069; line-height: 1.4;">
-                                                <strong style="color: #24292e;">{{PARENT_AUTHOR_NAME}}</strong>: {{PARENT_COMMENT_SNIPPET}}
+                                            <td valign="top" style="font-size: 12px; color: #586069; line-height: 1.4; word-break: break-word;">
+                                                <strong style="color: #24292e;">{{.ReplyToUser}}</strong>: {{.ReplyToMessage}}
                                             </td>
                                         </tr>
                                     </table>
                                 </div>
 
-                                <div style="font-size: 14px; line-height: 1.6; color: #24292e; margin-bottom: 8px;">
-                                    {{REPLY_BODY}}
+                                <div style="font-size: 14px; line-height: 1.6; color: #24292e; margin-bottom: 8px; word-break: break-word;">
+                                    {{.Text}}
                                 </div>
                                 <div style="font-size: 12px; color: #586069; background-color: #f1f8ff; padding: 4px 8px; border-radius: 4px; display: inline-block; max-width: 100%; box-sizing: border-box;">
-                                    所在链接：<a href="{{REPLY_LINK}}" style="color: #0366d6; text-decoration: none;">{{DISCUSSION_TITLE}}</a>
+                                    文章链接：<a href="{{.PageURL}}" style="color: #0366d6; text-decoration: none;">点击查看文章</a>
                                 </div>
                             </td>
                         </tr>
@@ -167,40 +156,39 @@
                     <div style="height: 1px; background-color: #eaecef; margin-top: 16px;"></div>
                 </td>
             </tr>
-            <!-- {{REPLY_LOOP_END}} -->
+            {{end}}
+            {{end}}
 
-
-            <!-- ================= 区域 3: 新回应 (Reactions) ================= -->
+            {{if gt (len .ReactionItems) 0}}
             <tr>
                 <td class="content-padding" style="padding: 10px 32px 0 32px;">
                     <h2 style="margin: 20px 0 15px 0; font-size: 15px; font-weight: 600; color: #24292e; border-left: 3px solid #d73a49; padding-left: 10px; line-height: 1.2;">
-                        新回应 <span style="color: #586069; font-weight: 400; font-size: 13px; margin-left: 4px;">({{NEW_REACTION_COUNT}})</span>
+                        新回应 <span style="color: #586069; font-weight: 400; font-size: 13px; margin-left: 4px;">({{.Reactions}})</span>
                     </h2>
                 </td>
             </tr>
 
-            <!-- {{REACTION_LOOP_START}} -->
+            {{range .ReactionItems}}
             <tr>
                 <td class="content-padding" style="padding: 0 32px 16px 32px;">
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                         <tr>
                             <td valign="top" width="40" class="avatar-col" style="width: 40px; padding-right: 10px;">
-                                <img src="{{REACTOR_AVATAR}}" alt="头像" class="avatar-img" width="32" height="32" style="border-radius: 50%; background-color: #e1e4e8; display: block;">
+                                <img src="{{.Avatar}}" alt="头像" class="avatar-img" width="32" height="32" style="border-radius: 50%; background-color: #e1e4e8; display: block;">
                             </td>
                             <td valign="top">
                                 <div style="font-size: 13px; line-height: 1.4; color: #586069; margin-bottom: 4px;">
-                                    <strong style="color: #24292e; font-weight: 600;">{{REACTOR_NAME}}</strong>
-                                    <span style="font-size: 12px; color: #959da5; float: right;">{{REACTION_TIMESTAMP}}</span>
+                                    <strong style="color: #24292e; font-weight: 600;">{{.User}}</strong>
+                                    <span style="font-size: 12px; color: #959da5; float: right;">{{.FormattedTime}}</span>
                                 </div>
 
-                                <!-- 修改后的句子结构：于 [Target] 送出了 [Emoji] 回应 -->
                                 <div style="font-size: 13px; line-height: 1.5; color: #24292e; background-color: #fafbfc; border: 1px solid #f0f3f6; border-radius: 6px; padding: 10px;">
                                     <span style="color: #586069;">于</span>
-                                    <a href="{{TARGET_LINK}}" style="color: #0366d6; text-decoration: none; font-weight: 500; margin: 0 2px;">
-                                        {{TARGET_TITLE}}
+                                    <a href="{{.PageURL}}" style="color: #0366d6; text-decoration: none; font-weight: 500; margin: 0 2px;">
+                                        文章页面
                                     </a>
                                     <span style="color: #586069;">送出了</span>
-                                    <span style="font-size: 16px; margin: 0 2px; vertical-align: -2px;">{{REACTION_EMOJI}}</span>
+                                    <span style="font-size: 16px; margin: 0 2px; vertical-align: -2px;">{{.ReactionType}}</span>
                                     <span style="color: #586069;">回应</span>
                                 </div>
                             </td>
@@ -209,17 +197,16 @@
                     <div style="height: 12px;"></div>
                 </td>
             </tr>
-            <!-- {{REACTION_LOOP_END}} -->
+            {{end}}
+            {{end}}
 
-
-            <!-- 底部 Footer -->
             <tr>
                 <td style="background-color: #f6f8fa; padding: 32px 24px; text-align: center; border-top: 1px solid #e1e4e8;">
                     <p style="margin: 0 0 8px 0; font-size: 12px; color: #586069;">
-                        本邮件由 GitHub Actions 自动生成
+                        本邮件由后端自动生成
                     </p>
                     <p style="margin: 0; font-size: 12px; color: #adb5bd;">
-                        &copy; {{YEAR}} xbzhong.cn
+                        &copy; {{.Year}} xbzhong.cn
                     </p>
                 </td>
             </tr>

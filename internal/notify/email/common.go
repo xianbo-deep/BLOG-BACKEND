@@ -83,32 +83,39 @@ type DiscussionNotify struct {
 	ReplyToUser    string
 	ReplyToMessage string
 	ReplyToAvatar  string
+	Year           int
+	FormattedTime  string
 }
 
 // 评论汇总
 type DiscussionDigest struct {
-	StartTime     time.Time
-	EndTime       time.Time
-	Comments      int
-	Reactions     int
-	Replies       int
-	CommentItems  []CommentItem
-	ReplyItems    []ReplyItem
-	ReactionItems []ReactionItem
+	StartTime      time.Time
+	EndTime        time.Time
+	FormattedStart string
+	FormattedEnd   string
+	Comments       int
+	Reactions      int
+	Replies        int
+	CommentItems   []CommentItem
+	ReplyItems     []ReplyItem
+	ReactionItems  []ReactionItem
+	Year           int
 }
 
 type CommentItem struct {
-	User        string
-	Avatar      string
-	CommentTime time.Time
-	PageURL     string
-	Text        string
+	User          string
+	Avatar        string
+	CommentTime   time.Time
+	FormattedTime string
+	PageURL       string
+	Text          string
 }
 
 type ReplyItem struct {
 	User           string
 	Avatar         string
 	ReplyTime      time.Time
+	FormattedTime  string
 	Text           string
 	ReplyToUser    string
 	ReplyToAvatar  string
@@ -117,18 +124,21 @@ type ReplyItem struct {
 }
 
 type ReactionItem struct {
-	User         string
-	Avatar       string
-	ReactionTime time.Time
-	PageURL      string
-	ReactionType string
+	User          string
+	Avatar        string
+	ReactionTime  time.Time
+	FormattedTime string
+	PageURL       string
+	ReactionType  string
 }
 
 // 订阅通知
 type SubscribeNotify struct {
-	Pages     []ChangedPage
-	UpdatedAt time.Time
-	Author    string
+	Pages               []ChangedPage
+	UpdatedAt           time.Time
+	Author              string
+	Year                int
+	FormattedUpdateTime string
 }
 
 type ChangedPage struct {

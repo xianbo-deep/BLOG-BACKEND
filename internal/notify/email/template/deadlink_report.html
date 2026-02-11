@@ -24,7 +24,6 @@
         /* --- 头部区域 --- */
         .header-content { padding: 32px 32px 20px 32px; text-align: center; }
         .title { margin: 0; font-size: 20px; font-weight: 700; color: #1a1f36; letter-spacing: -0.5px; }
-        /* 副标题样式微调，适应时间显示 */
         .subtitle { margin: 10px 0 0 0; font-size: 13px; color: #697386; font-weight: 500; }
 
         /* --- 列表区域 --- */
@@ -51,9 +50,10 @@
         }
         li:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
 
+        /* 修改：去掉了未定义的 {{.Color}}，改为代表错误的固定红色 */
         li::before {
             content: "→";
-            color: {{.Color}}; /* 列表箭头保留动态颜色 */
+            color: #ea4335;
             font-weight: bold;
             margin-right: 6px;
             display: inline-block;
@@ -83,13 +83,11 @@
 <div class="wrapper">
     <div class="main-card">
 
-        <!-- Giscus Notification Header -->
         <div style="background-color: #4285f4; padding: 20px; text-align: center;">
-        <span style="color: #ffffff; font-size: 18px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-            Github Notification
-        </span>
+            <span style="color: #ffffff; font-size: 18px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                Github Notification
+            </span>
         </div>
-        <!-- 装饰性渐变条 -->
         <div style="height: 4px; width: 100%; background: linear-gradient(90deg, #4285f4, #34a853, #fbbc05, #ea4335);"></div>
 
         <div class="header-content">
@@ -97,11 +95,34 @@
             <p class="subtitle">检测时间: {{.BJTime}} </p>
         </div>
 
+        <div style="padding: 0 32px 16px 32px; font-size: 14px; color: #444; text-align: center;">
+            共扫描 <strong>{{.PagesScanned}}</strong> 个页面，
+            检查 <strong>{{.LinksChecked}}</strong> 个链接，
+            发现 <strong style="color: #ea4335;">{{.DeadLinkCnt}}</strong> 个死链。
+        </div>
+
         <div class="list-section">
             <div class="log-container">
                 <ul>
-                    {{range .Deadlinks}}
-                        <li>{{.}}</li>
+                    {{if eq .DeadLinkCnt 0}}
+                    <li style="color: #34a853; text-align: center; border: none; display: block;">
+                        恭喜！本次检测未发现死链。
+                    </li>
+                    {{else}}
+                    {{range .DeadLinks}}
+                    <li>
+                        <div style="margin-bottom: 4px;"><strong>来源页面:</strong> {{.Page}}</div>
+                        <div style="margin-bottom: 4px;">
+                            <strong>死链地址:</strong>
+                            <a href="{{.URL}}" style="color: #ea4335; text-decoration: none;">{{.URL}}</a>
+                        </div>
+                        <div>
+                            <strong>状态详情:</strong>
+                            <span style="background-color: #ffeef0; color: #b31d28; padding: 2px 6px; border-radius: 3px; font-size: 12px;">HTTP {{.Status}}</span>
+                            - {{.Message}}
+                        </div>
+                    </li>
+                    {{end}}
                     {{end}}
                 </ul>
             </div>
