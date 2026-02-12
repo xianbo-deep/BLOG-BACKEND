@@ -32,7 +32,7 @@ func (d *DiscussionDigest) Start() {
 		return
 	}
 
-	if err = d.mailer.SendTemplate([]string{consts.MyTencentEmail}, email.MailDiscussionDigest, digest); err != nil {
+	if err = d.mailer.SendTemplate([]string{consts.MyTencentEmail}, email.MailDiscussionDigest, digest, true); err != nil {
 		log.Printf("发送评论区周报邮件失败: %v", err)
 		return
 	}
