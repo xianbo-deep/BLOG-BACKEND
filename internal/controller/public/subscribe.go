@@ -22,7 +22,7 @@ func NewSubscribeController(svc *public.SubscribeService) *SubscribeController {
 func (ctrl *SubscribeController) SubscribeBlog(c *gin.Context) {
 	email := c.Query("email")
 	subscribeStr := c.Query("subscribe")
-	vc := c.Query("verification_code")
+	vc := c.Query("vc")
 	ctx := c.Request.Context()
 	if email == "" || subscribeStr == "" || vc == "" {
 		common.Fail(c, http.StatusBadRequest, consts.CodeBadRequest, errors.New("请求参数错误").Error())
