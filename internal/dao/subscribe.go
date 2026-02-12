@@ -60,9 +60,8 @@ func (d *SubscribeDao) StoreVC(ctx context.Context, email, vc string) error {
 	// 获取缓存key
 	key := consts.VerificationCodeKey + email
 	// 在redis中存入验证码
-	err := d.rdb.Set(ctx, key, vc, 5*consts.TimeRangeMinute)
-	if err != nil {
-		return fmt.Errorf("failed to store verification code in redis: %w", err)
+	if err := d.rdb.Set(ctx, key, vc, 5*consts.TimeRangeMinute).Err(); err != nil {
+		return fmt.Errorf("存储验证码到redis失败: %w", err)
 	}
 	return nil
 }
