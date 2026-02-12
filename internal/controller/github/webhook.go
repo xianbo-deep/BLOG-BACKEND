@@ -8,7 +8,6 @@ import (
 	"Blog-Backend/internal/notify/email"
 	"Blog-Backend/internal/service/github"
 	"errors"
-	"log"
 	"net/http"
 	"os"
 	"sort"
@@ -140,7 +139,6 @@ func latestCommitDocsPages(p g.PushPayload) (pages []email.ChangedPage, updatedA
 				ChangeType: typ,
 				Path:       joinURL(base, path),
 			})
-			log.Printf("base=%q route=%q joined=%q file=%q", base, path, joinURL(base, path), file)
 		}
 	}
 

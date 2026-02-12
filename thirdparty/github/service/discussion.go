@@ -199,7 +199,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 						allItems = append(allItems, &response.NewFeedItem{
 							EventType:      consts.Reply,
 							Name:           string(reply.Author.Login),
-							Path:           baseURL + string(discussion.Title),
+							Path:           concatToUrl(baseURL, string(discussion.Title)),
 							Content:        string(reply.BodyText),
 							Avatar:         string(reply.Author.AvatarUrl),
 							Time:           consts.TransferTimeByLoc(reply.CreatedAt.Time),
@@ -215,7 +215,7 @@ func (s *DiscussionService) GetNewFeed(ctx context.Context, limit int) ([]*respo
 							allItems = append(allItems, &response.NewFeedItem{
 								EventType: consts.Reaction,
 								Name:      string(reaction.User.Login),
-								Path:      baseURL + string(discussion.Title),
+								Path:      concatToUrl(baseURL, string(discussion.Title)),
 								Content:   string(reaction.Content),
 								Avatar:    string(reaction.User.AvatarUrl),
 								Time:      consts.TransferTimeByLoc(reaction.CreatedAt.Time),
