@@ -22,6 +22,7 @@ func NewRenderer() *Renderer {
 		MailSubscribeNotify:  template.Must(template.ParseFS(tplFS, SubscribeNotifyFile)),
 		MailSubscribe:        template.Must(template.ParseFS(tplFS, SubscribeFile)),
 		MailUnSubscribe:      template.Must(template.ParseFS(tplFS, UnSubscribeFile)),
+		MailSubscribeVerify:  template.Must(template.ParseFS(tplFS, SubscribeVCFile)),
 	}
 	return &Renderer{tpls}
 }
@@ -34,6 +35,19 @@ func (r *Renderer) Render(t string, data any) (string, error) {
 	}
 	var buf bytes.Buffer
 	// 执行渲染
+	if err := tpl.Execute(&buf, data); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
+}
+
+func (r *Renderer) RenderPlaintext(t string, data any) (string, error) {
+	tpl, ok := r.tpls[t]
+	if !ok {
+		return "", errors.New("template not found")
+	}
+	var buf bytes.Buffer
+
 	if err := tpl.Execute(&buf, data); err != nil {
 		return "", err
 	}

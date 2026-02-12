@@ -60,8 +60,14 @@ const (
 	RedisCacheVersionTimeout = 10 * TimeRangeMinute
 )
 
+// 限流
 const (
 	DedupePathKey = "dedupe:collect"
+)
+
+// 验证码
+const (
+	VerificationCodeKey = "blog:subscribe:verification_code"
 )
 
 // 获取Redis Key

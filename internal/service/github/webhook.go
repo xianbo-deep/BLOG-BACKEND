@@ -36,7 +36,7 @@ func (s *GithubWebhookService) GetNewNotify(c context.Context) error {
 		return errors.New("组装模板失败")
 	}
 	// 发送邮件通知
-	err = s.mailer.SendTemplate([]string{consts.MyTencentEmail}, email.MailDiscussionNotify, data)
+	err = s.mailer.SendTemplate([]string{consts.MyTencentEmail}, email.MailDiscussionNotify, data, true)
 	if err != nil {
 		log.Printf("最新评论邮件通知发送失败: %v", err)
 		return err
@@ -84,7 +84,7 @@ func (s *GithubWebhookService) NotifySubscribeUsers(pages []email.ChangedPage, u
 		Year:                time.Now().Year(),
 	}
 	// 发送邮件
-	e := s.mailer.SendTemplate(emails, email.MailDiscussionNotify, data)
+	e := s.mailer.SendTemplate(emails, email.MailDiscussionNotify, data, true)
 	if e != nil {
 		log.Printf("发送订阅邮件失败: %v", e)
 		return e

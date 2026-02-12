@@ -49,6 +49,9 @@ func SetupRouter(c *bootstrap.Components) *gin.Engine {
 
 		// 订阅
 		blogGroup.GET("/subscribe", c.Public.Subscribe.SubscribeBlog)
+		
+		// 获取验证码
+		blogGroup.GET("/verify", c.Public.Subscribe.VerifyEmail)
 	}
 
 	// 后台统计

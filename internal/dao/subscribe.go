@@ -3,22 +3,25 @@ package dao
 import (
 	"Blog-Backend/consts"
 	"Blog-Backend/model"
+	"context"
 	"errors"
+	"fmt"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
 type SubscribeDao struct {
-	db *gorm.DB
+	db  *gorm.DB
+	rdb *redis.Client
 }
 
-func NewSubscribeDao(db *gorm.DB) *SubscribeDao {
-	return &SubscribeDao{db: db}
+func NewSubscribeDao(db *gorm.DB, rdb *redis.Client) *SubscribeDao {
+	return &SubscribeDao{db: db, rdb: rdb}
 }
 
 func (d *SubscribeDao) SubscribeBlog(email string, subscribe int) error {
-
 	var user model.SubscribeUser
 	err := d.db.Where("email = ?", email).First(&user).Error
 	// 用户已经存在
@@ -51,4 +54,35 @@ func (d *SubscribeDao) SubscribeBlog(email string, subscribe int) error {
 		NotifyCount:   0,
 	}
 	return d.db.Create(&newUser).Error
+}
+
+func (d *SubscribeDao) StoreVC(ctx context.Context, email, vc string) error {
+	// 获取缓存key
+	key := consts.VerificationCodeKey + email
+	// 在redis中存入验证码
+	err := d.rdb.Set(ctx, key, vc, 5*consts.TimeRangeMinute)
+	if err != nil {
+		return fmt.Errorf("failed to store verification code in redis: %w", err)
+	}
+	return nil
+}
+
+func (d *SubscribeDao) VerifyVC(ctx context.Context, email, vc string) error {
+	// 获取缓存key
+	key := consts.VerificationCodeKey + email
+
+	// 从redis获取验证码
+	storedVC, err := d.rdb.Get(ctx, key).Result()
+	if err == redis.Nil {
+		return fmt.Errorf("验证码过期或不存在")
+	} else if err != nil {
+		return err
+	}
+
+	if storedVC != vc {
+		return fmt.Errorf("验证码正确")
+	}
+
+	// 验证成功
+	return nil
 }

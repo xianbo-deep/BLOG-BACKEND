@@ -23,19 +23,33 @@ func (m *Mailer) selectSubject(subject string) string {
 		return SubscribeSubject
 	case MailUnSubscribe:
 		return UnSubscribeSubject
+	case MailSubscribeVerify:
+		return SubscribeVCSubject
 	default:
 		return ""
 	}
 }
 
-func (m *Mailer) SendTemplate(to []string, emailType string, data any) error {
+func (m *Mailer) SendTemplate(to []string, emailType string, data any, isHTML bool) error {
 	// 选择模板并填充
-	html, err := m.renderer.Render(emailType, data)
+	var content string
+	var err error
+	if isHTML {
+		content, err = m.renderer.Render(emailType, data)
+	} else {
+		content, err = m.renderer.RenderPlaintext(emailType, data)
+	}
+
 	if err != nil {
 		return err
 	}
 	// 选择邮件标题
 	subject := m.selectSubject(emailType)
 	// 发送邮件
-	return m.client.SendHTML(to, subject, html)
+	if isHTML {
+		return m.client.SendHTML(to, subject, content)
+	} else {
+		return m.client.SendPlainText(to, subject, content)
+	}
+
 }

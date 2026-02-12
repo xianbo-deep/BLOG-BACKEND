@@ -19,6 +19,7 @@ const (
 	MailSubscribeNotify  = "subscribe_notify"
 	MailSubscribe        = "subscribe"
 	MailUnSubscribe      = "unsubscribe"
+	MailSubscribeVerify  = "subscribe_verify"
 )
 
 // 标题
@@ -29,6 +30,7 @@ const (
 	SubscribeNotifySubject  = "您订阅的博客更新了"
 	SubscribeSubject        = "您已成功订阅"
 	UnSubscribeSubject      = "您已取消订阅"
+	SubscribeVCSubject      = "博客订阅验证码"
 )
 
 // 文件路径
@@ -39,6 +41,7 @@ const (
 	SubscribeNotifyFile  = "template/subscribe_notify.html"
 	SubscribeFile        = "template/subscribe.html"
 	UnSubscribeFile      = "template/unsubscribe.html"
+	SubscribeVCFile      = "template/subscribe_verify.html"
 )
 
 // 页面改变类型
@@ -150,4 +153,12 @@ type ChangedPage struct {
 // 订阅与取消订阅
 type SubscribeOrNot struct {
 	Year int
+}
+
+// 验证码
+type SubscribeVerificationCode struct {
+	Year      int
+	VC        string
+	Email     string
+	Subscribe bool
 }

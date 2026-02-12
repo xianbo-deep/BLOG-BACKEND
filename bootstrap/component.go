@@ -78,7 +78,7 @@ func InitComponet() *Components {
 	performanceDao := dao.NewPerformanceDao(core.DB, core.RDB)
 	visitormapDao := dao.NewVisitorMapDao(core.DB)
 	webhookDao := dao.NewGithubWebhookDao(core.DB)
-	subscribeDao := dao.NewSubscribeDao(core.DB)
+	subscribeDao := dao.NewSubscribeDao(core.DB, core.RDB)
 
 	// service初始化
 	accesslogService := svc_admin.NewAccessLogService(core.DB)
