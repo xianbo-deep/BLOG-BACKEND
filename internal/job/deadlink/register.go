@@ -60,7 +60,7 @@ func RegisterDeadLink(c *cron.Cron, cmp *bootstrap.Components) {
 		}
 
 		// 发送邮箱通知
-		err = mailer.SendTemplate([]string{}, email.MailDeadlinkReport, data, true)
+		err = mailer.SendTemplate([]string{consts.MyTencentEmail}, email.MailDeadlinkReport, data, true)
 		if err != nil {
 			log.Printf("[deadlink] err=%v", err)
 		}

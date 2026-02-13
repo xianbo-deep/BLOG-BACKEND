@@ -22,8 +22,11 @@ func NewSubscribeService(dao *dao.SubscribeDao, mailer *email.Mailer) *Subscribe
 }
 
 func (s *SubscribeService) SubscribeBlog(ctx context.Context, mail, vc string, subscribe int) error {
+	// 获取超时上下文
+	c, cancel := context.WithTimeout(ctx, 2*consts.TimeRangeSecond)
+	defer cancel()
 	// 验证验证码
-	e := s.dao.VerifyVC(ctx, mail, vc)
+	e := s.dao.VerifyVC(c, mail, vc)
 	if e != nil {
 		return e
 	}
@@ -35,6 +38,11 @@ func (s *SubscribeService) SubscribeBlog(ctx context.Context, mail, vc string, s
 		return err
 	}
 
+	// 删除验证码
+	err = s.dao.DelVC(c, vc)
+	if err != nil {
+		log.Printf("验证码删除失败: %v", err)
+	}
 	data := email.SubscribeOrNot{Year: consts.TransferTimeByLoc(time.Now()).Year()}
 	// 发送邮件通知
 	if subscribe == consts.Subscribed {
@@ -44,6 +52,7 @@ func (s *SubscribeService) SubscribeBlog(ctx context.Context, mail, vc string, s
 		e := s.mailer.SendTemplate([]string{mail}, email.MailUnSubscribe, data, true)
 		return e
 	}
+
 	return errors.New("找不到订阅类型")
 }
 

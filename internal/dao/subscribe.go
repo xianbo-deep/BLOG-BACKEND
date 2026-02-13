@@ -53,6 +53,7 @@ func (d *SubscribeDao) SubscribeBlog(email string, subscribe int) error {
 		UpdatedAt:     time.Now().UTC(),
 		NotifyCount:   0,
 	}
+
 	return d.db.Create(&newUser).Error
 }
 
@@ -83,5 +84,14 @@ func (d *SubscribeDao) VerifyVC(ctx context.Context, email, vc string) error {
 	}
 
 	// 验证成功
+	return nil
+}
+
+func (d *SubscribeDao) DelVC(ctx context.Context, email string) error {
+	key := consts.VerificationCodeKey + email
+	// 删除验证码
+	if err := d.rdb.Del(ctx, key).Err(); err != nil {
+		return err
+	}
 	return nil
 }

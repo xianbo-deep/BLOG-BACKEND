@@ -129,7 +129,7 @@ func (c *Checker) collectLinksFromPages(pages []string) ([]LinkPair, int, error)
 			}
 			atomic.AddInt32(&pagesScanned, 1)
 			for _, link := range links {
-				key := link
+				key := page + "||" + link
 				// 加锁防止并发操作map导致panic
 				mu.Lock()
 				if _, ok := collected[key]; ok {
@@ -288,7 +288,7 @@ func (c *Checker) checkLinks(links []LinkPair) []Result {
 
 func (c *Checker) checkLink(link string) (status int, ok bool, errStr string) {
 	for attempt := 0; attempt <= c.cfg.Retry; attempt++ {
-		status, ok, errStr := c.headThenGet(link)
+		status, ok, errStr = c.headThenGet(link)
 		if ok {
 			return status, true, ""
 		}
@@ -357,6 +357,7 @@ func (c *Checker) processData(summary Summary, results []Result) DeadLinkReportD
 			Message: item.Err,
 		})
 	}
-
+	data.DeadLinks = deadLinks
+	data.DeadLinkCnt = len(deadLinks)
 	return data
 }

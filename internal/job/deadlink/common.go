@@ -42,7 +42,7 @@ type Config struct {
 type SitemapURLSet struct {
 	URLs []struct {
 		Loc string `xml:"loc"`
-	} `xml: "url"`
+	} `xml:"url"`
 }
 
 type LinkPair struct {
