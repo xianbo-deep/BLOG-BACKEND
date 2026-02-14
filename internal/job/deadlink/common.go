@@ -9,6 +9,7 @@ const (
 	sitemapURLSuffix   = "/sitemap.xml"
 	retryTimes         = 5
 	timeout            = 5 * time.Second
+	cloneRetryTimes    = 3
 
 	RepoURL = "https://github.com/xianbo-deep/xbZhong.git"
 	Branch  = "main"

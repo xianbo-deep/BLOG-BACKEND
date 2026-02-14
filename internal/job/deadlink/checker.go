@@ -83,26 +83,35 @@ func (c *Checker) Check() (Summary, []Result, error) {
 
 // 克隆仓库到磁盘
 func (c *Checker) cloneRepoToTemp() (string, error) {
-	// 创建临时目录
-	dir, err := os.MkdirTemp("", "deadlink-repo-*")
-	if err != nil {
-		return "", err
-	}
-	// 确定参数
-	opt := &git.CloneOptions{
-		URL:           c.cfg.RepoURL,
-		Depth:         1,
-		SingleBranch:  true,
-		ReferenceName: plumbing.NewBranchReferenceName(c.cfg.Branch),
+	var lastErr error
+
+	for i := 0; i < cloneRetryTimes; i++ {
+		// 创建临时目录
+		dir, err := os.MkdirTemp("", "deadlink-repo-*")
+		if err != nil {
+			return "", err
+		}
+		// 确定参数
+		opt := &git.CloneOptions{
+			URL:           c.cfg.RepoURL,
+			Depth:         1,
+			SingleBranch:  true,
+			ReferenceName: plumbing.NewBranchReferenceName(c.cfg.Branch),
+		}
+
+		// 浅克隆
+		_, err = git.PlainClone(dir, false, opt)
+		if err == nil {
+			return dir, nil
+		}
+
+		lastErr = err
+		_ = os.RemoveAll(dir)
+		time.Sleep(retryTimeout)
 	}
 
-	// 浅克隆
-	_, err = git.PlainClone(dir, false, opt)
-	if err != nil {
-		os.RemoveAll(dir)
-		return "", err
-	}
-	return dir, nil
+	return "", lastErr
+
 }
 
 // 从md文件收集外部链接
