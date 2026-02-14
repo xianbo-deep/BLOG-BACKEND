@@ -10,7 +10,7 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-func InitCron(cmp *bootstrap.Components) {
+func InitCron(cmp *bootstrap.Components) func() {
 	// 创建cron
 	c := cron.New(cron.WithSeconds())
 
@@ -27,4 +27,10 @@ func InitCron(cmp *bootstrap.Components) {
 	c.Start()
 
 	log.Println("定时任务已启动")
+
+	return func() {
+		ctx := c.Stop()
+		<-ctx.Done()
+		log.Printf("定时任务停止")
+	}
 }
