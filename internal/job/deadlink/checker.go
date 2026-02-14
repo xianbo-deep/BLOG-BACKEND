@@ -3,19 +3,19 @@ package deadlink
 import (
 	"Blog-Backend/consts"
 	"Blog-Backend/internal/notify/email"
+	"context"
+	"fmt"
 	"io"
 	"io/fs"
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 )
 
 type Checker struct {
@@ -90,25 +90,39 @@ func (c *Checker) cloneRepoToTemp() (string, error) {
 	var lastErr error
 
 	for i := 0; i < cloneRetryTimes; i++ {
+		// 超时上下文
+		ctx, cancel := consts.GetTimeoutContext(context.Background(), 3*time.Minute)
+		defer cancel()
 		// 创建临时目录
 		dir, err := os.MkdirTemp("", "deadlink-repo-*")
 		if err != nil {
 			return "", err
 		}
-		// 确定参数
-		opt := &git.CloneOptions{
-			URL:           c.cfg.RepoURL,
-			Depth:         1,
-			SingleBranch:  true,
-			ReferenceName: plumbing.NewBranchReferenceName(c.cfg.Branch),
-		}
+		// 执行克隆
+		cmd := exec.CommandContext(
+			ctx,
+			"git", "clone",
+			"--depth", "1",
+			"--single-branch",
+			"--branch", c.cfg.Branch,
+			c.cfg.RepoURL,
+			dir,
+		)
+		// 继承环境变量
+		cmd.Env = os.Environ()
 
-		// 浅克隆
-		_, err = git.PlainClone(dir, false, opt)
-		if err == nil {
+		// 记录输出
+		out, err := cmd.CombinedOutput()
+
+		if ctx.Err() == context.DeadlineExceeded {
+			lastErr = fmt.Errorf("克隆超时: %s", string(out))
+		} else if err != nil {
+			lastErr = fmt.Errorf("克隆出现错误: %v, out = %s", err, string(out))
+		} else {
+			log.Printf("克隆成功")
 			return dir, nil
 		}
-		log.Printf("[deadlink] clone attempt=%d err=%v", i+1, err)
+		log.Printf("[deadlink] clone attempt=%d err=%v", i+1, lastErr)
 
 		lastErr = err
 		_ = os.RemoveAll(dir)
@@ -136,10 +150,16 @@ func (c *Checker) collectLinksFromMarkdownDir(docsPath string) ([]LinkPair, int,
 	// 扫描页面数
 	pagesScanned := 0
 
+	// 过滤文件(相对路径)
+	skipFiles := map[string]struct{}{
+		"README.md": {},
+	}
+
 	err = filepath.WalkDir(absDocs, func(path string, d fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
 		}
+
 		if d.IsDir() {
 			name := d.Name()
 			if name == ".vuepress" || name == ".git" {
@@ -152,6 +172,15 @@ func (c *Checker) collectLinksFromMarkdownDir(docsPath string) ([]LinkPair, int,
 
 		// 判断是不是md文件
 		if ext != ".md" && ext != ".mdx" {
+			return nil
+		}
+
+		// 获取相对路径
+		rel, _ := filepath.Rel(absDocs, path)
+		rel = filepath.ToSlash(rel)
+
+		// 过滤特定文件
+		if _, ok := skipFiles[rel]; ok {
 			return nil
 		}
 
@@ -168,10 +197,6 @@ func (c *Checker) collectLinksFromMarkdownDir(docsPath string) ([]LinkPair, int,
 		if len(links) == 0 {
 			return nil
 		}
-
-		// 获取相对路径
-		rel, _ := filepath.Rel(absDocs, path)
-		rel = filepath.ToSlash(rel)
 
 		for _, link := range links {
 			key := rel + "||" + link
