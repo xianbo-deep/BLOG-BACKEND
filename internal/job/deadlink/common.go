@@ -4,7 +4,7 @@ import "time"
 
 const (
 	defaultConcurrency = 10
-	retryTimeout       = 200 * time.Millisecond
+	retryTimeout       = 1 * time.Second
 	failedMsg          = "死链检测失败"
 	sitemapURLSuffix   = "/sitemap.xml"
 	retryTimes         = 5

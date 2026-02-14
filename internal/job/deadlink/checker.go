@@ -3,6 +3,7 @@ package deadlink
 import (
 	"Blog-Backend/consts"
 	"Blog-Backend/internal/notify/email"
+	"io"
 	"io/fs"
 	"net/http"
 	"os"
@@ -298,8 +299,8 @@ func (c *Checker) headThenGet(link string) (status int, ok bool, errStr string) 
 	req.Header.Set("User-Agent", "DeadlinkChecker/1.0(+xbzhong.cn)")
 	resp, err := c.client.Do(req)
 	if err == nil && resp != nil {
-		defer resp.Body.Close()
 		status = resp.StatusCode
+		drainAndClose(resp)
 		if status >= 200 && status < 400 {
 			return status, true, ""
 		}
@@ -313,8 +314,8 @@ func (c *Checker) headThenGet(link string) (status int, ok bool, errStr string) 
 	if err != nil {
 		return 0, false, err.Error()
 	}
-	defer resp.Body.Close()
 	status = resp.StatusCode
+	drainAndClose(resp)
 	if status >= 200 && status < 400 {
 		return status, true, ""
 	}
@@ -322,6 +323,15 @@ func (c *Checker) headThenGet(link string) (status int, ok bool, errStr string) 
 		return status, false, errStr
 	}
 	return status, false, failedMsg
+}
+
+// 把响应体读取到干净状态再关闭
+func drainAndClose(resp *http.Response) {
+	if resp == nil || resp.Body == nil {
+		return
+	}
+	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 1<<20)) // 最多吞 1MB
+	_ = resp.Body.Close()
 }
 
 // 组装成模板需要的结构体

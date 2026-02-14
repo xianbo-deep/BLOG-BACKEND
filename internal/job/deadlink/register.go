@@ -72,4 +72,18 @@ func RegisterDeadLink(c *cron.Cron, cmp *bootstrap.Components) {
 	if err != nil {
 		log.Printf("死链检测定时任务启动失败: %v", err)
 	}
+
+	go func() {
+		sum, res, err := checker.Check()
+		if err != nil {
+			log.Printf("[deadlink][manual] err=%v", err)
+			return
+		}
+		data := checker.processData(sum, res)
+		log.Printf("[deadlink][manual] pages=%d links=%d dead=%d", sum.PagesScanned, sum.LinksChecked, sum.DeadlinkCnt)
+
+		// 测试：只发邮件 or 只写库，按你需求
+		_ = mailer.SendTemplate([]string{consts.MyTencentEmail}, email.MailDeadlinkReport, data, true)
+	}()
+
 }

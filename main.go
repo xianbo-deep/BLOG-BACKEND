@@ -63,7 +63,7 @@ func main() {
 			log.Fatalf("服务启动失败: %s\n", err)
 		}
 	}()
-	
+
 	/* 等待停止信号 */
 	<-quit
 	log.Println("服务正在关闭")
@@ -77,6 +77,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	/* 尽量等请求处理完再关 */
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Printf("服务关闭出错: %v\n", err)
 		// 强制关闭
