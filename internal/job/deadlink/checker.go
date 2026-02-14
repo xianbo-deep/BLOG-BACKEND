@@ -3,16 +3,17 @@ package deadlink
 import (
 	"Blog-Backend/consts"
 	"Blog-Backend/internal/notify/email"
-	"encoding/xml"
-	"fmt"
+	"io/fs"
 	"net/http"
-	"net/url"
+	"os"
+	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 )
 
 type Checker struct {
@@ -40,14 +41,19 @@ func (c *Checker) Check() (Summary, []Result, error) {
 		StartedAT: time.Now().UTC(),
 	}
 
-	// 得到页面列表
-	pages, err := c.fetchSitemapURLs(c.cfg.SitemapURL)
+	// 获取克隆仓库的路径
+	repoDir, err := c.cloneRepoToTemp()
 	if err != nil {
 		return Summary{}, nil, err
 	}
+	// 清理磁盘临时目录
+	defer os.RemoveAll(repoDir)
+
+	// 获取存储md文件的目录
+	docsPath := filepath.Join(repoDir, c.cfg.DocsDir)
 
 	// 得到链接列表
-	links, pagesScanned, err := c.collectLinksFromPages(pages)
+	links, pagesScanned, err := c.collectLinksFromMarkdownDir(docsPath)
 	if err != nil {
 		return Summary{}, nil, err
 	}
@@ -74,165 +80,148 @@ func (c *Checker) Check() (Summary, []Result, error) {
 	return sum, results, nil
 }
 
-func (c *Checker) fetchSitemapURLs(sitemapurl string) ([]string, error) {
-	resp, err := c.client.Get(sitemapurl)
+// 克隆仓库到磁盘
+func (c *Checker) cloneRepoToTemp() (string, error) {
+	// 创建临时目录
+	dir, err := os.MkdirTemp("", "deadlink-repo-*")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	// 确定参数
+	opt := &git.CloneOptions{
+		URL:           c.cfg.RepoURL,
+		Depth:         1,
+		SingleBranch:  true,
+		ReferenceName: plumbing.NewBranchReferenceName(c.cfg.Branch),
 	}
-	var set SitemapURLSet
-	// 解析
-	if err := xml.NewDecoder(resp.Body).Decode(&set); err != nil {
-		return nil, err
+
+	// 浅克隆
+	_, err = git.PlainClone(dir, false, opt)
+	if err != nil {
+		os.RemoveAll(dir)
+		return "", err
 	}
-	urls := make([]string, 0, len(set.URLs))
-	for _, u := range set.URLs {
-		loc := strings.TrimSpace(u.Loc)
-		urls = append(urls, loc)
-	}
-	return urls, nil
+	return dir, nil
 }
 
-// 从页面获取链接
-func (c *Checker) collectLinksFromPages(pages []string) ([]LinkPair, int, error) {
-	// 协程数
-	n := c.cfg.Concurrency
+// 从md文件收集外部链接
+func (c *Checker) collectLinksFromMarkdownDir(docsPath string) ([]LinkPair, int, error) {
+	// 获取绝对路径
+	absDocs, err := filepath.Abs(docsPath)
+	if err != nil {
+		return nil, 0, err
+	}
 
-	// 创建通道用于传输页面
-	jobs := make(chan string, 2*n)
-
-	// 创建link的map，用于判断是否检测
+	// 映射map
 	collected := make(map[string]struct{}, 4096)
 
-	// 创建任务组
-	var wg sync.WaitGroup
+	// 输出结果
+	out := make([]LinkPair, 0, 2048)
 
-	// 创建锁
-	var mu sync.Mutex
+	// 扫描页面数
+	pagesScanned := 0
 
-	// 进行检测的页面数
-	var pagesScanned int32
+	err = filepath.WalkDir(absDocs, func(path string, d fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if d.IsDir() {
+			name := d.Name()
+			if name == ".vuepress" || name == ".git" {
+				return filepath.SkipDir
+			}
+			return nil
+		}
 
-	// 创建返回值
-	res := make([]LinkPair, 0, 2048)
+		ext := strings.ToLower(filepath.Ext(d.Name()))
 
-	worker := func() {
-		defer wg.Done()
-		for page := range jobs {
-			links, err := c.extractLinksFromHTML(page)
-			if err != nil {
-				// TODO 抓取某个页面的链接失败
+		// 判断是不是md文件
+		if ext != ".md" && ext != ".mdx" {
+			return nil
+		}
+
+		// 获取文件内容
+		b, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+
+		// 增加检测文件数
+		pagesScanned++
+
+		links := c.extractLinksFromMarkdown(string(b))
+		if len(links) == 0 {
+			return nil
+		}
+
+		// 获取相对路径
+		rel, _ := filepath.Rel(absDocs, path)
+		rel = filepath.ToSlash(rel)
+
+		for _, link := range links {
+			key := rel + "||" + link
+			if _, ok := collected[key]; ok {
 				continue
 			}
-			atomic.AddInt32(&pagesScanned, 1)
-			for _, link := range links {
-				key := page + "||" + link
-				// 加锁防止并发操作map导致panic
-				mu.Lock()
-				if _, ok := collected[key]; ok {
-					mu.Unlock()
-					continue
-				}
-				collected[key] = struct{}{}
-				res = append(res, LinkPair{fromPage: page, linkURL: link})
-				mu.Unlock()
-
-			}
+			collected[key] = struct{}{}
+			out = append(out, LinkPair{fromPage: rel, linkURL: link})
 		}
+		return nil
+	})
+	if err != nil {
+		return nil, pagesScanned, err
 	}
-
-	// 添加协程
-
-	wg.Add(n)
-
-	for i := 0; i < n; i++ {
-		go worker()
-	}
-
-	for _, page := range pages {
-		jobs <- page
-	}
-
-	close(jobs)
-	// 阻塞直到任务完成
-	wg.Wait()
-
-	return res, int(pagesScanned), nil
+	return out, pagesScanned, nil
 }
 
-// 从HTML中抽取links
-func (c *Checker) extractLinksFromHTML(pageURL string) ([]string, error) {
-	// 创建请求体
-	req, _ := http.NewRequest("GET", pageURL, nil)
-	req.Header.Set("User-Agent", "DeadlinkChecker/1.0(+xbzhong.cn)")
-	resp, err := c.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-	// 获取得到的html
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		return nil, err
-	}
+// 从文件中获取链接
+func (c *Checker) extractLinksFromMarkdown(content string) []string {
+	// 删除代码块
+	reCode := regexp.MustCompile("(?s)```.*?```")
+	content = reCode.ReplaceAllString(content, " ")
 
-	base, err := url.Parse(pageURL)
-	if err != nil {
-		return nil, err
+	// 删除行内代码
+	reInlineCode := regexp.MustCompile("`[^`]*`")
+	content = reInlineCode.ReplaceAllString(content, " ")
+
+	// 删除图片
+	reImg := regexp.MustCompile(`!\[[^\]]*\]\([^)]+\)`)
+	content = reImg.ReplaceAllString(content, " ")
+
+	// 提取外链
+	reURL := regexp.MustCompile(`https?://[^\s<>"\)]+`)
+	raw := reURL.FindAllString(content, -1)
+
+	if len(raw) == 0 {
+		return nil
 	}
 
-	seen := map[string]struct{}{}
-	out := make([]string, 0, 64)
+	seen := make(map[string]struct{}, len(raw))
+	out := make([]string, 0, len(raw))
 
-	// 抓取链接
-	doc.Find("a[href]").Each(func(_ int, s *goquery.Selection) {
-		// 提取href标签
-		href, _ := s.Attr("href")
-		href = strings.TrimSpace(href)
-		if href == "" {
-			return
+	for _, u := range raw {
+		u = strings.TrimSpace(u)
+		if u == "" {
+			continue
 		}
-		// 转小写
-		lower := strings.ToLower(href)
+		u = strings.TrimRight(u, "]).,;:!?\"'")
 
-		// 过滤无效链接
-		if strings.HasPrefix(lower, "#") ||
-			strings.HasPrefix(lower, "javascript:") ||
-			strings.HasPrefix(lower, "mailto:") ||
-			strings.HasPrefix(lower, "tel:") {
-			return
+		low := strings.ToLower(u)
+		if strings.HasPrefix(low, "#") ||
+			strings.HasPrefix(low, "mailto:") ||
+			strings.HasPrefix(low, "tel:") ||
+			strings.HasPrefix(low, "javascript:") {
+			continue
 		}
 
-		// 解析url
-		u, err := url.Parse(href)
-		if err != nil {
-			return
+		if _, ok := seen[u]; ok {
+			continue
 		}
 
-		// 相对路径转成绝对路径
-		absURL := base.ResolveReference(u)
-
-		// 过滤站内链接
-		if base.Host == absURL.Host {
-			return
-		}
-
-		abs := absURL.String()
-		// 去重
-		if _, ok := seen[abs]; ok {
-			return
-		}
-
-		seen[abs] = struct{}{}
-		out = append(out, abs)
-	})
-	return out, nil
+		seen[u] = struct{}{}
+		out = append(out, u)
+	}
+	return out
 }
 
 // 检测链接
@@ -314,11 +303,8 @@ func (c *Checker) headThenGet(link string) (status int, ok bool, errStr string) 
 		if status >= 200 && status < 400 {
 			return status, true, ""
 		}
-		if status != http.StatusMethodNotAllowed && status != http.StatusForbidden {
-			return status, false, ""
-		}
 	} else if err != nil {
-		return status, false, err.Error()
+		errStr = err.Error()
 	}
 	// Get
 	req, _ = http.NewRequest("GET", link, nil)
@@ -332,12 +318,15 @@ func (c *Checker) headThenGet(link string) (status int, ok bool, errStr string) 
 	if status >= 200 && status < 400 {
 		return status, true, ""
 	}
+	if errStr != "" {
+		return status, false, errStr
+	}
 	return status, false, failedMsg
 }
 
 // 组装成模板需要的结构体
-func (c *Checker) processData(summary Summary, results []Result) DeadLinkReportData {
-	var data DeadLinkReportData
+func (c *Checker) processData(summary Summary, results []Result) email.DeadLinkReportData {
+	var data email.DeadLinkReportData
 	// 组装全局信息
 	data.PagesScanned = summary.PagesScanned
 	data.LinksChecked = summary.LinksChecked
@@ -345,12 +334,12 @@ func (c *Checker) processData(summary Summary, results []Result) DeadLinkReportD
 	data.Year = consts.TransferTimeByLoc(time.Now()).Year()
 
 	// 组装详细信息
-	var deadLinks []DeadLinkItem
+	var deadLinks []email.DeadLinkItem
 	for _, item := range results {
 		if item.OK {
 			continue
 		}
-		deadLinks = append(deadLinks, DeadLinkItem{
+		deadLinks = append(deadLinks, email.DeadLinkItem{
 			Page:    item.FromPage,
 			URL:     item.LinkURL,
 			Status:  item.StatusCode,

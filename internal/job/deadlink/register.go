@@ -18,6 +18,9 @@ func RegisterDeadLink(c *cron.Cron, cmp *bootstrap.Components) {
 		Retry:       retryTimes,
 		Concurrency: defaultConcurrency,
 		Timeout:     timeout,
+		RepoURL:     RepoURL,
+		Branch:      Branch,
+		DocsDir:     DocsDir,
 	}
 
 	mailer := cmp.Mailer

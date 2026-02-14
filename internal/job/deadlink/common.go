@@ -9,6 +9,10 @@ const (
 	sitemapURLSuffix   = "/sitemap.xml"
 	retryTimes         = 5
 	timeout            = 5 * time.Second
+
+	RepoURL = "https://github.com/xianbo-deep/xbZhong.git"
+	Branch  = "main"
+	DocsDir = "docs"
 )
 
 type Summary struct {
@@ -35,6 +39,10 @@ type Config struct {
 	Timeout     time.Duration // 超时时间
 	Retry       int           // 重试次数
 	URLPrefix   string        // 网页前缀
+
+	RepoURL string // 仓库地址
+	Branch  string // 分支
+	DocsDir string // 根目录
 }
 
 // sitemap标准格式
@@ -48,21 +56,4 @@ type SitemapURLSet struct {
 type LinkPair struct {
 	fromPage string
 	linkURL  string
-}
-
-// 完善模板结构体
-type DeadLinkReportData struct {
-	BJTime       string
-	Year         int
-	PagesScanned int
-	DeadLinkCnt  int
-	LinksChecked int
-	DeadLinks    []DeadLinkItem
-}
-
-type DeadLinkItem struct {
-	Page    string
-	Status  int
-	URL     string
-	Message string
 }

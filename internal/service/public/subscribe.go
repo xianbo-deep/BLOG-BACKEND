@@ -23,7 +23,7 @@ func NewSubscribeService(dao *dao.SubscribeDao, mailer *email.Mailer) *Subscribe
 
 func (s *SubscribeService) SubscribeBlog(ctx context.Context, mail, vc string, subscribe int) error {
 	// 获取超时上下文
-	c, cancel := context.WithTimeout(ctx, 2*consts.TimeRangeSecond)
+	c, cancel := consts.GetTimeoutContext(context.Background(), 2*consts.RedisOperationTimeout)
 	defer cancel()
 	// 验证验证码
 	e := s.dao.VerifyVC(c, mail, vc)

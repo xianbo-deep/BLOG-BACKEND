@@ -3,136 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>博客死链检测报告</title>
+    <title>死链检测报告</title>
     <style>
-        /* --- 基础重置 --- */
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f2f5f8; color: #24292e; -webkit-text-size-adjust: 100%; }
-        table { border-collapse: collapse; width: 100%; }
-
-        /* --- 容器 --- */
-        .wrapper { width: 100%; table-layout: fixed; background-color: #f2f5f8; padding-bottom: 40px; }
-        .main-card {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-            margin-top: 30px;
-        }
-
-        /* --- 头部区域 --- */
-        .header-content { padding: 32px 32px 20px 32px; text-align: center; }
-        .title { margin: 0; font-size: 20px; font-weight: 700; color: #1a1f36; letter-spacing: -0.5px; }
-        .subtitle { margin: 10px 0 0 0; font-size: 13px; color: #697386; font-weight: 500; }
-
-        /* --- 列表区域 --- */
-        .list-section { padding: 0 32px 32px 32px; }
-        .log-container {
-            background-color: #f8f9fa;
-            border: 1px solid #e1e4e8;
-            border-radius: 8px;
-            padding: 16px;
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            font-size: 13px;
-        }
-
-        ul { margin: 0; padding: 0; list-style: none; }
-        li {
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px dashed #d1d5da;
-            color: #444;
-            line-height: 1.5;
-            word-break: break-all;
-            display: flex;
-            flex-direction: column;
-        }
-        li:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-
-        /* 修改：去掉了未定义的 {{.Color}}，改为代表错误的固定红色 */
-        li::before {
-            content: "→";
-            color: #ea4335;
-            font-weight: bold;
-            margin-right: 6px;
-            display: inline-block;
-            margin-bottom: 4px;
-        }
-
-        /* --- 底部区域 --- */
-        .footer {
-            text-align: center;
-            padding: 24px;
-            border-top: 1px solid #eff2f5;
-            background-color: #ffffff;
-        }
-        .copyright { font-size: 12px; color: #adb5bd; font-weight: 500; margin: 0; }
-        .action-note { font-size: 11px; color: #cbd5e0; margin-bottom: 8px; display: block; }
+        /* --- 客户端重置 --- */
+        body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; background-color: #f6f8fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', 'SimHei', Helvetica, Arial, sans-serif; }
+        table, td { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
 
         /* --- 移动端适配 --- */
         @media only screen and (max-width: 600px) {
-            .main-card { border-radius: 0; margin-top: 0; box-shadow: none; width: 100% !important; }
-            .header-content { padding: 30px 20px; }
-            .list-section { padding: 0 20px 30px 20px; }
-            .log-container { padding: 12px; font-size: 12px; }
+            .main-card { width: 100% !important; border-radius: 0 !important; margin-top: 0 !important; box-shadow: none !important; border: none !important;}
+            .content-padding { padding: 20px 16px !important; }
+            .stats-col { display: block !important; width: 100% !important; margin-bottom: 10px !important; border-right: none !important; border-bottom: 1px solid #e1e4e8; }
+            .stats-col:last-child { border-bottom: none !important; }
         }
     </style>
 </head>
-<body>
-<div class="wrapper">
-    <div class="main-card">
+<body style="margin: 0; padding: 0; background-color: #f6f8fa; color: #24292e;">
 
-        <div style="background-color: #4285f4; padding: 20px; text-align: center;">
-            <span style="color: #ffffff; font-size: 18px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-                Github Notification
-            </span>
-        </div>
-        <div style="height: 4px; width: 100%; background: linear-gradient(90deg, #4285f4, #34a853, #fbbc05, #ea4335);"></div>
+<div style="background-color: #f6f8fa; width: 100%; padding-bottom: 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;">
+    <center>
+        <table class="main-card" role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; margin-top: 30px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.12); max-width: 600px; width: 100%; border: 1px solid #e1e4e8;">
 
-        <div class="header-content">
-            <div class="title">博客死链检查报告</div>
-            <p class="subtitle">检测时间: {{.BJTime}} </p>
-        </div>
+            <tr>
+                <td style="background-color: #24292e; padding: 32px 24px; text-align: center;">
+                    <h1 style="color: #ffffff; font-size: 18px; font-weight: 600; margin: 0; letter-spacing: 0.5px; line-height: 1.4;">
+                        死链检测报告
+                    </h1>
+                    <p style="margin: 6px 0 0 0; color: #959da5; font-size: 12px;">
+                        自动化巡检结果
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="height: 3px; width: 100%; background-color: #d73a49; font-size: 0; line-height: 0;">&nbsp;</td>
+            </tr>
 
-        <div style="padding: 0 32px 16px 32px; font-size: 14px; color: #444; text-align: center;">
-            共扫描 <strong>{{.PagesScanned}}</strong> 个页面，
-            检查 <strong>{{.LinksChecked}}</strong> 个链接，
-            发现 <strong style="color: #ea4335;">{{.DeadLinkCnt}}</strong> 个死链。
-        </div>
+            <tr>
+                <td class="content-padding" style="padding: 20px 32px 10px 32px; text-align: center;">
+                    <div style="margin-bottom: 5px; font-size: 12px; color: #586069;">检测时间</div>
+                    <div style="background-color: #f1f8ff; border: 1px solid #c8e1ff; color: #0366d6; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 100px; display: inline-block;">
+                        {{.BJTime}}
+                    </div>
+                </td>
+            </tr>
 
-        <div class="list-section">
-            <div class="log-container">
-                <ul>
-                    {{if eq .DeadLinkCnt 0}}
-                    <li style="color: #34a853; text-align: center; border: none; display: block;">
-                        恭喜！本次检测未发现死链。
-                    </li>
-                    {{else}}
-                    {{range .DeadLinks}}
-                    <li>
-                        <div style="margin-bottom: 4px;"><strong>来源页面:</strong> {{.Page}}</div>
-                        <div style="margin-bottom: 4px;">
-                            <strong>死链地址:</strong>
-                            <a href="{{.URL}}" style="color: #ea4335; text-decoration: none;">{{.URL}}</a>
+            <tr>
+                <td class="content-padding" style="padding: 16px 32px 10px 32px;">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fafbfc; border: 1px solid #e1e4e8; border-radius: 8px;">
+                        <tr>
+                            <td class="stats-col" width="33%" style="padding: 12px 0; text-align: center; border-right: 1px solid #e1e4e8;">
+                                <div style="font-size: 20px; font-weight: 600; color: #24292e; line-height: 1.2;">{{.PagesScanned}}</div>
+                                <div style="font-size: 11px; color: #586069; margin-top: 4px;">扫描页面</div>
+                            </td>
+                            <td class="stats-col" width="33%" style="padding: 12px 0; text-align: center; border-right: 1px solid #e1e4e8;">
+                                <div style="font-size: 20px; font-weight: 600; color: #24292e; line-height: 1.2;">{{.LinksChecked}}</div>
+                                <div style="font-size: 11px; color: #586069; margin-top: 4px;">检查链接</div>
+                            </td>
+                            <td class="stats-col" width="33%" style="padding: 12px 0; text-align: center;">
+                                <div style="font-size: 20px; font-weight: 600; color: #d73a49; line-height: 1.2;">{{.DeadLinkCnt}}</div>
+                                <div style="font-size: 11px; color: #586069; margin-top: 4px;">发现死链</div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            {{if gt (len .DeadLinks) 0}}
+            <tr>
+                <td class="content-padding" style="padding: 10px 32px 0 32px;">
+                    <h2 style="margin: 20px 0 15px 0; font-size: 15px; font-weight: 600; color: #24292e; border-left: 3px solid #d73a49; padding-left: 10px; line-height: 1.2;">
+                        失效链接详情 <span style="color: #586069; font-weight: 400; font-size: 13px; margin-left: 4px;">({{.DeadLinkCnt}})</span>
+                    </h2>
+                </td>
+            </tr>
+
+            {{range .DeadLinks}}
+            <tr>
+                <td class="content-padding" style="padding: 0 32px 16px 32px;">
+                    <div style="background-color: #ffffff; border: 1px solid #e1e4e8; border-radius: 6px; padding: 16px;">
+
+                        <div style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="background-color: #d73a49; color: #ffffff; font-size: 12px; font-weight: bold; padding: 2px 8px; border-radius: 4px; display: inline-block; vertical-align: middle;">
+                                Status: {{.Status}}
+                            </span>
+                            <span style="font-size: 12px; color: #586069; margin-left: 8px; vertical-align: middle;">
+                                {{.Message}}
+                            </span>
                         </div>
-                        <div>
-                            <strong>状态详情:</strong>
-                            <span style="background-color: #ffeef0; color: #b31d28; padding: 2px 6px; border-radius: 3px; font-size: 12px;">HTTP {{.Status}}</span>
-                            - {{.Message}}
-                        </div>
-                    </li>
-                    {{end}}
-                    {{end}}
-                </ul>
-            </div>
-        </div>
 
-        <div class="footer">
-            <span class="action-note">Generated by GitHub Actions</span>
-            <p class="copyright">&copy; {{.Year}} xbzhong.cn</p>
-        </div>
-    </div>
+                        <div style="margin-bottom: 8px; font-size: 13px; line-height: 1.5; color: #24292e;">
+                            <span style="color: #586069; font-weight: 600; display: inline-block; width: 40px;">来源:</span>
+                            <a href="{{.Page}}" target="_blank" style="color: #0366d6; text-decoration: none; word-break: break-all;">{{.Page}}</a>
+                        </div>
+
+                        <div style="font-size: 13px; line-height: 1.5; color: #24292e; background-color: #fafbfc; padding: 8px; border-radius: 4px; border: 1px solid #f0f3f6;">
+                            <div style="color: #586069; font-size: 12px; margin-bottom: 4px;">失效目标:</div>
+                            <a href="{{.URL}}" target="_blank" style="color: #d73a49; text-decoration: none; word-break: break-all; font-family: monospace;">{{.URL}}</a>
+                        </div>
+
+                    </div>
+                </td>
+            </tr>
+            {{end}}
+
+            {{else}}
+            <tr>
+                <td class="content-padding" style="padding: 30px 32px 30px 32px; text-align: center;">
+                    <div style="background-color: #f0fff4; border: 1px solid #ccffdd; color: #22863a; padding: 15px; border-radius: 6px; font-size: 14px;">
+                        🎉 太棒了！本次扫描未发现任何死链。
+                    </div>
+                </td>
+            </tr>
+            {{end}}
+
+            <tr>
+                <td style="background-color: #f6f8fa; padding: 32px 24px; text-align: center; border-top: 1px solid #e1e4e8;">
+                    <p style="margin: 0 0 8px 0; font-size: 12px; color: #586069;">
+                        本邮件由死链检测服务自动生成
+                    </p>
+                    <p style="margin: 0; font-size: 12px; color: #adb5bd;">
+                        &copy; {{.Year}} xbzhong.cn
+                    </p>
+                </td>
+            </tr>
+
+        </table>
+    </center>
 </div>
 </body>
 </html>

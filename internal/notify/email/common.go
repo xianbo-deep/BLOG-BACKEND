@@ -60,19 +60,20 @@ type EmailConfig struct {
 }
 
 // 死链检测
-type DeadLinkReport struct {
-	FinishedAt   time.Time
+type DeadLinkReportData struct {
+	BJTime       string
+	Year         int
 	PagesScanned int
-	DeadlinkCnt  int
+	DeadLinkCnt  int
 	LinksChecked int
-	Items        []DeadLinkItem
+	DeadLinks    []DeadLinkItem
 }
 
 type DeadLinkItem struct {
-	FromPage   string
-	LinkURL    string
-	StatusCode int
-	Err        string
+	Page    string
+	Status  int
+	URL     string
+	Message string
 }
 
 // 评论通知
