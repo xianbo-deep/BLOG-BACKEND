@@ -17,6 +17,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode"
 )
 
 type Checker struct {
@@ -246,7 +247,10 @@ func (c *Checker) extractLinksFromMarkdown(content string) []string {
 			continue
 		}
 		// 删除右边符号
-		u = strings.TrimRight(u, "]).,;:!?\"'")
+		u = strings.TrimRightFunc(u, func(r rune) bool {
+			// 结尾是标点就删（含中文标点）
+			return unicode.IsPunct(r)
+		})
 
 		pu, err := url.Parse(u)
 		if err != nil {
