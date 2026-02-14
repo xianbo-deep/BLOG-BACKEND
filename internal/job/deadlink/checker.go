@@ -5,6 +5,7 @@ import (
 	"Blog-Backend/internal/notify/email"
 	"io"
 	"io/fs"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -43,6 +44,7 @@ func (c *Checker) Check() (Summary, []Result, error) {
 	}
 
 	// 获取克隆仓库的路径
+	log.Printf("开始克隆仓库")
 	repoDir, err := c.cloneRepoToTemp()
 	if err != nil {
 		return Summary{}, nil, err
@@ -54,6 +56,7 @@ func (c *Checker) Check() (Summary, []Result, error) {
 	docsPath := filepath.Join(repoDir, c.cfg.DocsDir)
 
 	// 得到链接列表
+	log.Printf("获取外链列表")
 	links, pagesScanned, err := c.collectLinksFromMarkdownDir(docsPath)
 	if err != nil {
 		return Summary{}, nil, err
@@ -66,6 +69,7 @@ func (c *Checker) Check() (Summary, []Result, error) {
 	sum.LinksChecked = len(links)
 
 	// 获取检测结果
+	log.Printf("检测外链")
 	results := c.checkLinks(links)
 
 	// 获取死链数量
