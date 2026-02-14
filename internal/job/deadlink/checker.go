@@ -108,6 +108,7 @@ func (c *Checker) cloneRepoToTemp() (string, error) {
 		if err == nil {
 			return dir, nil
 		}
+		log.Printf("[deadlink] clone attempt=%d err=%v", i+1, err)
 
 		lastErr = err
 		_ = os.RemoveAll(dir)
