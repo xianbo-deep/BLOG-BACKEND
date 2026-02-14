@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -119,7 +120,7 @@ func (c *Checker) cloneRepoToTemp() (string, error) {
 		} else if err != nil {
 			lastErr = fmt.Errorf("克隆出现错误: %v, out = %s", err, string(out))
 		} else {
-			log.Printf("克隆成功")
+			log.Printf("仓库克隆成功")
 			return dir, nil
 		}
 		log.Printf("[deadlink] clone attempt=%d err=%v", i+1, lastErr)
@@ -244,7 +245,18 @@ func (c *Checker) extractLinksFromMarkdown(content string) []string {
 		if u == "" {
 			continue
 		}
+		// 删除右边符号
 		u = strings.TrimRight(u, "]).,;:!?\"'")
+
+		pu, err := url.Parse(u)
+		if err != nil {
+			continue
+		}
+
+		// 协议和主机名不能为空
+		if pu.Scheme == "" || pu.Host == "" {
+			continue
+		}
 
 		low := strings.ToLower(u)
 		if strings.HasPrefix(low, "#") ||
