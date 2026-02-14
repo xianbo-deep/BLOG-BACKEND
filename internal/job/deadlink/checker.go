@@ -94,7 +94,7 @@ func (c *Checker) cloneRepoToTemp() (string, error) {
 	for i := 0; i < cloneRetryTimes; i++ {
 		// 超时上下文
 		ctx, cancel := consts.GetTimeoutContext(context.Background(), 3*time.Minute)
-		defer cancel()
+
 		// 创建临时目录
 		dir, err := os.MkdirTemp("", "deadlink-repo-*")
 		if err != nil {
@@ -115,6 +115,9 @@ func (c *Checker) cloneRepoToTemp() (string, error) {
 
 		// 记录输出
 		out, err := cmd.CombinedOutput()
+
+		// 关闭上下文
+		cancel()
 
 		if ctx.Err() == context.DeadlineExceeded {
 			lastErr = fmt.Errorf("克隆超时: %s", string(out))
@@ -231,7 +234,7 @@ func (c *Checker) extractLinksFromMarkdown(content string) []string {
 	content = reImg.ReplaceAllString(content, " ")
 
 	// 提取外链
-	reURL := regexp.MustCompile(`https?://[^\s<>"\)]+`)
+	reURL := regexp.MustCompile(`https?://[A-Za-z0-9]+(?:\.[A-Za-z0-9]+)+`)
 	raw := reURL.FindAllString(content, -1)
 
 	if len(raw) == 0 {
