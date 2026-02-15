@@ -103,8 +103,9 @@ func (c *Checker) cloneRepoToTemp() (string, error) {
 		// 执行克隆
 		cmd := exec.CommandContext(
 			ctx,
-			"git", "clone",
+			"git",
 			"-c", "http.version=HTTP/1.1",
+			"clone",
 			"--depth", "1",
 			"--single-branch",
 			"--branch", c.cfg.Branch,
