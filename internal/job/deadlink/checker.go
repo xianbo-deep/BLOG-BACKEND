@@ -31,7 +31,7 @@ func NewChecker(cfg Config, mailer *email.Mailer) *Checker {
 		cfg.Concurrency = 10
 	}
 	if cfg.Timeout <= 0 {
-		cfg.Timeout = time.Second * 5
+		cfg.Timeout = timeout
 	}
 	return &Checker{
 		cfg:    cfg,

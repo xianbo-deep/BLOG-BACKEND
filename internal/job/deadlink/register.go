@@ -14,13 +14,15 @@ import (
 
 func RegisterDeadLink(c *cron.Cron, cmp *bootstrap.Components) {
 	cfg := Config{
-		SitemapURL:  os.Getenv(consts.EnvBaseURL) + sitemapURLSuffix,
-		Retry:       retryTimes,
-		Concurrency: defaultConcurrency,
-		Timeout:     timeout,
-		RepoURL:     RepoURL,
-		Branch:      Branch,
-		DocsDir:     DocsDir,
+		SitemapURL:   os.Getenv(consts.EnvBaseURL) + sitemapURLSuffix,
+		Retry:        retryTimes,
+		Concurrency:  defaultConcurrency,
+		Timeout:      timeout,
+		RepoURL:      RepoURL,
+		Branch:       Branch,
+		DocsDir:      DocsDir,
+		CacheRepoDir: CacheRepoDir,
+		ProxyHTTP:    ProxyHTTP,
 	}
 
 	mailer := cmp.Mailer

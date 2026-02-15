@@ -8,7 +8,7 @@ const (
 	failedMsg          = "死链检测失败"
 	sitemapURLSuffix   = "/sitemap.xml"
 	retryTimes         = 5
-	timeout            = 5 * time.Second
+	timeout            = 15 * time.Second
 	cloneRetryTimes    = 3
 
 	RepoURL = "https://github.com/xianbo-deep/xbZhong.git"
