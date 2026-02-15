@@ -91,11 +91,11 @@ func (c *Checker) prepareWorkTree() (string, func(), error) {
 	// 获取必须的参数
 	cache := c.cfg.CacheRepoDir
 	if cache == "" {
-		cache = CacheRepoDir
+		cache = cacheRepoDir
 	}
 	branch := c.cfg.Branch
 	if branch == "" {
-		branch = Branch
+		branch = defaultBranch
 	}
 
 	// 缓存仓库不存在
@@ -192,7 +192,7 @@ func (c *Checker) gitEnv() []string {
 
 	proxy := strings.TrimSpace(c.cfg.ProxyHTTP)
 	if proxy == "" {
-		proxy = ProxyHTTP
+		proxy = defaultProxyHTTP
 	}
 
 	env = append(env, "HTTP_PROXY="+proxy, "HTTPS_PROXY="+proxy)

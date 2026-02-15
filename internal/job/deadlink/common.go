@@ -9,14 +9,13 @@ const (
 	sitemapURLSuffix   = "/sitemap.xml"
 	retryTimes         = 5
 	timeout            = 15 * time.Second
-	cloneRetryTimes    = 3
 
-	RepoURL = "https://github.com/xianbo-deep/xbZhong.git"
-	Branch  = "main"
-	DocsDir = "docs"
+	repoURL       = "https://github.com/xianbo-deep/xbZhong.git"
+	defaultBranch = "main"
+	docsDir       = "docs"
 
-	CacheRepoDir = "/var/cache/deadlink/repo.git"
-	ProxyHTTP    = "http://127.0.0.1:7890"
+	cacheRepoDir     = "/var/cache/deadlink/repo.git"
+	defaultProxyHTTP = "http://127.0.0.1:7890"
 )
 
 type Summary struct {
