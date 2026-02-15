@@ -14,6 +14,9 @@ const (
 	RepoURL = "https://github.com/xianbo-deep/xbZhong.git"
 	Branch  = "main"
 	DocsDir = "docs"
+
+	CacheRepoDir = "/var/cache/deadlink/repo.git"
+	ProxyHTTP    = "http://127.0.0.1:7890"
 )
 
 type Summary struct {
@@ -44,6 +47,9 @@ type Config struct {
 	RepoURL string // 仓库地址
 	Branch  string // 分支
 	DocsDir string // 根目录
+
+	CacheRepoDir string // 仓库缓存目录
+	ProxyHTTP    string // 代理
 }
 
 // sitemap标准格式

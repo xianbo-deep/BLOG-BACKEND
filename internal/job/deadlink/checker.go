@@ -47,15 +47,14 @@ func (c *Checker) Check() (Summary, []Result, error) {
 
 	// 获取克隆仓库的路径
 	log.Printf("开始克隆仓库")
-	repoDir, err := c.cloneRepoToTemp()
+	workDir, cleanup, err := c.prepareWorkTree()
 	if err != nil {
 		return Summary{}, nil, err
 	}
-	// 清理磁盘临时目录
-	defer os.RemoveAll(repoDir)
+	defer cleanup()
 
 	// 获取存储md文件的目录
-	docsPath := filepath.Join(repoDir, c.cfg.DocsDir)
+	docsPath := filepath.Join(workDir, c.cfg.DocsDir)
 
 	// 得到链接列表
 	log.Printf("获取外链列表")
@@ -87,57 +86,118 @@ func (c *Checker) Check() (Summary, []Result, error) {
 	return sum, results, nil
 }
 
-// 克隆仓库到磁盘
-func (c *Checker) cloneRepoToTemp() (string, error) {
-	var lastErr error
-
-	for i := 0; i < cloneRetryTimes; i++ {
-		// 超时上下文
-		ctx, cancel := consts.GetTimeoutContext(context.Background(), 3*time.Minute)
-
-		// 创建临时目录
-		dir, err := os.MkdirTemp("", "deadlink-repo-*")
-		if err != nil {
-			return "", err
-		}
-		// 执行克隆
-		cmd := exec.CommandContext(
-			ctx,
-			"git",
-			"-c", "http.version=HTTP/1.1",
-			"clone",
-			"--depth", "1",
-			"--single-branch",
-			"--branch", c.cfg.Branch,
-			c.cfg.RepoURL,
-			dir,
-		)
-		// 继承环境变量
-		cmd.Env = os.Environ()
-
-		// 记录输出
-		out, err := cmd.CombinedOutput()
-
-		// 关闭上下文
-		cancel()
-
-		if ctx.Err() == context.DeadlineExceeded {
-			lastErr = fmt.Errorf("克隆超时: %s", string(out))
-		} else if err != nil {
-			lastErr = fmt.Errorf("克隆出现错误: %v, out = %s", err, string(out))
-		} else {
-			log.Printf("仓库克隆成功")
-			return dir, nil
-		}
-		log.Printf("[deadlink] clone attempt=%d err=%v", i+1, lastErr)
-
-		lastErr = err
-		_ = os.RemoveAll(dir)
-		time.Sleep(retryTimeout)
+// 准备worktree
+func (c *Checker) prepareWorkTree() (string, func(), error) {
+	// 获取必须的参数
+	cache := c.cfg.CacheRepoDir
+	if cache == "" {
+		cache = CacheRepoDir
+	}
+	branch := c.cfg.Branch
+	if branch == "" {
+		branch = Branch
 	}
 
-	return "", lastErr
+	// 缓存仓库不存在
+	if _, err := os.Stat(cache); err != nil {
+		if err := os.MkdirAll(filepath.Dir(cache), 0755); err != nil {
+			return "", nil, err
+		}
+		if err := c.gitCloneMirror(cache, branch); err != nil {
+			return "", nil, err
+		}
+	}
 
+	// fetch获取最新的变更文件
+	if err := c.gitFetch(cache, branch); err != nil {
+		return "", nil, err
+	}
+
+	wt, err := os.MkdirTemp("", "deadlink-wt-*")
+	if err != nil {
+		return "", nil, err
+	}
+
+	// 创建分离工作树
+	if err := c.gitCmd(2*time.Minute, cache,
+		"worktree", "add", "--detach", wt, "origin/"+branch,
+	); err != nil {
+		_ = os.RemoveAll(wt)
+		return "", nil, err
+	}
+
+	cleanup := func() {
+		// Git层面移除工作树
+		_ = c.gitCmd(2*time.Minute, cache, "worktree", "remove", "--force", wt)
+		// 物理删除临时目录
+		_ = os.RemoveAll(wt)
+	}
+	return wt, cleanup, nil
+}
+
+// 克隆仓库
+func (c *Checker) gitCloneMirror(cache, branch string) error {
+	return c.gitCmd(5*time.Minute, "", // 注意：clone 不用 -C
+		"-c", "http.version=HTTP/1.1",
+		"clone",
+		"--mirror",
+		"--single-branch",
+		"--branch", branch,
+		c.cfg.RepoURL,
+		cache,
+	)
+}
+
+// fetch获取最新变更文件
+func (c *Checker) gitFetch(cache, branch string) error {
+	return c.gitCmd(3*time.Minute, cache,
+		"-c", "http.version=HTTP/1.1",
+		"fetch",
+		"--prune",
+		"origin",
+		"+refs/heads/"+branch+":refs/remotes/origin/"+branch)
+}
+
+// 命令行函数
+func (c *Checker) gitCmd(timeout time.Duration, dir string, args ...string) error {
+	ctx, cancel := consts.GetTimeoutContext(context.Background(), timeout)
+	defer cancel()
+
+	finalArgs := args
+
+	if dir != "" {
+		finalArgs = append([]string{"-C", dir}, args...)
+	}
+
+	// 注入参数
+	cmd := exec.CommandContext(ctx, "git", finalArgs...)
+	// 获取环境变量
+	cmd.Env = c.gitEnv()
+	// 获取输出
+	out, err := cmd.CombinedOutput()
+
+	if ctx.Err() == context.DeadlineExceeded {
+		return fmt.Errorf("git操作超时 :%s", string(out))
+	}
+
+	if err != nil {
+		return fmt.Errorf("git操作失败 :%s", string(out))
+	}
+	return nil
+}
+
+// 继承环境变量并注入代理配置
+func (c *Checker) gitEnv() []string {
+	env := os.Environ()
+
+	proxy := strings.TrimSpace(c.cfg.ProxyHTTP)
+	if proxy == "" {
+		proxy = ProxyHTTP
+	}
+
+	env = append(env, "HTTP_PROXY="+proxy, "HTTPS_PROXY="+proxy)
+
+	return env
 }
 
 // 从md文件收集外部链接
