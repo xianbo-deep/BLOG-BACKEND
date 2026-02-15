@@ -234,7 +234,7 @@ func (c *Checker) extractLinksFromMarkdown(content string) []string {
 	content = reImg.ReplaceAllString(content, " ")
 
 	// 提取外链
-	reURL := regexp.MustCompile(`https?://[A-Za-z0-9]+(?:\.[A-Za-z0-9]+)+`)
+	reURL := regexp.MustCompile(`https?://[A-Za-z0-9][A-Za-z0-9.-]*(?:\.[A-Za-z0-9.-]+)+(?:/[^\s\)\]\}>"']*)?`)
 	raw := reURL.FindAllString(content, -1)
 
 	if len(raw) == 0 {
