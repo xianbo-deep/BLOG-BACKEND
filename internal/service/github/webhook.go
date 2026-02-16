@@ -84,7 +84,7 @@ func (s *GithubWebhookService) NotifySubscribeUsers(pages []email.ChangedPage, u
 		Year:                time.Now().Year(),
 	}
 	// 发送邮件
-	e := s.mailer.SendTemplate(emails, email.MailDiscussionNotify, data, true)
+	e := s.mailer.SendTemplate(emails, email.MailSubscribeNotify, data, true)
 	if e != nil {
 		log.Printf("发送订阅邮件失败: %v", e)
 		return e

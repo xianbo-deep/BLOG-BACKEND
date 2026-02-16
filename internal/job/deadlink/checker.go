@@ -4,6 +4,7 @@ import (
 	"Blog-Backend/consts"
 	"Blog-Backend/internal/notify/email"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -169,14 +170,14 @@ func (c *Checker) gitCmd(timeout time.Duration, dir string, args ...string) erro
 		finalArgs = append([]string{"-C", dir}, args...)
 	}
 
-	// 注入参数
+	// 创建带上下文的命令
 	cmd := exec.CommandContext(ctx, "git", finalArgs...)
 	// 获取环境变量
 	cmd.Env = c.gitEnv()
-	// 获取输出
+	// 获取输出和错误
 	out, err := cmd.CombinedOutput()
 
-	if ctx.Err() == context.DeadlineExceeded {
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		return fmt.Errorf("git操作超时 :%s", string(out))
 	}
 
