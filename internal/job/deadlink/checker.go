@@ -34,9 +34,19 @@ func NewChecker(cfg Config, mailer *email.Mailer) *Checker {
 	if cfg.Timeout <= 0 {
 		cfg.Timeout = timeout
 	}
+
+	proxy, _ := url.Parse(cfg.ProxyHTTP)
+	tr := &http.Transport{
+		Proxy:                 http.ProxyURL(proxy),
+		TLSHandshakeTimeout:   10 * time.Second,
+		ResponseHeaderTimeout: 15 * time.Second,
+		IdleConnTimeout:       30 * time.Second,
+		MaxIdleConns:          100,
+		MaxIdleConnsPerHost:   10,
+	}
 	return &Checker{
 		cfg:    cfg,
-		client: &http.Client{Timeout: cfg.Timeout},
+		client: &http.Client{Timeout: cfg.Timeout, Transport: tr},
 		mailer: mailer,
 	}
 }

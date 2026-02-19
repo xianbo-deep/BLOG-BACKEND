@@ -3,7 +3,6 @@ package dao
 import (
 	"Blog-Backend/consts"
 	"Blog-Backend/model"
-	"errors"
 	"time"
 
 	"gorm.io/gorm"
@@ -32,7 +31,7 @@ func (d *GithubWebhookDao) GetSubscribeUsers() ([]model.SubscribeUser, error) {
 // 更新用户数据
 func (d *GithubWebhookDao) UpdateSubscribeUsersLastSentTime(ids []int64) error {
 	if len(ids) == 0 {
-		return errors.New("订阅用户为空")
+		return nil
 	}
 	db := d.db.Model(&model.SubscribeUser{})
 

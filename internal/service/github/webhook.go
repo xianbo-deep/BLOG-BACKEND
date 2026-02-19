@@ -70,8 +70,8 @@ func (s *GithubWebhookService) NotifySubscribeUsers(pages []email.ChangedPage, u
 	if err != nil {
 		return err
 	}
-	emails := make([]string, len(res))
-	ids := make([]int64, len(res))
+	emails := make([]string, 0, len(res))
+	ids := make([]int64, 0, len(res))
 	for _, u := range res {
 		emails = append(emails, u.Email)
 		ids = append(ids, u.ID)
