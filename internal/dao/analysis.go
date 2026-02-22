@@ -192,7 +192,8 @@ func (d *AnalysisDao) GetAnalysisPathSource(path string, days int) (response.Ana
 		Count   int64
 	}
 
-	err := db.Select("country,count(*) as count").
+	err := db.Session(&gorm.Session{}).
+		Select("country,count(*) as count").
 		Group("country").
 		Order("count desc").
 		Limit(3).
@@ -216,7 +217,8 @@ func (d *AnalysisDao) GetAnalysisPathSource(path string, days int) (response.Ana
 		Count  int64
 	}
 
-	err = db.Select("device, count(*) as count").
+	err = db.Session(&gorm.Session{}).
+		Select("device, count(*) as count").
 		Group("device").
 		Order("count desc").
 		Limit(3).

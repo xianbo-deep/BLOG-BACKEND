@@ -39,6 +39,7 @@ var (
 	ErrPostgresNotConfigured = fmt.Errorf("PG database URL not configured")
 	ErrRedisNotConfigured    = fmt.Errorf("Redis URL not configured")
 	ErrGeoDBNotFound         = fmt.Errorf("GeoIP database file not found")
+	ErrIP2RegionDBNotFound   = fmt.Errorf("IP2Region database file not found")
 )
 
 // 数据库相关错误

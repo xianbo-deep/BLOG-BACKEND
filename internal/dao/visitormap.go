@@ -49,7 +49,7 @@ func (d *VisitorMapDao) GetChineseVisitorMap(startTime, endTime *time.Time) ([]r
 	}
 
 	db = db.Where("region is not null and TRIM(region) != '' ")
-	err := db.Select("region, count(*) as visitors").
+	err := db.Select("region as province, count(*) as visitors").
 		Where("country_code = ?", consts.CountryChinaCode).
 		Group("region").
 		Scan(&results).Error

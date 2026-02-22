@@ -1,172 +1,103 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>博客更新通知</title>
-    <style>
-        /* --- 基础重置 --- */
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f6f8; color: #24292e; -webkit-text-size-adjust: 100%; }
-        table { border-collapse: collapse; width: 100%; }
-        a { text-decoration: none; }
-
-        /* --- 容器与卡片 --- */
-        .wrapper { width: 100%; table-layout: fixed; background-color: #f4f6f8; padding: 30px 0; }
-        .main-card {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        /* --- 内容区域 --- */
-        .content-section { padding: 32px; }
-        .greeting { font-size: 18px; font-weight: 700; color: #1a1f36; margin-bottom: 12px; }
-
-        /* 调整了信息展示块的样式，使其更清晰 */
-        .meta-info {
-            font-size: 14px;
-            color: #444444;
-            margin-bottom: 24px;
-            line-height: 1.6;
-            background-color: #f8f9fa;
-            padding: 12px 16px;
-            border-left: 4px solid #34a853;
-            border-radius: 0 4px 4px 0;
-        }
-
-        /* --- 更新列表 --- */
-        .update-list {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-            border: 1px solid #e1e4e8;
-            border-radius: 8px;
-            background-color: #fafbfc;
-        }
-        .update-item {
-            padding: 16px;
-            border-bottom: 1px solid #e1e4e8;
-            display: block;
-        }
-        .update-item:last-child { border-bottom: none; }
-
-        .badge {
-            display: inline-block;
-            background-color: #e1ecf4;
-            color: #0366d6;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 12px;
-            margin-right: 10px;
-            vertical-align: middle;
-        }
-
-        .page-title {
-            font-size: 15px;
-            color: #24292e;
-            font-weight: 500;
-            vertical-align: middle;
-            line-height: 1.4;
-        }
-        .page-title a {
-            color: #0366d6;
-            text-decoration: none;
-        }
-        .page-title a:hover {
-            text-decoration: underline;
-        }
-
-        /* --- 按钮 --- */
-        .btn-container { text-align: center; margin-top: 32px; }
-        .btn {
-            display: inline-block;
-            background-color: #24292e;
-            color: #ffffff !important;
-            font-size: 15px;
-            font-weight: 600;
-            padding: 12px 28px;
-            border-radius: 6px;
-            text-decoration: none;
-        }
-
-        /* --- 底部区域 --- */
-        .footer {
-            text-align: center;
-            padding: 24px 32px;
-            border-top: 1px solid #eff2f5;
-            background-color: #f8f9fa;
-        }
-        .footer-text { font-size: 12px; color: #888888; line-height: 1.6; margin: 0 0 8px 0; }
-        .unsubscribe-link { color: #697386; text-decoration: underline; }
-
-        /* --- 移动端适配 --- */
-        @media only screen and (max-width: 600px) {
-            .wrapper { padding: 0; }
-            .main-card { border-radius: 0; box-shadow: none; width: 100% !important; }
-            .content-section { padding: 24px 20px; }
-            .update-item { padding: 12px; }
-        }
-    </style>
 </head>
-<body>
-<div class="wrapper">
-    <div class="main-card">
+<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #374151;">
 
-        <div style="background-color: #34a853; padding: 20px; text-align: center;">
-            <span style="color: #ffffff; font-size: 18px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">
-                Blog Update
-            </span>
-        </div>
-        <div style="height: 4px; width: 100%; background: linear-gradient(90deg, #4285f4, #34a853, #fbbc05, #ea4335);"></div>
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f3f4f6; padding: 40px 0;">
+    <tr>
+        <td align="center">
 
-        <div class="content-section">
-            <div class="greeting">您好！</div>
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);">
 
-            <div class="meta-info">
-                您订阅的 <strong>xbZhong的博客</strong> 有新的内容变动。<br>
-                <div style="margin-top: 6px; font-size: 13px; color: #666666;">
-                    <strong>提交者：</strong>{{.Author}}<br>
-                    <strong>更新时间：</strong>{{.FormattedUpdateTime}}
-                </div>
-            </div>
+                <tr>
+                    <td align="center" style="padding: 40px 0 30px 0; background-color: #1e293b;">
+                        <div style="width: 50px; height: 50px; line-height: 50px; border-radius: 50%; background-color: #3b82f6; color: #ffffff; font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 15px; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);">
+                            XB
+                        </div>
+                        <h1 style="margin: 0; font-size: 20px; font-weight: 600; color: #ffffff; letter-spacing: 0.5px;">xbZhong's Blog</h1>
+                    </td>
+                </tr>
 
-            {{if gt (len .Pages) 0}}
-            <ul class="update-list">
-                {{range .Pages}}
-                <li class="update-item">
-                    <span class="badge">{{.ChangeType}}</span>
+                <tr>
+                    <td style="padding: 40px 40px 20px 40px;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 22px; color: #111827; font-weight: 700;">内容更新啦！</h2>
 
-                    <span class="page-title">
-                        <a href="{{.Path}}" target="_blank">{{.Page}}</a>
-                    </span>
-                </li>
-                {{end}}
-            </ul>
-            {{else}}
-            <div style="padding: 20px; text-align: center; color: #697386; background-color: #f8f9fa; border-radius: 8px;">
-                本次更新暂无具体的页面明细。
-            </div>
-            {{end}}
+                        <p style="margin: 0 0 25px 0; font-size: 16px; line-height: 1.7; color: #4b5563;">
+                            您好！您订阅的 <strong>xbZhong 的博客</strong> 有新的文章更新。
+                        </p>
 
-            <div class="btn-container">
-                <a href="https://xbzhong.cn" class="btn" target="_blank">前往博客查看</a>
-            </div>
-        </div>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
 
-        <div class="footer">
-            <p class="footer-text">
-                您收到这封邮件是因为您订阅了 <strong>xbZhong的博客</strong> 更新通知。<br>
-                如果不想再接收此类邮件，您可以 <a href="https://xbzhong.cn" class="unsubscribe-link">点击此处取消订阅</a>。
-            </p>
-            <p class="footer-text" style="margin-top: 12px; color: #adb5bd;">
-                &copy; {{.Year}} xbzhong.cn.
-            </p>
-        </div>
-    </div>
-</div>
+                                    <td style="padding-left: 12px;">
+                                        <p style="margin: 0 0 8px 0; font-size: 14px; color: #64748b;">
+                                            <strong>提交者：</strong> <span style="color: #1e293b;">{{.Author}}</span>
+                                        </p>
+                                        <p style="margin: 0; font-size: 14px; color: #64748b;">
+                                            <strong>更新时间：</strong> <span style="color: #1e293b;">{{.FormattedUpdateTime}}</span>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #1e293b; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">更新明细</h3>
+
+                        {{if gt (len .Pages) 0}}
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 30px;">
+                            {{range .Pages}}
+                            <tr>
+                                <td width="70" style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;" valign="middle">
+                                    <span style="display: inline-block; background-color: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px;">
+                                        {{.ChangeType}}
+                                    </span>
+                                </td>
+                                <td style="padding: 12px 0 12px 10px; border-bottom: 1px solid #f1f5f9;" valign="middle">
+                                    <a href="{{.Path}}" target="_blank" style="color: #1e293b; text-decoration: none; font-size: 15px; font-weight: 500; display: block;">
+                                        {{.Page}}
+                                    </a>
+                                </td>
+                            </tr>
+                            {{end}}
+                        </table>
+                        {{else}}
+                        <div style="padding: 20px; text-align: center; color: #64748b; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 30px;">
+                            本次更新暂无具体的页面明细。
+                        </div>
+                        {{end}}
+
+                        <div style="text-align: center; margin: 35px 0 15px 0;">
+                            <a href="https://xbzhong.cn" target="_blank" style="background-color: #2563eb; color: #ffffff; padding: 14px 36px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); letter-spacing: 0.5px;">
+                                前往博客查看
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td align="center" style="background-color: #f8fafc; padding: 30px 40px; border-top: 1px solid #e2e8f0;">
+                        <p style="margin: 0 0 10px 0; font-size: 12px; color: #94a3b8; line-height: 1.5;">
+                            你收到这封邮件是因为你在 xbZhong 的博客订阅了更新。<br>
+                            如果不想再接收此类邮件，您可以 <a href="https://xbzhong.cn" style="color: #64748b; text-decoration: underline;">点击此处取消订阅</a>。
+                        </p>
+                        <p style="margin: 0; font-size: 12px; color: #cbd5e1;">
+                            &copy; {{.Year}} xbzhong.cn
+                        </p>
+                    </td>
+                </tr>
+
+            </table>
+
+            <div style="height: 40px;"></div>
+
+        </td>
+    </tr>
+</table>
+
 </body>
 </html>

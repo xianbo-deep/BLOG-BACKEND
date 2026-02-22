@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/lionsoul2014/ip2region/binding/golang/xdb"
 	"github.com/oschwald/geoip2-golang"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/postgres"
@@ -20,8 +21,9 @@ var (
 	DB    *gorm.DB
 	RDB   *redis.Client
 	GeoDB *geoip2.Reader
-	Ctx   = context.Background()
 	once  sync.Once
+	IP2R4 *xdb.Searcher
+	IP2R6 *xdb.Searcher
 )
 
 func Init() error {
@@ -41,6 +43,13 @@ func Init() error {
 			initErr = fmt.Errorf("initialize GeoIP: %w", err)
 			return
 		}
+
+		if err := initIP2Region(); err != nil {
+			initErr = fmt.Errorf("initialize IP2Region: %w", err)
+			return
+		}
+
+		defer closeIP2RegionDB()
 	})
 	return initErr
 }
@@ -124,4 +133,65 @@ func initGeoDB() error {
 		return fmt.Errorf("%w: %v", consts.ErrGeoDBNotFound, err)
 	}
 	return nil
+}
+
+/* 初始化ip2region */
+func initIP2Region() error {
+	v4 := os.Getenv("IP2REGION_V4_PATH")
+	v6 := os.Getenv("IP2REGION_V6_PATH")
+
+	if v4 == "" || v6 == "" {
+		return fmt.Errorf("%w", consts.ErrIP2RegionDBNotFound)
+	}
+	IP2R4 = loadSearcher(v4)
+	return nil
+}
+
+/* 关闭ip2region */
+func closeIP2RegionDB() {
+	if IP2R4 != nil {
+		IP2R4.Close()
+	}
+	if IP2R6 != nil {
+		IP2R6.Close()
+	}
+}
+
+// 全量加载到内存
+func loadSearcher(path string) *xdb.Searcher {
+	// 从文件解析出version
+	f, err := os.Open(path)
+	if err != nil {
+		log.Fatalf("open xdb failed: %v", err)
+	}
+	defer f.Close()
+
+	// 校验xdb
+	if err := xdb.Verify(f); err != nil {
+		log.Fatalf("verify xdb failed: %v", err)
+	}
+
+	// 获取头部
+	header, err := xdb.LoadHeader(f)
+	if err != nil {
+		log.Fatalf("load xdb header failed: %v", err)
+	}
+
+	// 获取版本
+	version, err := xdb.VersionFromHeader(header)
+	if err != nil {
+		log.Fatalf("detect xdb version failed: %v", err)
+	}
+
+	// 全量加载到内存
+	buff, err := xdb.LoadContentFromFile(path)
+	if err != nil {
+		log.Fatalf("load xdb failed: %v", err)
+	}
+
+	searcher, err := xdb.NewWithBuffer(version, buff)
+	if err != nil {
+		log.Fatalf("load xdb failed: %v", err)
+	}
+	return searcher
 }
