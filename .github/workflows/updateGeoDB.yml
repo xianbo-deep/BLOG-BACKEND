@@ -42,11 +42,11 @@ jobs:
           set -euxo pipefail
           
           DEST_DIR="/usr/local/share/ip2region"
-          sudo curl -L --retry 5 --retry-delay 2 --connect-timeout 15 \
+          curl -L --retry 5 --retry-delay 2 --connect-timeout 15 \
             -o "$DEST_DIR/ip2region_v4.xdb" \
             "https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v4.xdb"
             
-          sudo curl -L --retry 5 --retry-delay 2 --connect-timeout 15 \
+          curl -L --retry 5 --retry-delay 2 --connect-timeout 15 \
             -o "$DEST_DIR/ip2region_v6.xdb" \
             "https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb"
           
