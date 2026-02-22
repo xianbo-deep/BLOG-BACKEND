@@ -41,12 +41,15 @@ jobs:
         run: |
           set -euxo pipefail
           
+          PROXY="http://127.0.0.1:7890"
           DEST_DIR="/usr/local/share/ip2region"
-          curl -L --retry 5 --retry-delay 2 --connect-timeout 15 \
-            -o "$DEST_DIR/ip2region_v4.xdb" \
-            "https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v4.xdb"
-            
-          curl -L --retry 5 --retry-delay 2 --connect-timeout 15 \
-            -o "$DEST_DIR/ip2region_v6.xdb" \
-            "https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb"
+          
+          
+          curl -L --proxy "$PROXY" --retry 20 --retry-delay 2 --connect-timeout 15 --max-time 600 \
+          -o "$DEST_DIR/ip2region_v4.xdb" \
+          "https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v4.xdb"
+          
+          curl -L --proxy "$PROXY" --retry 20 --retry-delay 2 --connect-timeout 15 --max-time 600 \
+          -o "$DEST_DIR/ip2region_v6.xdb" \
+          "https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb"
           
