@@ -43,12 +43,12 @@ jobs:
           
           REPO="https://github.com/lionsoul2014/ip2region.git"
           DEST_DIR="/usr/local/share/ip2region"
-          TMP_DIR="${mktemp -d}"
+          TMP_DIR="$(mktemp -d)"
           
           git clone --depth 1 "$REPO" "TMP_DIR/ip2region"
           
-          cp "$TMP_DIR/ip2region/data/ip2region_v4.xdb" "DEST_DIR/ip2region_v4.xdb"
-          cp "$TMP_DIR/ip2region/data/ip2region_v6.xdb" "DEST_DIR/ip2region_v6.xdb"
+          cp "$TMP_DIR/ip2region/data/ip2region_v4.xdb" "$DEST_DIR/ip2region_v4.xdb"
+          cp "$TMP_DIR/ip2region/data/ip2region_v6.xdb" "$DEST_DIR/ip2region_v6.xdb"
           
-          rm -rf "TMP_DIR"
+          rm -rf "$TMP_DIR"
           
