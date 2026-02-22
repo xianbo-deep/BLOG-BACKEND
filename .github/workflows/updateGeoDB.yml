@@ -47,8 +47,8 @@ jobs:
           
           git clone --depth 1 "$REPO" "$TMP_DIR/ip2region"
           
-          cp "$TMP_DIR/ip2region/data/ip2region_v4.xdb" "$DEST_DIR/ip2region_v4.xdb"
-          cp "$TMP_DIR/ip2region/data/ip2region_v6.xdb" "$DEST_DIR/ip2region_v6.xdb"
+          sudo cp "$TMP_DIR/ip2region/data/ip2region_v4.xdb" "$DEST_DIR/ip2region_v4.xdb"
+          sudo cp "$TMP_DIR/ip2region/data/ip2region_v6.xdb" "$DEST_DIR/ip2region_v6.xdb"
           
-          rm -rf "$TMP_DIR"
+          sudo rm -rf "$TMP_DIR"
           
