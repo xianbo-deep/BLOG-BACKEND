@@ -37,6 +37,7 @@ jobs:
           echo "Database updated to /usr/local/share/GeoIP/GeoLite2-City.mmdb"
 
       - name: Download ip2region
+        shell: bash
         run: |
           set -euxo pipefail
           
