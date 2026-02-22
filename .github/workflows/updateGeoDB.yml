@@ -41,14 +41,12 @@ jobs:
         run: |
           set -euxo pipefail
           
-          REPO="https://github.com/lionsoul2014/ip2region.git"
           DEST_DIR="/usr/local/share/ip2region"
-          TMP_DIR="$(mktemp -d)"
-          
-          git clone --depth 1 "$REPO" "$TMP_DIR/ip2region"
-          
-          sudo cp "$TMP_DIR/ip2region/data/ip2region_v4.xdb" "$DEST_DIR/ip2region_v4.xdb"
-          sudo cp "$TMP_DIR/ip2region/data/ip2region_v6.xdb" "$DEST_DIR/ip2region_v6.xdb"
-          
-          sudo rm -rf "$TMP_DIR"
+          sudo curl -L --retry 5 --retry-delay 2 --connect-timeout 15 \
+            -o "$DEST_DIR/ip2region_v4.xdb" \
+            "https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v4.xdb"
+            
+          sudo curl -L --retry 5 --retry-delay 2 --connect-timeout 15 \
+            -o "$DEST_DIR/ip2region_v6.xdb" \
+            "https://raw.githubusercontent.com/lionsoul2014/ip2region/master/data/ip2region_v6.xdb"
           
