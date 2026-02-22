@@ -95,11 +95,11 @@ func parseIP2Region(region string) (country, province, city string) {
 	if len(parts) >= 1 {
 		country = clean(parts[0])
 	}
-	if len(parts) >= 3 {
-		province = clean(parts[2])
+	if len(parts) >= 2 {
+		province = clean(parts[1])
 	}
-	if len(parts) >= 4 {
-		city = clean(parts[3])
+	if len(parts) >= 3 {
+		city = clean(parts[2])
 	}
 	return
 }
