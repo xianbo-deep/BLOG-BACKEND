@@ -22,7 +22,6 @@
 - [快速开始](#快速开始)
   - [前置依赖](#前置依赖)
   - [配置环境变量](#配置环境变量)
-  - [运行（Windows PowerShell）](#运行windows-powershell)
   - [运行（Linux/macOS Bash）](#运行linuxmacos-bash)
 - [鉴权与安全](#鉴权与安全)
 - [API 路由概览](#api-路由概览)
@@ -113,35 +112,6 @@
 | `IP2REGION_V4_PATH` | IP2Region IPv4 xdb 文件路径 |
 | `IP2REGION_V6_PATH` | IP2Region IPv6 xdb 文件路径 |
 
-#### 示例（仅供本地开发参考）
-
-> 注意：请不要把真实密钥提交到仓库。
-
-```dotenv
-PG_URI="host=127.0.0.1 user=postgres password=postgres dbname=blog port=5432 sslmode=disable TimeZone=Asia/Shanghai"
-REDIS_URL="redis://:password@127.0.0.1:6379/0"
-
-JWT_SECRET="change_me_to_a_random_string"
-ADMIN_USER="admin"
-ADMIN_PASSWORD="admin"
-
-GEODB_PATH="E:\\data\\GeoLite2-City.mmdb"
-IP2REGION_V4_PATH="E:\\data\\ip2region_v4.xdb"
-IP2REGION_V6_PATH="E:\\data\\ip2region_v6.xdb"
-
-BASE_URL="https://your-blog.example.com"
-ADMIN_URL="https://your-admin.example.com"
-
-DISCUSSION_TOKEN="ghp_xxx"
-GITHUB_WEBHOOK_SECRET="change_me"
-GITHUB_NOTIFY_SECRET="change_me"
-
-PORT="8080"
-```
-
-### 运行（Windows PowerShell）
-
-> 下面示例只演示最小必需变量，你也可以把所有变量都设置完整再启动。
 
 
 ### 运行（Linux/macOS Bash）
@@ -231,11 +201,6 @@ go run .
 
 定时任务在启动时由 `task.InitCron(comps)` 注册并启动（见 `internal/task/cron.go`）。具体任务实现位于 `internal/job/*`（如 sync / deadlink / discReport 等）。
 
-## 测试与质量
-
-```bash
-go test ./...
-```
 
 ## 部署说明
 
