@@ -49,7 +49,6 @@ func Init() error {
 			return
 		}
 
-		defer closeIP2RegionDB()
 	})
 	return initErr
 }
@@ -144,6 +143,7 @@ func initIP2Region() error {
 		return fmt.Errorf("%w", consts.ErrIP2RegionDBNotFound)
 	}
 	IP2R4 = loadSearcher(v4)
+	IP2R6 = loadSearcher(v6)
 	return nil
 }
 
