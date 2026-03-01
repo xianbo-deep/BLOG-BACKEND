@@ -1,6 +1,5 @@
-# Blog-Backend
-
 <div align="center">
+  <h1>BLOG-BACKEND</h1>
   <img alt="Go" src="https://img.shields.io/badge/Go-1.24.0-00ADD8?logo=go&logoColor=white" />
   <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-17.6-4169E1?logo=postgresql&logoColor=white" />
   <img alt="Redis" src="https://img.shields.io/badge/Redis-8.0.5-DC382D?logo=redis&logoColor=white" />
@@ -8,8 +7,9 @@
   <img alt="Gin" src="https://img.shields.io/badge/Gin-1.11.0-00ADD8?logo=go&logoColor=white" />
   <img alt="GORM" src="https://img.shields.io/badge/GORM-1.31.1-00ADD8?logo=go&logoColor=white" />
   <img alt="Release" src="https://img.shields.io/github/v/release/xianbo-deep/BLOG-BACKEND?label=release&include_prereleases" />
-
-一个基于 Go + Gin 的博客后台服务。主要提供：统计采集、数据看板、性能监控、订阅邮件通知、GitHub Webhook 与实时 WebSocket 推送。
+  <p>
+    <strong>一个基于 Go + Gin 的博客后台服务。主要提供：统计采集、数据看板、性能监控、订阅邮件通知、GitHub Webhook 与实时 WebSocket 推送。</strong>
+  </p>
 </div>
 
 ---
