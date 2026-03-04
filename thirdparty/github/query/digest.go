@@ -11,42 +11,52 @@ type DiscussionDigestQuery struct {
 				Reactions struct {
 					Nodes []struct {
 						CreatedAt githubv4.DateTime
-						AvatarUrl githubv4.String
-						Url       githubv4.String
-						Login     githubv4.String
 						Content   githubv4.ReactionContent
+						User      struct {
+							Url       githubv4.String
+							Login     githubv4.String
+							AvatarUrl githubv4.String
+						}
 					}
 				} `graphql:"reactions(first: 20)"`
 				Comments struct {
 					Nodes []struct {
 						CreatedAt githubv4.DateTime
 						BodyText  githubv4.String
-						AvatarUrl githubv4.String
-						Url       githubv4.String
-						Login     githubv4.String
+						Author    struct {
+							AvatarUrl githubv4.String
+							Url       githubv4.String
+							Login     githubv4.String
+						}
 						Reactions struct {
 							Nodes []struct {
 								CreatedAt githubv4.DateTime
-								AvatarUrl githubv4.String
-								Url       githubv4.String
-								Login     githubv4.String
 								Content   githubv4.ReactionContent
+								User      struct {
+									Url       githubv4.String
+									Login     githubv4.String
+									AvatarUrl githubv4.String
+								}
 							}
 						} `graphql:"reactions(first: 20)"`
 						Replies struct {
 							Nodes []struct {
 								CreatedAt githubv4.DateTime
-								AvatarUrl githubv4.String
-								Url       githubv4.String
-								Login     githubv4.String
+								Author    struct {
+									AvatarUrl githubv4.String
+									Url       githubv4.String
+									Login     githubv4.String
+								}
 								BodyText  githubv4.String
 								Reactions struct {
 									Nodes []struct {
 										CreatedAt githubv4.DateTime
-										AvatarUrl githubv4.String
-										Url       githubv4.String
-										Login     githubv4.String
 										Content   githubv4.ReactionContent
+										User      struct {
+											Url       githubv4.String
+											Login     githubv4.String
+											AvatarUrl githubv4.String
+										}
 									}
 								} `graphql:"reactions(first: 20)"`
 							}

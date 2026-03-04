@@ -393,8 +393,8 @@ func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, en
 			for _, comment := range discussion.Comments.Nodes {
 				if inRange(comment.CreatedAt.Time, startAt, endAt) {
 					res.CommentItems = append(res.CommentItems, email.CommentItem{
-						User:          string(comment.Login),
-						Avatar:        string(comment.AvatarUrl),
+						User:          string(comment.Author.Login),
+						Avatar:        string(comment.Author.AvatarUrl),
 						CommentTime:   comment.CreatedAt.Time,
 						FormattedTime: comment.CreatedAt.Format(consts.TimeWithoutSecond),
 						PageURL:       concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
@@ -404,8 +404,8 @@ func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, en
 				for _, reaction := range comment.Reactions.Nodes {
 					if inRange(reaction.CreatedAt.Time, startAt, endAt) {
 						res.ReactionItems = append(res.ReactionItems, email.ReactionItem{
-							User:          string(reaction.Login),
-							Avatar:        string(reaction.AvatarUrl),
+							User:          string(reaction.User.Login),
+							Avatar:        string(reaction.User.AvatarUrl),
 							ReactionTime:  reaction.CreatedAt.Time,
 							FormattedTime: reaction.CreatedAt.Format(consts.TimeWithoutSecond),
 							PageURL:       concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
@@ -417,14 +417,14 @@ func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, en
 				for _, reply := range comment.Replies.Nodes {
 					if inRange(reply.CreatedAt.Time, startAt, endAt) {
 						res.ReplyItems = append(res.ReplyItems, email.ReplyItem{
-							User:           string(reply.Login),
-							Avatar:         string(reply.AvatarUrl),
+							User:           string(reply.Author.Login),
+							Avatar:         string(reply.Author.AvatarUrl),
 							ReplyTime:      reply.CreatedAt.Time,
 							FormattedTime:  reply.CreatedAt.Format(consts.TimeWithoutSecond),
 							Text:           string(reply.BodyText),
 							PageURL:        concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
-							ReplyToUser:    string(comment.Login),
-							ReplyToAvatar:  string(comment.AvatarUrl),
+							ReplyToUser:    string(comment.Author.Login),
+							ReplyToAvatar:  string(comment.Author.AvatarUrl),
 							ReplyToMessage: string(comment.BodyText),
 						})
 					}
@@ -432,8 +432,8 @@ func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, en
 					for _, reaction := range reply.Reactions.Nodes {
 						if inRange(reaction.CreatedAt.Time, startAt, endAt) {
 							res.ReactionItems = append(res.ReactionItems, email.ReactionItem{
-								User:          string(reaction.Login),
-								Avatar:        string(reaction.AvatarUrl),
+								User:          string(reaction.User.Login),
+								Avatar:        string(reaction.User.AvatarUrl),
 								ReactionTime:  reaction.CreatedAt.Time,
 								FormattedTime: reaction.CreatedAt.Format(consts.TimeWithoutSecond),
 								PageURL:       concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
@@ -446,8 +446,8 @@ func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, en
 			for _, reaction := range discussion.Reactions.Nodes {
 				if inRange(reaction.CreatedAt.Time, startAt, endAt) {
 					res.ReactionItems = append(res.ReactionItems, email.ReactionItem{
-						User:          string(reaction.Login),
-						Avatar:        string(reaction.AvatarUrl),
+						User:          string(reaction.User.Login),
+						Avatar:        string(reaction.User.AvatarUrl),
 						ReactionTime:  reaction.CreatedAt.Time,
 						FormattedTime: reaction.CreatedAt.Format(consts.TimeWithoutSecond),
 						PageURL:       concatToUrl(os.Getenv(consts.EnvBaseURL), string(discussion.Title)),
