@@ -105,6 +105,16 @@ func handleDicussionDigest(res *email.DiscussionDigest) (*email.DiscussionDigest
 	res.Comments = len(res.CommentItems)
 	res.Reactions = len(res.ReactionItems)
 	res.Replies = len(res.ReplyItems)
+
+	sort.Slice(res.CommentItems, func(i, j int) bool {
+		return res.CommentItems[i].FormattedTime > res.CommentItems[j].FormattedTime
+	})
+	sort.Slice(res.ReactionItems, func(i, j int) bool {
+		return res.ReactionItems[i].FormattedTime > res.ReactionItems[j].FormattedTime
+	})
+	sort.Slice(res.ReplyItems, func(i, j int) bool {
+		return res.ReplyItems[i].FormattedTime > res.ReplyItems[j].FormattedTime
+	})
 	return res, nil
 }
 
