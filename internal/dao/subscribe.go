@@ -80,7 +80,7 @@ func (d *SubscribeDao) VerifyVC(ctx context.Context, email, vc string) error {
 	}
 
 	if storedVC != vc {
-		return fmt.Errorf("验证码正确")
+		return fmt.Errorf("验证码不正确")
 	}
 
 	// 验证成功

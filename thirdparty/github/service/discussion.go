@@ -461,7 +461,7 @@ func (s *DiscussionService) GetDiscussionDigest(ctx context.Context, startAt, en
 		}
 		after = nextCursor(q.Repository.Discussions.PageInfo)
 	}
-	return res, nil
+	return handleDicussionDigest(res)
 }
 
 /* 工具函数 */

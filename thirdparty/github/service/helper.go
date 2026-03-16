@@ -3,6 +3,7 @@ package service
 import (
 	"Blog-Backend/consts"
 	"Blog-Backend/dto/response"
+	"Blog-Backend/internal/notify/email"
 	"Blog-Backend/thirdparty/github/query"
 	"sort"
 	"strings"
@@ -97,6 +98,14 @@ func handleActiveUserRes(userMap map[string]*response.ActiveUserItem, limit int)
 		activeusers = activeusers[:limit]
 	}
 	return activeusers, nil
+}
+
+/* 返回评论区汇总 */
+func handleDicussionDigest(res *email.DiscussionDigest) (*email.DiscussionDigest, error) {
+	res.Comments = len(res.CommentItems)
+	res.Reactions = len(res.ReactionItems)
+	res.Replies = len(res.ReplyItems)
+	return res, nil
 }
 
 /* 通用模块 */
