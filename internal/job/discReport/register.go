@@ -17,8 +17,4 @@ func RegisterDiscussionDigest(c *cron.Cron, cmp *bootstrap.Components) {
 	if err != nil {
 		log.Printf("评论区周报定时任务启动失败: %v", err)
 	}
-
-	go func() {
-		discDigest.Start()
-	}()
 }
