@@ -3,6 +3,7 @@ package email
 import (
 	"Blog-Backend/consts"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -28,23 +29,23 @@ func (e *EmailClient) SendHTML(to []string, subject string, content string) (err
 		return fmt.Errorf("no email html")
 	}
 
-	m := gomail.NewMessage()
-
-	// 设置信息
-	m.SetHeader("From", e.cfg.From)
-	m.SetHeader("To", e.cfg.From)
-	m.SetHeader("Message-ID", fmt.Sprintf("<%d@%s>", time.Now().UnixNano(), consts.BlogDomain))
-	m.SetHeader("Bcc", to...)
-	m.SetHeader("Subject", subject)
-	m.SetBody("text/html", content)
-
 	// 设置发件人
 	d := gomail.NewDialer(e.cfg.Host, e.cfg.Port, e.cfg.User, e.cfg.Pass)
 
-	// 发送邮件
-	if err := d.DialAndSend(m); err != nil {
-		return fmt.Errorf("email send failed: %v", err)
+	// 循环发送
+	for _, addr := range to {
+		m := gomail.NewMessage()
+		m.SetHeader("From", e.cfg.From)
+		m.SetHeader("To", addr)
+		m.SetHeader("Message-ID", fmt.Sprintf("<%d@%s>", time.Now().UnixNano(), consts.BlogDomain))
+		m.SetHeader("Subject", subject)
+		m.SetBody("text/html", content)
+
+		if err := d.DialAndSend(m); err != nil {
+			log.Printf("error sending email: %s", err)
+		}
 	}
+
 	return nil
 }
 
@@ -55,21 +56,21 @@ func (e *EmailClient) SendPlainText(to []string, subject string, content string)
 	if strings.TrimSpace(subject) == "" {
 		return fmt.Errorf("no email subject")
 	}
-	m := gomail.NewMessage()
-
-	// 设置信息
-	m.SetHeader("From", e.cfg.From)
-	m.SetHeader("To", e.cfg.From)
-	m.SetHeader("Subject", subject)
-	m.SetHeader("Message-ID", fmt.Sprintf("<%d@%s>", time.Now().UnixNano(), consts.BlogDomain))
-	m.SetHeader("Bcc", to...)
-	m.SetBody("text/plain", content)
 
 	d := gomail.NewDialer(e.cfg.Host, e.cfg.Port, e.cfg.User, e.cfg.Pass)
 
-	// 发送邮件
-	if err := d.DialAndSend(m); err != nil {
-		return fmt.Errorf("email send failed: %v", err)
+	// 循环发送
+	for _, addr := range to {
+		m := gomail.NewMessage()
+		m.SetHeader("From", e.cfg.From)
+		m.SetHeader("To", addr)
+		m.SetHeader("Message-ID", fmt.Sprintf("<%d@%s>", time.Now().UnixNano(), consts.BlogDomain))
+		m.SetHeader("Subject", subject)
+		m.SetBody("text/html", content)
+
+		if err := d.DialAndSend(m); err != nil {
+			log.Printf("error sending email: %s", err)
+		}
 	}
 	return nil
 
