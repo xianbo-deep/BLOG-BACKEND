@@ -1,8 +1,10 @@
 package email
 
 import (
+	"Blog-Backend/consts"
 	"fmt"
 	"strings"
+	"time"
 
 	"gopkg.in/gomail.v2"
 )
@@ -31,6 +33,7 @@ func (e *EmailClient) SendHTML(to []string, subject string, content string) (err
 	// 设置信息
 	m.SetHeader("From", e.cfg.From)
 	m.SetHeader("To", e.cfg.From)
+	m.SetHeader("Message-ID", fmt.Sprintf("<%d@%s>", time.Now().UnixNano(), consts.BlogDomain))
 	m.SetHeader("Bcc", to...)
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", content)
@@ -58,6 +61,7 @@ func (e *EmailClient) SendPlainText(to []string, subject string, content string)
 	m.SetHeader("From", e.cfg.From)
 	m.SetHeader("To", e.cfg.From)
 	m.SetHeader("Subject", subject)
+	m.SetHeader("Message-ID", fmt.Sprintf("<%d@%s>", time.Now().UnixNano(), consts.BlogDomain))
 	m.SetHeader("Bcc", to...)
 	m.SetBody("text/plain", content)
 
