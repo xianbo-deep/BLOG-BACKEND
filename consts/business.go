@@ -9,6 +9,7 @@ const (
 
 const (
 	MyTencentEmail = "2396768163@qq.com"
+	BlogDomain     = "xbzhong.cn"
 )
 
 const (
